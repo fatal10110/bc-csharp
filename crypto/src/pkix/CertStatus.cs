@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     public class CertStatus
     {

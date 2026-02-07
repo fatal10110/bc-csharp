@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9
 {
     /**
      * ASN.1 def for Elliptic-Curve Field ID structure. See X9.62 for further details.

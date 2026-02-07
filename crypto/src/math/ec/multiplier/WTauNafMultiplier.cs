@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math.EC.Abc;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Abc;
 
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier
 {
     /**
     * Class implementing the WTNAF (Window

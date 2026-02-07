@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Security.Certificates
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security.Certificates
 {
     [Serializable]
     public class CertificateNotYetValidException

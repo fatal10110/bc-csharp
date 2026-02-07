@@ -7,9 +7,9 @@ using System.Numerics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     public static class Longs
     {

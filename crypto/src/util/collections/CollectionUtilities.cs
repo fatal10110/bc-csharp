@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Org.BouncyCastle.Utilities.Collections
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections
 {
     // TODO[api] Make static
     public abstract class CollectionUtilities

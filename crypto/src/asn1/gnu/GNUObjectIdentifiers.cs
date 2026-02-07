@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Gnu
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Gnu
 {
     // TODO[api] Make static
     public abstract class GnuObjectIdentifiers

@@ -1,6 +1,6 @@
-﻿using Org.BouncyCastle.Asn1;
+﻿using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
     public class ECGost3410Parameters
         : ECNamedDomainParameters

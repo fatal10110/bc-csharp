@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.X509.Qualified
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509.Qualified
 {
     /**
     * The BiometricData object.

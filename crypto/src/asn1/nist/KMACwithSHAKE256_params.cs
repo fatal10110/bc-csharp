@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.Nist
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist
 {
     /// <summary>
     /// KMACwithSHAKE256-params ::= SEQUENCE {

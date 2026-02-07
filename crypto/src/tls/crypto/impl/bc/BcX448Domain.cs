@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+﻿namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     // TODO[api] Make sealed
     public class BcX448Domain

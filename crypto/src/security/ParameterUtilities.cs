@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cms;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Nsri;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Kisa;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nsri;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ntt;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     public static class ParameterUtilities
     {
@@ -58,114 +56,7 @@ namespace Org.BouncyCastle.Security
                 NistObjectIdentifiers.IdAes256Ofb,
                 NistObjectIdentifiers.IdAes256Wrap,
                 NistObjectIdentifiers.IdAes256WrapPad);
-            AddAlgorithm("ARIA");
-            AddAlgorithm("ARIA128",
-                NsriObjectIdentifiers.id_aria128_cbc,
-                NsriObjectIdentifiers.id_aria128_ccm,
-                NsriObjectIdentifiers.id_aria128_cfb,
-                NsriObjectIdentifiers.id_aria128_ctr,
-                NsriObjectIdentifiers.id_aria128_ecb,
-                NsriObjectIdentifiers.id_aria128_gcm,
-                NsriObjectIdentifiers.id_aria128_kw,
-                NsriObjectIdentifiers.id_aria128_kwp,
-                NsriObjectIdentifiers.id_aria128_ocb2,
-                NsriObjectIdentifiers.id_aria128_ofb);
-            AddAlgorithm("ARIA192",
-                NsriObjectIdentifiers.id_aria192_cbc,
-                NsriObjectIdentifiers.id_aria192_ccm,
-                NsriObjectIdentifiers.id_aria192_cfb,
-                NsriObjectIdentifiers.id_aria192_ctr,
-                NsriObjectIdentifiers.id_aria192_ecb,
-                NsriObjectIdentifiers.id_aria192_gcm,
-                NsriObjectIdentifiers.id_aria192_kw,
-                NsriObjectIdentifiers.id_aria192_kwp,
-                NsriObjectIdentifiers.id_aria192_ocb2,
-                NsriObjectIdentifiers.id_aria192_ofb);
-            AddAlgorithm("ARIA256",
-                NsriObjectIdentifiers.id_aria256_cbc,
-                NsriObjectIdentifiers.id_aria256_ccm,
-                NsriObjectIdentifiers.id_aria256_cfb,
-                NsriObjectIdentifiers.id_aria256_ctr,
-                NsriObjectIdentifiers.id_aria256_ecb,
-                NsriObjectIdentifiers.id_aria256_gcm,
-                NsriObjectIdentifiers.id_aria256_kw,
-                NsriObjectIdentifiers.id_aria256_kwp,
-                NsriObjectIdentifiers.id_aria256_ocb2,
-                NsriObjectIdentifiers.id_aria256_ofb);
-            AddAlgorithm("BLOWFISH",
-                /*
-                 * TODO[api] Incorrect version of cryptlib_algorithm_blowfish_CBC
-                 * Remove at major version update and delete bad test data "pbes2.bf-cbc.key"
-                 */
-                "1.3.6.1.4.1.3029.1.2",
-                MiscObjectIdentifiers.cryptlib_algorithm_blowfish_CBC);
-            AddAlgorithm("CAMELLIA",
-                "CAMELLIAWRAP");
-            AddAlgorithm("CAMELLIA128",
-                NttObjectIdentifiers.IdCamellia128Cbc,
-                NttObjectIdentifiers.IdCamellia128Wrap);
-            AddAlgorithm("CAMELLIA192",
-                NttObjectIdentifiers.IdCamellia192Cbc,
-                NttObjectIdentifiers.IdCamellia192Wrap);
-            AddAlgorithm("CAMELLIA256",
-                NttObjectIdentifiers.IdCamellia256Cbc,
-                NttObjectIdentifiers.IdCamellia256Wrap);
-            AddAlgorithm("CAST5",
-                MiscObjectIdentifiers.cast5CBC);
-            AddAlgorithm("CAST6");
-            AddAlgorithm("CHACHA");
-            AddAlgorithm("CHACHA7539",
-                "CHACHA20",
-                "CHACHA20-POLY1305",
-                PkcsObjectIdentifiers.IdAlgAeadChaCha20Poly1305);
-            AddAlgorithm("DES",
-                OiwObjectIdentifiers.DesCbc,
-                OiwObjectIdentifiers.DesCfb,
-                OiwObjectIdentifiers.DesEcb,
-                OiwObjectIdentifiers.DesOfb);
-            AddAlgorithm("DESEDE",
-                "DESEDEWRAP",
-                "TDEA",
-                OiwObjectIdentifiers.DesEde,
-                PkcsObjectIdentifiers.IdAlgCms3DesWrap);
-            AddAlgorithm("DESEDE3",
-                PkcsObjectIdentifiers.DesEde3Cbc);
-            AddAlgorithm("GOST28147",
-                "GOST",
-                "GOST-28147",
-                CryptoProObjectIdentifiers.GostR28147Gcfb);
-            AddAlgorithm("HC128");
-            AddAlgorithm("HC256");
-            AddAlgorithm("IDEA",
-                MiscObjectIdentifiers.as_sys_sec_alg_ideaCBC);
-            AddAlgorithm("NOEKEON");
-            AddAlgorithm("RC2",
-                PkcsObjectIdentifiers.RC2Cbc,
-                PkcsObjectIdentifiers.IdAlgCmsRC2Wrap);
-            AddAlgorithm("RC4",
-                "ARC4",
-                PkcsObjectIdentifiers.rc4);
-            AddAlgorithm("RC5",
-                "RC5-32");
-            AddAlgorithm("RC5-64");
-            AddAlgorithm("RC6");
-            AddAlgorithm("RIJNDAEL");
-            AddAlgorithm("SALSA20");
-            AddAlgorithm("SEED",
-                KisaObjectIdentifiers.IdNpkiAppCmsSeedWrap,
-                KisaObjectIdentifiers.IdSeedCbc);
-            AddAlgorithm("SERPENT");
-            AddAlgorithm("SKIPJACK");
-            AddAlgorithm("SM4");
-            AddAlgorithm("TEA");
-            AddAlgorithm("THREEFISH-256");
-            AddAlgorithm("THREEFISH-512");
-            AddAlgorithm("THREEFISH-1024");
-            AddAlgorithm("TNEPRES");
-            AddAlgorithm("TWOFISH");
-            AddAlgorithm("VMPC");
-            AddAlgorithm("VMPC-KSA3");
-            AddAlgorithm("XTEA");
+
 
             AddBasicIVSizeEntries(8, "BLOWFISH", "CHACHA", "DES", "DESEDE", "DESEDE3", "SALSA20");
             AddBasicIVSizeEntries(12, "CHACHA7539");
@@ -233,14 +124,7 @@ namespace Org.BouncyCastle.Security
             if (canonical == null)
                 throw new SecurityUtilityException("Algorithm " + algorithm + " not recognised.");
 
-            if (canonical == "DES")
-                return new DesParameters(keyBytes, offset, length);
 
-            if (canonical == "DESEDE" || canonical =="DESEDE3")
-                return new DesEdeParameters(keyBytes, offset, length);
-
-            if (canonical == "RC2")
-                return new RC2Parameters(keyBytes, offset, length);
 
             return new KeyParameter(keyBytes, offset, length);
         }
@@ -261,29 +145,7 @@ namespace Org.BouncyCastle.Security
             if (algorithm == null)
                 throw new ArgumentNullException("algorithm");
 
-            if (NistObjectIdentifiers.IdAes128Gcm.Id.Equals(algorithm) ||
-                NistObjectIdentifiers.IdAes192Gcm.Id.Equals(algorithm) ||
-                NistObjectIdentifiers.IdAes256Gcm.Id.Equals(algorithm))
-            {
-                if (!(key is KeyParameter keyParameter))
-                    throw new ArgumentException("key data must be accessible for GCM operation");
 
-                var gcmParameters = GcmParameters.GetInstance(asn1Params);
-
-                return new AeadParameters(keyParameter, gcmParameters.IcvLen * 8, gcmParameters.GetNonce());
-            }
-
-            if (NistObjectIdentifiers.IdAes128Ccm.Id.Equals(algorithm) ||
-                NistObjectIdentifiers.IdAes192Ccm.Id.Equals(algorithm) ||
-                NistObjectIdentifiers.IdAes256Ccm.Id.Equals(algorithm))
-            {
-                if (!(key is KeyParameter keyParameter))
-                    throw new ArgumentException("key data must be accessible for CCM operation");
-
-                var ccmParameters = CcmParameters.GetInstance(asn1Params);
-
-                return new AeadParameters(keyParameter, ccmParameters.IcvLen * 8, ccmParameters.GetNonce());
-            }
 
             string canonical = GetCanonicalAlgorithmName(algorithm);
 
@@ -304,18 +166,7 @@ namespace Org.BouncyCastle.Security
                 {
                     iv = Asn1OctetString.GetInstance(asn1Params);
                 }
-                else if (canonical == "CAST5")
-                {
-                    iv = Cast5CbcParameters.GetInstance(asn1Params).IV;
-                }
-                else if (canonical == "IDEA")
-                {
-                    iv = IdeaCbcPar.GetInstance(asn1Params).IV;
-                }
-                else if (canonical == "RC2")
-                {
-                    iv = RC2CbcParameter.GetInstance(asn1Params).IV;
-                }
+
             }
             catch (Exception e)
             {
@@ -357,14 +208,7 @@ namespace Org.BouncyCastle.Security
             if (basicIVKeySize != -1)
                 return CreateIVOctetString(random, basicIVKeySize);
 
-            if (canonical == "CAST5")
-                return new Cast5CbcParameters(CreateIV(random, 8), 128);
 
-            if (canonical == "IDEA")
-                return new IdeaCbcPar(CreateIV(random, 8));
-
-            if (canonical == "RC2")
-                return new RC2CbcParameter(CreateIV(random, 8));
 
             throw new SecurityUtilityException("Algorithm " + algorithm + " not recognised.");
         }

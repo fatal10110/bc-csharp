@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Asn1.CryptoPro
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro
 {
     /// <summary>Registry of available named parameters for GOST 3410-94.</summary>
     public static class Gost3410NamedParameters

@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Math.EC.Custom.GM
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Custom.GM
 {
     internal class SM2P256V1Point
         : AbstractFpPoint

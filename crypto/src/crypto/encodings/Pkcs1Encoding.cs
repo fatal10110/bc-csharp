@@ -1,11 +1,11 @@
 using System;
 using System.Threading;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Encodings
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Encodings
 {
     /**
     * this does your basic Pkcs 1 v1.5 padding - whether or not you should be using this
@@ -18,7 +18,7 @@ namespace Org.BouncyCastle.Crypto.Encodings
          * some providers fail to include the leading zero in PKCS1 encoded blocks. If you need to
          * work with one of these set the system property Org.BouncyCastle.Pkcs1.Strict to false.
          */
-        public const string StrictLengthEnabledProperty = "Org.BouncyCastle.Pkcs1.Strict";
+        public const string StrictLengthEnabledProperty = "TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs1.Strict";
 
         private const int HeaderLength = 10;
 

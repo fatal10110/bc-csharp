@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO
 {
     public sealed class LimitedBuffer
         : BaseOutputStream

@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 
-namespace Org.BouncyCastle.X509.Extension
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Extension
 {
     /// <remarks>A high level authority key identifier.</remarks>
     [Obsolete("Use 'X509ExtensionUtilities' methods instead")]

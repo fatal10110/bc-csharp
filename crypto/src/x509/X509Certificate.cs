@@ -4,20 +4,19 @@ using System.IO;
 using System.Net;
 using System.Text;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Utilities;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Operators;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Security.Certificates;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
-using Org.BouncyCastle.X509.Extension;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security.Certificates;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Extension;
 
-namespace Org.BouncyCastle.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509
 {
     /// <summary>
     /// An Object representing an X509 Certificate.
@@ -219,7 +218,7 @@ namespace Org.BouncyCastle.X509
         }
 
         /// <summary>
-        /// Return a <see cref="Org.BouncyCastle.Math.BigInteger">BigInteger</see> containing the serial number.
+        /// Return a <see cref="TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.BigInteger">BigInteger</see> containing the serial number.
         /// </summary>
         /// <returns>The Serial number.</returns>
         public virtual BigInteger SerialNumber
@@ -597,18 +596,7 @@ namespace Org.BouncyCastle.X509
                             {
                                 buf.Append(KeyUsage.GetInstance(obj));
                             }
-                            else if (oid.Equals(MiscObjectIdentifiers.NetscapeCertType))
-                            {
-                                buf.Append(new NetscapeCertType((DerBitString)obj));
-                            }
-                            else if (oid.Equals(MiscObjectIdentifiers.NetscapeRevocationUrl))
-                            {
-                                buf.Append(new NetscapeRevocationUrl((DerIA5String)obj));
-                            }
-                            else if (oid.Equals(MiscObjectIdentifiers.VerisignCzagExtension))
-                            {
-                                buf.Append(new VerisignCzagExtension((DerIA5String)obj));
-                            }
+
                             else
                             {
                                 buf.Append(oid.Id);

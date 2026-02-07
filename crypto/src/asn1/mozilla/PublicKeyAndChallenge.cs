@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Mozilla
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Mozilla
 {
     /// <summary>
     /// For parsing the PublicKeyAndChallenge created by the KEYGEN tag included by Mozilla based browsers.

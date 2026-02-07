@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     public class DerInteger
         : Asn1Object
@@ -21,7 +21,7 @@ namespace Org.BouncyCastle.Asn1
             }
         }
 
-        public const string AllowUnsafeProperty = "Org.BouncyCastle.Asn1.AllowUnsafeInteger";
+        public const string AllowUnsafeProperty = "TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.AllowUnsafeInteger";
 
         public static readonly DerInteger Zero = new DerInteger(0);
         public static readonly DerInteger One = new DerInteger(1);

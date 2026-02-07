@@ -5,9 +5,9 @@ using System.Threading;
 using System.Threading.Tasks;
 #endif
 
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Crypto.IO
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.IO
 {
     public sealed class MacStream
         : Stream

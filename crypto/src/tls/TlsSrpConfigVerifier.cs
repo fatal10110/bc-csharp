@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Interface for verifying SRP config needs to conform to.</summary>
     public interface TlsSrpConfigVerifier

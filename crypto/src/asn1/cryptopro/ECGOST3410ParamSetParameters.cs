@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.CryptoPro
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro
 {
     public class ECGost3410ParamSetParameters
         : Asn1Encodable

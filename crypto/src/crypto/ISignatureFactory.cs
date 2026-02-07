@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>
     /// Base interface for operators that serve as stream-based signature calculators.

@@ -1,6 +1,6 @@
-﻿using Org.BouncyCastle.Security;
+﻿using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     public static class CryptoServicesRegistrar
     {

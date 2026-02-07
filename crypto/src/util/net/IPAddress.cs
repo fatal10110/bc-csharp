@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Utilities.Net
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Net
 {
     // TODO[api] Make static
     public class IPAddress

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Org.BouncyCastle.Utilities.Collections
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections
 {
 	internal sealed class EnumerableProxy<T>
 		: IEnumerable<T>

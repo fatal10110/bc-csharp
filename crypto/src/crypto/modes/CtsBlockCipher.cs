@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
     /**
     * A Cipher Text Stealing (CTS) mode cipher. CTS allows block ciphers to
@@ -14,20 +14,10 @@ namespace Org.BouncyCastle.Crypto.Modes
     {
         private readonly int m_blockSize;
 
-        public CtsBlockCipher(IBlockCipher cipher)
-            : this(EcbBlockCipher.GetBlockCipherMode(cipher))
-        {
-        }
-
-        /**
-        * Create a buffered block cipher that uses Cipher Text Stealing
-        *
-        * @param cipher the underlying block cipher this buffering object wraps.
-        */
         public CtsBlockCipher(IBlockCipherMode cipherMode)
         {
-            if (!(cipherMode is CbcBlockCipher || cipherMode is EcbBlockCipher))
-                throw new ArgumentException("CtsBlockCipher can only accept ECB, or CBC ciphers");
+            if (!(cipherMode is CbcBlockCipher))
+                throw new ArgumentException("CtsBlockCipher can only accept CBC ciphers");
 
             m_cipherMode = cipherMode;
 

@@ -1,25 +1,25 @@
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cryptlib;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Gnu;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Pkcs;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Cryptlib;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Gnu;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     public static class PrivateKeyFactory
     {
@@ -288,166 +288,7 @@ namespace Org.BouncyCastle.Security
                         gostParams.DigestParamSet,
                         gostParams.EncryptionParamSet));
             }
-            else if (MLDsaParameters.ByOid.TryGetValue(algOid, out MLDsaParameters mlDsaParameters))
-            {
-                // NOTE: We ignore the publicKey field since the private key already includes the public key
-                // TODO[pqc] Validate the public key if it is included?
 
-                var privateKey = keyInfo.PrivateKey;
-                int length = privateKey.GetOctetsLength();
-
-                // TODO[api] Eventually remove legacy support for raw octets
-                {
-                    var parameterSet = mlDsaParameters.ParameterSet;
-
-                    if (length == parameterSet.SeedLength)
-                        return MLDsaPrivateKeyParameters.FromSeed(mlDsaParameters, seed: privateKey.GetOctets());
-
-                    if (length == parameterSet.PrivateKeyLength)
-                        return MLDsaPrivateKeyParameters.FromEncoding(mlDsaParameters, encoding: privateKey.GetOctets());
-                }
-
-                try
-                {
-                    var asn1Object = Asn1Object.FromByteArray(privateKey.GetOctets());
-
-                    if (asn1Object is Asn1TaggedObject taggedSeedOnly)
-                    {
-                        // SeedOnly is a [CONTEXT 0] IMPLICIT OCTET STRING
-                        if (taggedSeedOnly.HasContextTag(0))
-                        {
-                            var seed = Asn1OctetString.GetInstance(taggedSeedOnly, declaredExplicit: false).GetOctets();
-                            return MLDsaPrivateKeyParameters.FromSeed(mlDsaParameters, seed);
-                        }
-                    }
-                    else if (asn1Object is Asn1OctetString encodingOnly)
-                    {
-                        // EncodingOnly is an OCTET STRING
-                        var encoding = encodingOnly.GetOctets();
-                        return MLDsaPrivateKeyParameters.FromEncoding(mlDsaParameters, encoding);
-                    }
-                    else if (asn1Object is Asn1Sequence sequence)
-                    {
-                        // SeedAndEncoding is a SEQUENCE containing a seed OCTET STRING and an encoding OCTET STRING
-                        if (sequence.Count == 2)
-                        {
-                            var seed = Asn1OctetString.GetInstance(sequence[0]).GetOctets();
-                            var encoding = Asn1OctetString.GetInstance(sequence[1]).GetOctets();
-
-                            var fromSeed = MLDsaPrivateKeyParameters.FromSeed(mlDsaParameters, seed,
-                                preferredFormat: MLDsaPrivateKeyParameters.Format.SeedAndEncoding);
-
-                            if (!Arrays.FixedTimeEquals(fromSeed.GetEncoded(), encoding))
-                                throw new ArgumentException("inconsistent " + mlDsaParameters.Name + " private key");
-
-                            return fromSeed;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // Ignore
-                }
-
-                throw new ArgumentException("invalid " + mlDsaParameters.Name + " private key");
-            }
-            else if (MLKemParameters.ByOid.TryGetValue(algOid, out MLKemParameters mlKemParameters))
-            {
-                // NOTE: We ignore the publicKey field since the private key already includes the public key
-                // TODO[pqc] Validate the public key if it is included?
-
-                var privateKey = keyInfo.PrivateKey;
-                int length = privateKey.GetOctetsLength();
-
-                // TODO[api] Eventually remove legacy support for raw octets
-                {
-                    var parameterSet = mlKemParameters.ParameterSet;
-
-                    if (length == parameterSet.SeedLength)
-                        return MLKemPrivateKeyParameters.FromSeed(mlKemParameters, seed: privateKey.GetOctets());
-
-                    if (length == parameterSet.PrivateKeyLength)
-                        return MLKemPrivateKeyParameters.FromEncoding(mlKemParameters, encoding: privateKey.GetOctets());
-                }
-
-                try
-                {
-                    var asn1Object = Asn1Object.FromByteArray(privateKey.GetOctets());
-
-                    if (asn1Object is Asn1TaggedObject taggedSeedOnly)
-                    {
-                        // SeedOnly is a [CONTEXT 0] IMPLICIT OCTET STRING
-                        if (taggedSeedOnly.HasContextTag(0))
-                        {
-                            var seed = Asn1OctetString.GetInstance(taggedSeedOnly, declaredExplicit: false).GetOctets();
-                            return MLKemPrivateKeyParameters.FromSeed(mlKemParameters, seed);
-                        }
-                    }
-                    else if (asn1Object is Asn1OctetString encodingOnly)
-                    {
-                        // EncodingOnly is an OCTET STRING
-                        var encoding = encodingOnly.GetOctets();
-                        return MLKemPrivateKeyParameters.FromEncoding(mlKemParameters, encoding);
-                    }
-                    else if (asn1Object is Asn1Sequence sequence)
-                    {
-                        // SeedAndEncoding is a SEQUENCE containing a seed OCTET STRING and an encoding OCTET STRING
-                        if (sequence.Count == 2)
-                        {
-                            var seed = Asn1OctetString.GetInstance(sequence[0]).GetOctets();
-                            var encoding = Asn1OctetString.GetInstance(sequence[1]).GetOctets();
-
-                            var fromSeed = MLKemPrivateKeyParameters.FromSeed(mlKemParameters, seed,
-                                preferredFormat: MLKemPrivateKeyParameters.Format.SeedAndEncoding);
-
-                            if (!Arrays.FixedTimeEquals(fromSeed.GetEncoded(), encoding))
-                                throw new ArgumentException("inconsistent " + mlKemParameters.Name + " private key");
-
-                            return fromSeed;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    // Ignore
-                }
-
-                throw new ArgumentException("invalid " + mlKemParameters.Name + " private key");
-            }
-            else if (SlhDsaParameters.ByOid.TryGetValue(algOid, out SlhDsaParameters slhDsaParameters))
-            {
-                // NOTE: We ignore the publicKey field since the private key already includes the public key
-                // TODO[pqc] Validate the public key if it is included?
-
-                int privateKeyLength = slhDsaParameters.ParameterSet.PrivateKeyLength;
-
-                var privateKey = keyInfo.PrivateKey;
-                int octetsLength = privateKey.GetOctetsLength();
-
-                if (octetsLength == privateKeyLength)
-                    return SlhDsaPrivateKeyParameters.FromEncoding(slhDsaParameters, encoding: privateKey.GetOctets());
-
-                // TODO[api] Eventually remove legacy support for OCTET STRING encoding
-                if (octetsLength > privateKeyLength)
-                {
-                    try
-                    {
-                        var asn1Object = Asn1Object.FromByteArray(privateKey.GetOctets());
-
-                        if (asn1Object is Asn1OctetString octetString)
-                        {
-                            var encoding = octetString.GetOctets();
-                            return MLKemPrivateKeyParameters.FromEncoding(mlKemParameters, encoding);
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // Ignore
-                    }
-                }
-
-                throw new ArgumentException("invalid " + slhDsaParameters.Name + " private key");
-            }
             else
             {
                 throw new SecurityUtilityException("algorithm identifier in private key not recognised");

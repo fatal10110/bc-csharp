@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
 	/**
 	 * PolicyMappings V3 extension, described in RFC3280.

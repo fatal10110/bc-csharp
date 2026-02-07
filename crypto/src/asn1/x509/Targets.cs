@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
 	 * Targets structure used in target information extension for attribute

@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Tls.Crypto
+﻿namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     // TODO[api] Merge into TlsCipher
     public interface TlsCipherExt

@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement
 {
     public sealed class X448Agreement
         : IRawAgreement

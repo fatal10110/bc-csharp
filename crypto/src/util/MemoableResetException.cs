@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
 	/**
      * Exception to be thrown on a failure to reset an object implementing Memoable.

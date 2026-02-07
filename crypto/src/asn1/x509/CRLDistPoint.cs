@@ -1,6 +1,6 @@
 using System.Text;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     public class CrlDistPoint
         : Asn1Encodable

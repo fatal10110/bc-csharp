@@ -4,7 +4,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 #endif
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     public static class Bytes
     {

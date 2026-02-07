@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     // License from the original code created by Clinton Ingram (saucecontrol) for Blake2Fast 
     // at https://github.com/saucecontrol/Blake2Fast. The code has been copied and modified.

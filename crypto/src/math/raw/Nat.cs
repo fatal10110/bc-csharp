@@ -5,10 +5,10 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 #endif
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.Raw
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw
 {
     internal static class Nat
     {

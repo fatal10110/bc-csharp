@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
     /// <summary>Public parameters for an SM2 key exchange.</summary>
     /// <remarks>In this case the ephemeralPublicKey provides the random point used in the algorithm.</remarks>

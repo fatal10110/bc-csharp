@@ -1,12 +1,12 @@
 ﻿using System.Security.Cryptography;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Crypto.Agreement.Kdf;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement.Kdf;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement
 {
     internal static class BasicAgreementWithKdf
     {

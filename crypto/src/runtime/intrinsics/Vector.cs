@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Intrinsics;
 #endif
 
-namespace Org.BouncyCastle.Runtime.Intrinsics
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Runtime.Intrinsics
 {
     internal static class Vector
     {

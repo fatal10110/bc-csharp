@@ -1,18 +1,18 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Nsri;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Kisa;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nsri;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ntt;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     /// <remarks>
     ///  Utility class for creating IWrapper objects from their names/Oids
@@ -21,19 +21,13 @@ namespace Org.BouncyCastle.Security
     {
         private enum WrapAlgorithm
         {
-            AESRFC3211WRAP,
+
             AESWRAP,
             AESWRAPPAD,
-            ARIARFC3211WRAP,
+
             ARIAWRAP,
             ARIAWRAPPAD,
-            CAMELLIARFC3211WRAP,
-            CAMELLIAWRAP,
-            DESRFC3211WRAP,
-            DESEDERFC3211WRAP,
-            DESEDEWRAP,
-            RC2WRAP,
-            SEEDWRAP,
+
         };
 
         private static readonly IDictionary<string, string> Algorithms =
@@ -69,9 +63,7 @@ namespace Org.BouncyCastle.Security
             Algorithms[NttObjectIdentifiers.IdCamellia192Wrap.Id] = "CAMELLIAWRAP";
             Algorithms[NttObjectIdentifiers.IdCamellia256Wrap.Id] = "CAMELLIAWRAP";
 
-            Algorithms["DESEDERFC3217WRAP"] = "DESEDEWRAP";
-            Algorithms["TDEAWRAP"] = "DESEDEWRAP";
-            Algorithms[PkcsObjectIdentifiers.IdAlgCms3DesWrap.Id] = "DESEDEWRAP";
+
 
             Algorithms[PkcsObjectIdentifiers.IdAlgCmsRC2Wrap.Id] = "RC2WRAP";
 
@@ -92,32 +84,17 @@ namespace Org.BouncyCastle.Security
             {
                 switch (wrapAlgorithm)
                 {
-                case WrapAlgorithm.AESRFC3211WRAP:
-                    return new Rfc3211WrapEngine(AesUtilities.CreateEngine());
+
                 case WrapAlgorithm.AESWRAP:
                     return new AesWrapEngine();
                 case WrapAlgorithm.AESWRAPPAD:
                     return new AesWrapPadEngine();
-                case WrapAlgorithm.ARIARFC3211WRAP:
-                    return new Rfc3211WrapEngine(new AriaEngine());
+
                 case WrapAlgorithm.ARIAWRAP:
                     return new AriaWrapEngine();
                 case WrapAlgorithm.ARIAWRAPPAD:
                     return new AriaWrapPadEngine();
-                case WrapAlgorithm.CAMELLIARFC3211WRAP:
-                    return new Rfc3211WrapEngine(new CamelliaEngine());
-                case WrapAlgorithm.CAMELLIAWRAP:
-                    return new CamelliaWrapEngine();
-                case WrapAlgorithm.DESRFC3211WRAP:
-                    return new Rfc3211WrapEngine(new DesEngine());
-                case WrapAlgorithm.DESEDERFC3211WRAP:
-                    return new Rfc3211WrapEngine(new DesEdeEngine());
-                case WrapAlgorithm.DESEDEWRAP:
-                    return new DesEdeWrapEngine();
-                case WrapAlgorithm.RC2WRAP:
-                    return new RC2WrapEngine();
-                case WrapAlgorithm.SEEDWRAP:
-                    return new SeedWrapEngine();
+
                 default:
                     throw new NotImplementedException();
                 }

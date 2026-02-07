@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders
 {
     /// <summary>
     /// A hex translator.

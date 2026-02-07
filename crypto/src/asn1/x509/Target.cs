@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
      * Target structure used in target information extension for attribute

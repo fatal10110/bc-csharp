@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     internal static class Platform
     {

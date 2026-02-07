@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines
 {
     /**
     * this does your basic RSA algorithm.

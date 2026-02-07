@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-namespace Org.BouncyCastle.Math.Raw
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw
 {
     internal static class Interleave
     {

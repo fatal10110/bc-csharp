@@ -2,11 +2,11 @@ using System;
 using System.Globalization;
 using System.Text;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-using NetUtils = Org.BouncyCastle.Utilities.Net;
+using NetUtils = TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Net;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
 	/**
      * The GeneralName object.

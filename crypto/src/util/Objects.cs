@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     public static class Objects
     {

@@ -26,9 +26,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Utilities.Bzip2
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Bzip2
 {
 	/**
     * An input stream that decompresses from the BZip2 format (with the file

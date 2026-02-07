@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Math.Raw;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC.Abc
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Abc
 {
     /**
     * Class holding methods for point multiplication based on the window

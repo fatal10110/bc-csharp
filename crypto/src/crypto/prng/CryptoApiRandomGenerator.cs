@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Org.BouncyCastle.Crypto.Prng
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng
 {
     /// <summary>
     /// Uses RandomNumberGenerator.Create() to get randomness generator

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
 
-using Org.BouncyCastle.Math.Raw;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC
 {
     internal struct LongArray
     {

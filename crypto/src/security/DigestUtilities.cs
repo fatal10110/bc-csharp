@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.GM;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.UA;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.GM;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.UA;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     /// <remarks>
     ///  Utility class for creating IDigest objects from their names/Oids
@@ -24,23 +23,7 @@ namespace Org.BouncyCastle.Security
     public static class DigestUtilities
     {
         private enum DigestAlgorithm {
-            BLAKE2B_160, BLAKE2B_256, BLAKE2B_384, BLAKE2B_512,
-            BLAKE2S_128, BLAKE2S_160, BLAKE2S_224, BLAKE2S_256,
-            BLAKE3_256,
-            DSTU7564_256, DSTU7564_384, DSTU7564_512,
-            GOST3411,
-            GOST3411_2012_256, GOST3411_2012_512,
-            KECCAK_224, KECCAK_256, KECCAK_288, KECCAK_384, KECCAK_512,
-            MD2, MD4, MD5,
-            NONE,
-            RIPEMD128, RIPEMD160, RIPEMD256, RIPEMD320,
-            SHA_1, SHA_224, SHA_256, SHA_384, SHA_512,
-            SHA_512_224, SHA_512_256,
-            SHA3_224, SHA3_256, SHA3_384, SHA3_512,
-            SHAKE128_256, SHAKE256_512,
-            SM3,
-            TIGER,
-            WHIRLPOOL,
+
         };
 
         private static readonly Dictionary<string, string> AlgorithmMap =
@@ -62,7 +45,7 @@ namespace Org.BouncyCastle.Security
             AlgorithmMap["SHA1"] = "SHA-1";
             AlgorithmOidMap[OiwObjectIdentifiers.IdSha1] = "SHA-1";
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha1] = "SHA-1";
-            AlgorithmOidMap[MiscObjectIdentifiers.HMAC_SHA1] = "SHA-1";
+
             AlgorithmMap["SHA224"] = "SHA-224";
             AlgorithmOidMap[NistObjectIdentifiers.IdSha224] = "SHA-224";
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha224] = "SHA-224";
@@ -123,15 +106,7 @@ namespace Org.BouncyCastle.Security
 
             AlgorithmOidMap[GMObjectIdentifiers.sm3] = "SM3";
 
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2b160] = "BLAKE2B-160";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2b256] = "BLAKE2B-256";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2b384] = "BLAKE2B-384";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2b512] = "BLAKE2B-512";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2s128] = "BLAKE2S-128";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2s160] = "BLAKE2S-160";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2s224] = "BLAKE2S-224";
-            AlgorithmOidMap[MiscObjectIdentifiers.id_blake2s256] = "BLAKE2S-256";
-            AlgorithmOidMap[MiscObjectIdentifiers.blake3_256] = "BLAKE3-256";
+
 
             AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256] = "GOST3411-2012-256";
             AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512] = "GOST3411-2012-512";
@@ -161,15 +136,7 @@ namespace Org.BouncyCastle.Security
             Oids["RIPEMD256"] = TeleTrusTObjectIdentifiers.RipeMD256;
             Oids["GOST3411"] = CryptoProObjectIdentifiers.GostR3411;
             Oids["SM3"] = GMObjectIdentifiers.sm3;
-            Oids["BLAKE2B-160"] = MiscObjectIdentifiers.id_blake2b160;
-            Oids["BLAKE2B-256"] = MiscObjectIdentifiers.id_blake2b256;
-            Oids["BLAKE2B-384"] = MiscObjectIdentifiers.id_blake2b384;
-            Oids["BLAKE2B-512"] = MiscObjectIdentifiers.id_blake2b512;
-            Oids["BLAKE2S-128"] = MiscObjectIdentifiers.id_blake2s128;
-            Oids["BLAKE2S-160"] = MiscObjectIdentifiers.id_blake2s160;
-            Oids["BLAKE2S-224"] = MiscObjectIdentifiers.id_blake2s224;
-            Oids["BLAKE2S-256"] = MiscObjectIdentifiers.id_blake2s256;
-            Oids["BLAKE3-256"] = MiscObjectIdentifiers.blake3_256;
+
             Oids["GOST3411-2012-256"] = RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256;
             Oids["GOST3411-2012-512"] = RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512;
             Oids["DSTU7564-256"] = UAObjectIdentifiers.dstu7564digest_256;
@@ -300,50 +267,7 @@ namespace Org.BouncyCastle.Security
 
             switch (digestAlgorithm)
             {
-            case DigestAlgorithm.BLAKE2B_160: return new Blake2bDigest(160);
-            case DigestAlgorithm.BLAKE2B_256: return new Blake2bDigest(256);
-            case DigestAlgorithm.BLAKE2B_384: return new Blake2bDigest(384);
-            case DigestAlgorithm.BLAKE2B_512: return new Blake2bDigest(512);
-            case DigestAlgorithm.BLAKE2S_128: return new Blake2sDigest(128);
-            case DigestAlgorithm.BLAKE2S_160: return new Blake2sDigest(160);
-            case DigestAlgorithm.BLAKE2S_224: return new Blake2sDigest(224);
-            case DigestAlgorithm.BLAKE2S_256: return new Blake2sDigest(256);
-            case DigestAlgorithm.BLAKE3_256: return new Blake3Digest(256);
-            case DigestAlgorithm.DSTU7564_256: return new Dstu7564Digest(256);
-            case DigestAlgorithm.DSTU7564_384: return new Dstu7564Digest(384);
-            case DigestAlgorithm.DSTU7564_512: return new Dstu7564Digest(512);
-            case DigestAlgorithm.GOST3411: return new Gost3411Digest();
-            case DigestAlgorithm.GOST3411_2012_256: return new Gost3411_2012_256Digest();
-            case DigestAlgorithm.GOST3411_2012_512: return new Gost3411_2012_512Digest();
-            case DigestAlgorithm.KECCAK_224: return new KeccakDigest(224);
-            case DigestAlgorithm.KECCAK_256: return new KeccakDigest(256);
-            case DigestAlgorithm.KECCAK_288: return new KeccakDigest(288);
-            case DigestAlgorithm.KECCAK_384: return new KeccakDigest(384);
-            case DigestAlgorithm.KECCAK_512: return new KeccakDigest(512);
-            case DigestAlgorithm.MD2: return new MD2Digest();
-            case DigestAlgorithm.MD4: return new MD4Digest();
-            case DigestAlgorithm.MD5: return new MD5Digest();
-            case DigestAlgorithm.NONE: return new NullDigest();
-            case DigestAlgorithm.RIPEMD128: return new RipeMD128Digest();
-            case DigestAlgorithm.RIPEMD160: return new RipeMD160Digest();
-            case DigestAlgorithm.RIPEMD256: return new RipeMD256Digest();
-            case DigestAlgorithm.RIPEMD320: return new RipeMD320Digest();
-            case DigestAlgorithm.SHA_1: return new Sha1Digest();
-            case DigestAlgorithm.SHA_224: return new Sha224Digest();
-            case DigestAlgorithm.SHA_256: return new Sha256Digest();
-            case DigestAlgorithm.SHA_384: return new Sha384Digest();
-            case DigestAlgorithm.SHA_512: return new Sha512Digest();
-            case DigestAlgorithm.SHA_512_224: return new Sha512tDigest(224);
-            case DigestAlgorithm.SHA_512_256: return new Sha512tDigest(256);
-            case DigestAlgorithm.SHA3_224: return new Sha3Digest(224);
-            case DigestAlgorithm.SHA3_256: return new Sha3Digest(256);
-            case DigestAlgorithm.SHA3_384: return new Sha3Digest(384);
-            case DigestAlgorithm.SHA3_512: return new Sha3Digest(512);
-            case DigestAlgorithm.SHAKE128_256: return new ShakeDigest(128);
-            case DigestAlgorithm.SHAKE256_512: return new ShakeDigest(256);
-            case DigestAlgorithm.SM3: return new SM3Digest();
-            case DigestAlgorithm.TIGER: return new TigerDigest();
-            case DigestAlgorithm.WHIRLPOOL: return new WhirlpoolDigest();
+
             default:
                 throw new NotImplementedException();
             }

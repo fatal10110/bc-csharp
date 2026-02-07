@@ -2,25 +2,25 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cryptlib;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Gnu;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Pqc.Crypto.Crystals.Dilithium;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Cryptlib;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Gnu;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Security
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     public static class PublicKeyFactory
     {
@@ -245,71 +245,14 @@ namespace Org.BouncyCastle.Security
 
                 return new ECPublicKeyParameters(q, ecDomainParameters);
             }
-            else if (MLDsaParameters.ByOid.TryGetValue(algOid, out MLDsaParameters mlDsaParameters))
-            {
-                return GetMLDsaPublicKey(mlDsaParameters, keyInfo.PublicKey);
-            }
-            else if (MLKemParameters.ByOid.TryGetValue(algOid, out MLKemParameters mlKemParameters))
-            {
-                return GetMLKemPublicKey(mlKemParameters, keyInfo.PublicKey);
-            }
-            else if (SlhDsaParameters.ByOid.TryGetValue(algOid, out SlhDsaParameters slhDsaParameters))
-            {
-                return GetSlhDsaPublicKey(slhDsaParameters, keyInfo.PublicKey);
-            }
+
             else
             {
                 throw new SecurityUtilityException("algorithm identifier in public key not recognised: " + algOid);
             }
         }
 
-        internal static MLDsaPublicKeyParameters GetMLDsaPublicKey(MLDsaParameters mlDsaParameters, DerBitString publicKey)
-        {
-            if (publicKey.IsOctetAligned())
-            {
-                int publicKeyLength = mlDsaParameters.ParameterSet.PublicKeyLength;
 
-                int bytesLength = publicKey.GetBytesLength();
-                if (bytesLength == publicKeyLength)
-                    // TODO[pqc] Avoid redundant copies?
-                    return MLDsaPublicKeyParameters.FromEncoding(mlDsaParameters, encoding: publicKey.GetOctets());
-
-                // TODO[pqc] Remove support for legacy/prototype formats?
-                if (bytesLength > publicKeyLength)
-                {
-                    try
-                    {
-                        Asn1Object obj = Asn1Object.FromMemoryStream(publicKey.GetOctetMemoryStream());
-                        if (obj is Asn1OctetString oct)
-                        {
-                            if (oct.GetOctetsLength() == publicKeyLength)
-                                return MLDsaPublicKeyParameters.FromEncoding(mlDsaParameters, encoding: oct.GetOctets());
-                        }
-                    }
-                    catch (Exception)
-                    {
-                    }
-                }
-            }
-
-            throw new ArgumentException("invalid " + mlDsaParameters.Name + " public key");
-        }
-
-        internal static MLKemPublicKeyParameters GetMLKemPublicKey(MLKemParameters mlKemParameters,
-            DerBitString publicKey)
-        {
-            if (publicKey.IsOctetAligned())
-            {
-                int publicKeyLength = mlKemParameters.ParameterSet.PublicKeyLength;
-
-                int bytesLength = publicKey.GetBytesLength();
-                if (bytesLength == publicKeyLength)
-                    // TODO[pqc] Avoid redundant copies?
-                    return MLKemPublicKeyParameters.FromEncoding(mlKemParameters, encoding: publicKey.GetOctets());
-            }
-
-            throw new ArgumentException("invalid " + mlKemParameters.Name + " public key");
-        }
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         private static ReadOnlySpan<byte> GetRawKey(SubjectPublicKeyInfo keyInfo)
@@ -331,43 +274,7 @@ namespace Org.BouncyCastle.Security
         }
 #endif
 
-        internal static SlhDsaPublicKeyParameters GetSlhDsaPublicKey(SlhDsaParameters slhDsaParameters,
-            DerBitString publicKey)
-        {
-            if (publicKey.IsOctetAligned())
-            {
-                int publicKeyLength = slhDsaParameters.ParameterSet.PublicKeyLength;
 
-                int bytesLength = publicKey.GetBytesLength();
-                if (bytesLength == publicKeyLength)
-                    // TODO[pqc] Avoid redundant copies?
-                    return SlhDsaPublicKeyParameters.FromEncoding(slhDsaParameters, encoding: publicKey.GetOctets());
-
-                // TODO[api] Eventually remove legacy support for OCTET STRING encoding
-                if (bytesLength > publicKeyLength)
-                {
-                    try
-                    {
-                        Asn1Object obj = Asn1Object.FromMemoryStream(publicKey.GetOctetMemoryStream());
-                        if (obj is Asn1OctetString oct)
-                        {
-                            if (oct.GetOctetsLength() == 4 + publicKeyLength)
-                            {
-                                byte[] octets = oct.GetOctets();
-                                byte[] encoding = Arrays.CopyOfRange(octets, 4, octets.Length);
-                                return SlhDsaPublicKeyParameters.FromEncoding(slhDsaParameters, encoding);
-                            }
-                        }
-                    }
-                    catch (Exception)
-                    {
-                        // Ignore
-                    }
-                }
-            }
-
-            throw new ArgumentException("invalid " + slhDsaParameters.Name + " public key");
-        }
 
         private static bool IsPkcsDHParam(Asn1Sequence seq)
         {

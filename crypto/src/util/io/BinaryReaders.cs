@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO
 {
     public static class BinaryReaders
     {

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Prng.Drbg
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng.Drbg
 {
 	/**
 	 * A SP800-90A Hash DRBG.

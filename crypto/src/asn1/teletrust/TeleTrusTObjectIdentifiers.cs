@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.TeleTrust
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust
 {
     // TODO[api] Make static
     public sealed class TeleTrusTObjectIdentifiers

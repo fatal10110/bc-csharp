@@ -2,16 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.OpenSsl;
-using Org.BouncyCastle.Security.Certificates;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Pkix
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security.Certificates;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
+
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
 	/**
 	 * An immutable sequence of certificates (a certification path).<br />
@@ -78,7 +78,7 @@ namespace Org.BouncyCastle.Pkix
 	public class PkixCertPath
 //		: CertPath
 	{
-		private static readonly List<string> EncodingNames = new List<string>{ "PkiPath", "PEM", "PKCS7" };
+		private static readonly List<string> EncodingNames = new List<string>{ "PkiPath", "PKCS7" };
 
         private readonly IList<X509Certificate> m_certificates;
 
@@ -344,27 +344,7 @@ namespace Org.BouncyCastle.Pkix
 
 				return ToDerEncoded(new ContentInfo(PkcsObjectIdentifiers.SignedData, sd));
 			}
-            else if (Platform.EqualsIgnoreCase(encoding, "PEM"))
-			{
-				MemoryStream bOut = new MemoryStream();
 
-				try
-				{
-					using (var pWrt = new PemWriter(new StreamWriter(bOut)))
-					{
-                        foreach (var cert in m_certificates)
-                        {
-                            pWrt.WriteObject(cert);
-                        }
-                    }
-				}
-				catch (Exception)
-				{
-					throw new CertificateEncodingException("can't encode certificate for PEM encoded path");
-				}
-
-				return bOut.ToArray();
-			}
 			else
 			{
 				throw new CertificateEncodingException("unsupported encoding: " + encoding);

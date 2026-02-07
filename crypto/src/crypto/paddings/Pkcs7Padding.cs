@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Paddings
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Paddings
 {
     /// <summary>A padder that adds PKCS7/PKCS5 padding to a block.</summary>
     public class Pkcs7Padding

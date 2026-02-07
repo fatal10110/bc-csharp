@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.BC;
-using Org.BouncyCastle.Asn1.Bsi;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Eac;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.GM;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.BC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Bsi;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.GM;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Operators.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Operators.Utilities
 {
     public class DefaultDigestAlgorithmFinder
         : IDigestAlgorithmFinder
@@ -88,11 +87,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             DigestOids.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_384, NistObjectIdentifiers.IdSha3_384);
             DigestOids.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_512, NistObjectIdentifiers.IdSha3_512);
 
-            DigestOids.Add(EacObjectIdentifiers.id_TA_ECDSA_SHA_1, OiwObjectIdentifiers.IdSha1);
-            DigestOids.Add(EacObjectIdentifiers.id_TA_ECDSA_SHA_224, NistObjectIdentifiers.IdSha224);
-            DigestOids.Add(EacObjectIdentifiers.id_TA_ECDSA_SHA_256, NistObjectIdentifiers.IdSha256);
-            DigestOids.Add(EacObjectIdentifiers.id_TA_ECDSA_SHA_384, NistObjectIdentifiers.IdSha384);
-            DigestOids.Add(EacObjectIdentifiers.id_TA_ECDSA_SHA_512, NistObjectIdentifiers.IdSha512);
+
 
             DigestOids.Add(NistObjectIdentifiers.IdRsassaPkcs1V15WithSha3_224, NistObjectIdentifiers.IdSha3_224);
             DigestOids.Add(NistObjectIdentifiers.IdRsassaPkcs1V15WithSha3_256, NistObjectIdentifiers.IdSha3_256);
@@ -103,10 +98,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             DigestOids.Add(TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD160, TeleTrusTObjectIdentifiers.RipeMD160);
             DigestOids.Add(TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD256, TeleTrusTObjectIdentifiers.RipeMD256);
 
-            DigestOids.Add(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94, CryptoProObjectIdentifiers.GostR3411);
-            DigestOids.Add(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001, CryptoProObjectIdentifiers.GostR3411);
-            DigestOids.Add(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256, RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256);
-            DigestOids.Add(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512, RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512);
+
 
 #pragma warning disable CS0618 // Type or member is obsolete
             DigestOids.Add(BCObjectIdentifiers.sphincs256_with_SHA3_512, NistObjectIdentifiers.IdSha3_512);
@@ -151,10 +143,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             //DigestOids.Add(GMObjectIdentifiers.sm2sign_with_rmd160, TeleTrusTObjectIdentifiers.RipeMD160);
             //DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sha1, OiwObjectIdentifiers.IdSha1);
             //DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sha224, NistObjectIdentifiers.IdSha224);
-            DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sha256, NistObjectIdentifiers.IdSha256);
-            //DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sha384, NistObjectIdentifiers.IdSha384);
-            //DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sha512, NistObjectIdentifiers.IdSha512);
-            DigestOids.Add(GMObjectIdentifiers.sm2sign_with_sm3, GMObjectIdentifiers.sm3);
+
 
             DigestOids.Add(X509ObjectIdentifiers.id_RSASSA_PSS_SHAKE128, NistObjectIdentifiers.IdShake128);
             DigestOids.Add(X509ObjectIdentifiers.id_RSASSA_PSS_SHAKE256, NistObjectIdentifiers.IdShake256);
@@ -200,9 +189,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             DigestNameToOids.Add("SHAKE-128", NistObjectIdentifiers.IdShake128);
             DigestNameToOids.Add("SHAKE-256", NistObjectIdentifiers.IdShake256);
 
-            DigestNameToOids.Add("GOST3411", CryptoProObjectIdentifiers.GostR3411);
-            DigestNameToOids.Add("GOST3411-2012-256", RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256);
-            DigestNameToOids.Add("GOST3411-2012-512", RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512);
+
 
             DigestNameToOids.Add("MD2", PkcsObjectIdentifiers.MD2);
             DigestNameToOids.Add("MD4", PkcsObjectIdentifiers.MD4);
@@ -233,11 +220,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             AddDigestAlgID(NistObjectIdentifiers.IdShake256, false);
 
             // RFC 4357
-            AddDigestAlgID(CryptoProObjectIdentifiers.GostR3411, true);
 
-            // draft-deremin-rfc4491
-            AddDigestAlgID(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256, false);
-            AddDigestAlgID(RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512, false);
 
             // IETF RFC 1319
             AddDigestAlgID(PkcsObjectIdentifiers.MD2, true);
@@ -251,30 +234,6 @@ namespace Org.BouncyCastle.Operators.Utilities
             AddDigestAlgID(TeleTrusTObjectIdentifiers.RipeMD128, true);
             AddDigestAlgID(TeleTrusTObjectIdentifiers.RipeMD160, true);
             AddDigestAlgID(TeleTrusTObjectIdentifiers.RipeMD256, true);
-
-            /*
-             * ML-DSA
-             */
-            foreach (MLDsaParameters mlDsa in MLDsaParameters.ByName.Values)
-            {
-                var preHashOid = mlDsa.PreHashOid;
-                if (preHashOid != null)
-                {
-                    DigestOids.Add(mlDsa.Oid, preHashOid);
-                }
-            }
-
-            /*
-             * SLH-DSA
-             */
-            foreach (SlhDsaParameters slhDsa in SlhDsaParameters.ByName.Values)
-            {
-                var preHashOid = slhDsa.PreHashOid;
-                if (preHashOid != null)
-                {
-                    DigestOids.Add(slhDsa.Oid, preHashOid);
-                }
-            }
         }
 
         private static void AddDigestAlgID(DerObjectIdentifier oid, bool withNullParams) =>

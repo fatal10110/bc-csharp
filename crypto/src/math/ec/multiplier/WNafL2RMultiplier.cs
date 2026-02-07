@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier
 {
     /**
     * Class implementing the WNAF (Window Non-Adjacent Form) multiplication

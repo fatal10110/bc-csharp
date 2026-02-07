@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Agreement.Srp;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Prng;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement.Srp;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /**
      * Class for providing cryptographic services for TLS based on implementations in the BC light-weight API.
@@ -69,20 +69,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             switch (encryptionAlgorithm)
             {
             case EncryptionAlgorithm.AES_128_CBC:
-            case EncryptionAlgorithm.ARIA_128_CBC:
-            case EncryptionAlgorithm.CAMELLIA_128_CBC:
-            case EncryptionAlgorithm.SEED_CBC:
-            case EncryptionAlgorithm.SM4_CBC:
                 return CreateCipher_Cbc(cryptoParams, encryptionAlgorithm, 16, macAlgorithm);
-
-            case EncryptionAlgorithm.cls_3DES_EDE_CBC:
-                return CreateCipher_Cbc(cryptoParams, encryptionAlgorithm, 24, macAlgorithm);
-
-            case EncryptionAlgorithm.AES_256_CBC:
-            case EncryptionAlgorithm.ARIA_256_CBC:
-            case EncryptionAlgorithm.CAMELLIA_256_CBC:
-                return CreateCipher_Cbc(cryptoParams, encryptionAlgorithm, 32, macAlgorithm);
-
             case EncryptionAlgorithm.AES_128_CCM:
                 // NOTE: Ignores macAlgorithm
                 return CreateCipher_Aes_Ccm(cryptoParams, 16, 16);
@@ -98,42 +85,19 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case EncryptionAlgorithm.AES_256_CCM_8:
                 // NOTE: Ignores macAlgorithm
                 return CreateCipher_Aes_Ccm(cryptoParams, 32, 8);
+            case EncryptionAlgorithm.AES_256_CBC:
+                 return CreateCipher_Cbc(cryptoParams, encryptionAlgorithm, 32, macAlgorithm);
             case EncryptionAlgorithm.AES_256_GCM:
                 // NOTE: Ignores macAlgorithm
                 return CreateCipher_Aes_Gcm(cryptoParams, 32, 16);
-            case EncryptionAlgorithm.ARIA_128_GCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_Aria_Gcm(cryptoParams, 16, 16);
-            case EncryptionAlgorithm.ARIA_256_GCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_Aria_Gcm(cryptoParams, 32, 16);
-            case EncryptionAlgorithm.CAMELLIA_128_GCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_Camellia_Gcm(cryptoParams, 16, 16);
-            case EncryptionAlgorithm.CAMELLIA_256_GCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_Camellia_Gcm(cryptoParams, 32, 16);
             case EncryptionAlgorithm.CHACHA20_POLY1305:
                 // NOTE: Ignores macAlgorithm
                 return CreateChaCha20Poly1305(cryptoParams);
             case EncryptionAlgorithm.NULL:
                 return CreateNullCipher(cryptoParams, macAlgorithm);
-            case EncryptionAlgorithm.SM4_CCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_SM4_Ccm(cryptoParams);
-            case EncryptionAlgorithm.SM4_GCM:
-                // NOTE: Ignores macAlgorithm
-                return CreateCipher_SM4_Gcm(cryptoParams);
 
-            case EncryptionAlgorithm.cls_28147_CNT_IMIT:
-            case EncryptionAlgorithm.DES40_CBC:
-            case EncryptionAlgorithm.DES_CBC:
-            case EncryptionAlgorithm.IDEA_CBC:
-            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
-            case EncryptionAlgorithm.MAGMA_CTR_OMAC:
-            case EncryptionAlgorithm.RC2_CBC_40:
-            case EncryptionAlgorithm.RC4_128:
-            case EncryptionAlgorithm.RC4_40:
+
+
             default:
                 throw new TlsFatalAlert(AlertDescription.internal_error);
             }
@@ -157,10 +121,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        public override TlsKemDomain CreateKemDomain(TlsKemConfig kemConfig)
-        {
-            return new BcTlsMLKemDomain(this, kemConfig);
-        }
+
 
         public override TlsNonceGenerator CreateNonceGenerator(byte[] additionalSeedMaterial)
         {
@@ -294,35 +255,9 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case EncryptionAlgorithm.AES_128_CCM_8:
             case EncryptionAlgorithm.AES_128_GCM:
             case EncryptionAlgorithm.AES_256_CBC:
-            case EncryptionAlgorithm.AES_256_CCM:
-            case EncryptionAlgorithm.AES_256_CCM_8:
             case EncryptionAlgorithm.AES_256_GCM:
-            case EncryptionAlgorithm.ARIA_128_CBC:
-            case EncryptionAlgorithm.ARIA_128_GCM:
-            case EncryptionAlgorithm.ARIA_256_CBC:
-            case EncryptionAlgorithm.ARIA_256_GCM:
-            case EncryptionAlgorithm.CAMELLIA_128_CBC:
-            case EncryptionAlgorithm.CAMELLIA_128_GCM:
-            case EncryptionAlgorithm.CAMELLIA_256_CBC:
-            case EncryptionAlgorithm.CAMELLIA_256_GCM:
-            case EncryptionAlgorithm.CHACHA20_POLY1305:
-            case EncryptionAlgorithm.cls_3DES_EDE_CBC:
-            case EncryptionAlgorithm.NULL:
-            case EncryptionAlgorithm.SEED_CBC:
-            case EncryptionAlgorithm.SM4_CBC:
-            case EncryptionAlgorithm.SM4_CCM:
-            case EncryptionAlgorithm.SM4_GCM:
                 return true;
 
-            case EncryptionAlgorithm.cls_28147_CNT_IMIT:
-            case EncryptionAlgorithm.DES_CBC:
-            case EncryptionAlgorithm.DES40_CBC:
-            case EncryptionAlgorithm.IDEA_CBC:
-            case EncryptionAlgorithm.KUZNYECHIK_CTR_OMAC:
-            case EncryptionAlgorithm.MAGMA_CTR_OMAC:
-            case EncryptionAlgorithm.RC2_CBC_40:
-            case EncryptionAlgorithm.RC4_128:
-            case EncryptionAlgorithm.RC4_40:
             default:
                 return false;
             }
@@ -343,10 +278,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        public override bool HasKemAgreement()
-        {
-            return true;
-        }
+
 
         public override bool HasMacAlgorithm(int macAlgorithm)
         {
@@ -425,9 +357,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             {
             case SignatureScheme.sm2sig_sm3:
             // TODO[tls] Test coverage before adding
-            case SignatureScheme.mldsa44:
-            case SignatureScheme.mldsa65:
-            case SignatureScheme.mldsa87:
                 return false;
             default:
             {
@@ -491,8 +420,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new Sha512Digest((Sha512Digest)digest);
             case CryptoHashAlgorithm.sm3:
                 return new SM3Digest((SM3Digest)digest);
-            case CryptoHashAlgorithm.gostr3411_2012_256:
-                return new Gost3411_2012_256Digest((Gost3411_2012_256Digest)digest);
+
             default:
                 throw new ArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
             }
@@ -516,8 +444,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new Sha512Digest();
             case CryptoHashAlgorithm.sm3:
                 return new SM3Digest();
-            case CryptoHashAlgorithm.gostr3411_2012_256:
-                return new Gost3411_2012_256Digest();
+
             default:
                 throw new ArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
             }
@@ -532,21 +459,10 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         {
             switch (encryptionAlgorithm)
             {
-            case EncryptionAlgorithm.cls_3DES_EDE_CBC:
-                return CreateDesEdeEngine();
             case EncryptionAlgorithm.AES_128_CBC:
             case EncryptionAlgorithm.AES_256_CBC:
                 return CreateAesEngine();
-            case EncryptionAlgorithm.ARIA_128_CBC:
-            case EncryptionAlgorithm.ARIA_256_CBC:
-                return CreateAriaEngine();
-            case EncryptionAlgorithm.CAMELLIA_128_CBC:
-            case EncryptionAlgorithm.CAMELLIA_256_CBC:
-                return CreateCamelliaEngine();
-            case EncryptionAlgorithm.SEED_CBC:
-                return CreateSeedEngine();
-            case EncryptionAlgorithm.SM4_CBC:
-                return CreateSM4Engine();
+
             default:
                 throw new TlsFatalAlert(AlertDescription.internal_error);
             }
@@ -588,23 +504,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return new TlsAeadCipher(cryptoParams, encrypt, decrypt, cipherKeySize, macSize, TlsAeadCipher.AEAD_GCM);
         }
 
-        protected virtual TlsAeadCipher CreateCipher_Aria_Gcm(TlsCryptoParameters cryptoParams, int cipherKeySize,
-            int macSize)
-        {
-            BcTlsAeadCipherImpl encrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_Aria_Gcm(), true);
-            BcTlsAeadCipherImpl decrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_Aria_Gcm(), false);
 
-            return new TlsAeadCipher(cryptoParams, encrypt, decrypt, cipherKeySize, macSize, TlsAeadCipher.AEAD_GCM);
-        }
-
-        protected virtual TlsAeadCipher CreateCipher_Camellia_Gcm(TlsCryptoParameters cryptoParams, int cipherKeySize,
-            int macSize)
-        {
-            BcTlsAeadCipherImpl encrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_Camellia_Gcm(), true);
-            BcTlsAeadCipherImpl decrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_Camellia_Gcm(), false);
-
-            return new TlsAeadCipher(cryptoParams, encrypt, decrypt, cipherKeySize, macSize, TlsAeadCipher.AEAD_GCM);
-        }
 
         protected virtual TlsCipher CreateCipher_Cbc(TlsCryptoParameters cryptoParams, int encryptionAlgorithm,
             int cipherKeySize, int macAlgorithm)
@@ -618,21 +518,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return new TlsBlockCipher(cryptoParams, encrypt, decrypt, clientMac, serverMac, cipherKeySize);
         }
 
-        protected virtual TlsAeadCipher CreateCipher_SM4_Ccm(TlsCryptoParameters cryptoParams)
-        {
-            var encrypt = new BcTlsCcmImpl(CreateAeadCipher_SM4_Ccm(), true);
-            var decrypt = new BcTlsCcmImpl(CreateAeadCipher_SM4_Ccm(), false);
 
-            return new TlsAeadCipher(cryptoParams, encrypt, decrypt, 16, 16, TlsAeadCipher.AEAD_CCM);
-        }
-
-        protected virtual TlsAeadCipher CreateCipher_SM4_Gcm(TlsCryptoParameters cryptoParams)
-        {
-            BcTlsAeadCipherImpl encrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_SM4_Gcm(), true);
-            BcTlsAeadCipherImpl decrypt = new BcTlsAeadCipherImpl(CreateAeadCipher_SM4_Gcm(), false);
-
-            return new TlsAeadCipher(cryptoParams, encrypt, decrypt, 16, 16, TlsAeadCipher.AEAD_GCM);
-        }
 
         protected virtual TlsNullCipher CreateNullCipher(TlsCryptoParameters cryptoParams, int macAlgorithm)
         {
@@ -645,30 +531,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return AesUtilities.CreateEngine();
         }
 
-        protected virtual IBlockCipher CreateAriaEngine()
-        {
-            return new AriaEngine();
-        }
 
-        protected virtual IBlockCipher CreateCamelliaEngine()
-        {
-            return new CamelliaEngine();
-        }
-
-        protected virtual IBlockCipher CreateDesEdeEngine()
-        {
-            return new DesEdeEngine();
-        }
-
-        protected virtual IBlockCipher CreateSeedEngine()
-        {
-            return new SeedEngine();
-        }
-
-        protected virtual IBlockCipher CreateSM4Engine()
-        {
-            return new SM4Engine();
-        }
 
         protected virtual CcmBlockCipher CreateCcmMode(IBlockCipher engine)
         {
@@ -690,25 +553,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return CreateGcmMode(CreateAesEngine());
         }
 
-        protected virtual IAeadCipher CreateAeadCipher_Aria_Gcm()
-        {
-            return CreateGcmMode(CreateAriaEngine());
-        }
 
-        protected virtual IAeadCipher CreateAeadCipher_Camellia_Gcm()
-        {
-            return CreateGcmMode(CreateCamelliaEngine());
-        }
-
-        protected virtual CcmBlockCipher CreateAeadCipher_SM4_Ccm()
-        {
-            return CreateCcmMode(CreateSM4Engine());
-        }
-
-        protected virtual IAeadCipher CreateAeadCipher_SM4_Gcm()
-        {
-            return CreateGcmMode(CreateSM4Engine());
-        }
 
         public override TlsHmac CreateHmac(int macAlgorithm)
         {
@@ -773,26 +618,9 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return new BcTlsSrp6Client(srp6Client);
         }
 
-        public override TlsSrp6Server CreateSrp6Server(TlsSrpConfig srpConfig, BigInteger srpVerifier)
-        {
-            BigInteger[] ng = srpConfig.GetExplicitNG();
-            Srp6GroupParameters srpGroup = new Srp6GroupParameters(ng[0], ng[1]);
 
-            Srp6Server srp6Server = new Srp6Server();
-            srp6Server.Init(srpGroup, srpVerifier, CreateDigest(CryptoHashAlgorithm.sha1), SecureRandom);
 
-            return new BcTlsSrp6Server(srp6Server);
-        }
 
-        public override TlsSrp6VerifierGenerator CreateSrp6VerifierGenerator(TlsSrpConfig srpConfig)
-        {
-            BigInteger[] ng = srpConfig.GetExplicitNG();
-
-            Srp6VerifierGenerator srp6VerifierGenerator = new Srp6VerifierGenerator();
-            srp6VerifierGenerator.Init(ng[0], ng[1], CreateDigest(CryptoHashAlgorithm.sha1));
-
-            return new BcTlsSrp6VerifierGenerator(srp6VerifierGenerator);
-        }
 
         public override TlsSecret HkdfInit(int cryptoHashAlgorithm)
         {

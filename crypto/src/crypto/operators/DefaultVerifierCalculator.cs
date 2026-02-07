@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Crypto.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.IO;
 
-namespace Org.BouncyCastle.Crypto.Operators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators
 {
     // TODO[api] sealed
     public class DefaultVerifierCalculator

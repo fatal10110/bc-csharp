@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.Oiw
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw
 {
     public class ElGamalParameter
         : Asn1Encodable

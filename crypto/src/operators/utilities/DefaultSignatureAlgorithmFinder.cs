@@ -1,25 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.BC;
-using Org.BouncyCastle.Asn1.Bsi;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Eac;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.GM;
-using Org.BouncyCastle.Asn1.Isara;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.BC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Bsi;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.GM;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Isara;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Operators.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Operators.Utilities
 {
     public class DefaultSignatureAlgorithmFinder
         : ISignatureAlgorithmFinder
@@ -79,7 +77,7 @@ namespace Org.BouncyCastle.Operators.Utilities
 
         static DefaultSignatureAlgorithmFinder()
         {
-            AddAlgorithm("COMPOSITE", MiscObjectIdentifiers.id_alg_composite);
+
 
             AddAlgorithm("MD2WITHRSAENCRYPTION", PkcsObjectIdentifiers.MD2WithRsaEncryption);
             AddAlgorithm("MD2WITHRSA", PkcsObjectIdentifiers.MD2WithRsaEncryption);
@@ -162,45 +160,18 @@ namespace Org.BouncyCastle.Operators.Utilities
             AddAlgorithm("SHA3-256WITHRSAENCRYPTION", NistObjectIdentifiers.IdRsassaPkcs1V15WithSha3_256);
             AddAlgorithm("SHA3-384WITHRSAENCRYPTION", NistObjectIdentifiers.IdRsassaPkcs1V15WithSha3_384);
             AddAlgorithm("SHA3-512WITHRSAENCRYPTION", NistObjectIdentifiers.IdRsassaPkcs1V15WithSha3_512);
-            AddAlgorithm("GOST3411WITHGOST3410", CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94);
-            AddAlgorithm("GOST3411WITHGOST3410-94", CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94);
-            AddAlgorithm("GOST3411WITHECGOST3410", CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001);
-            AddAlgorithm("GOST3411WITHECGOST3410-2001", CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001);
-            AddAlgorithm("GOST3411WITHGOST3410-2001", CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001);
-            AddAlgorithm("GOST3411WITHECGOST3410-2012-256", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            AddAlgorithm("GOST3411WITHECGOST3410-2012-512", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
-            AddAlgorithm("GOST3411WITHGOST3410-2012-256", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            AddAlgorithm("GOST3411WITHGOST3410-2012-512", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
-            AddAlgorithm("GOST3411-2012-256WITHECGOST3410-2012-256", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            AddAlgorithm("GOST3411-2012-512WITHECGOST3410-2012-512", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
-            AddAlgorithm("GOST3411-2012-256WITHGOST3410-2012-256", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            AddAlgorithm("GOST3411-2012-512WITHGOST3410-2012-512", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
+
 
             // NOTE: Not in bc-java
-            AddAlgorithm("GOST3411-2012-256WITHECGOST3410", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            AddAlgorithm("GOST3411-2012-512WITHECGOST3410", RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
 
-            AddAlgorithm("SHA1WITHCVC-ECDSA", EacObjectIdentifiers.id_TA_ECDSA_SHA_1);
-            AddAlgorithm("SHA224WITHCVC-ECDSA", EacObjectIdentifiers.id_TA_ECDSA_SHA_224);
-            AddAlgorithm("SHA256WITHCVC-ECDSA", EacObjectIdentifiers.id_TA_ECDSA_SHA_256);
-            AddAlgorithm("SHA384WITHCVC-ECDSA", EacObjectIdentifiers.id_TA_ECDSA_SHA_384);
-            AddAlgorithm("SHA512WITHCVC-ECDSA", EacObjectIdentifiers.id_TA_ECDSA_SHA_512);
+
+
 #pragma warning disable CS0618 // Type or member is obsolete
             AddAlgorithm("SHA3-512WITHSPHINCS256", BCObjectIdentifiers.sphincs256_with_SHA3_512);
             AddAlgorithm("SHA512WITHSPHINCS256", BCObjectIdentifiers.sphincs256_with_SHA512);
 #pragma warning restore CS0618 // Type or member is obsolete
 
-            AddAlgorithm("SHA1WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA1);
-            AddAlgorithm("SHA224WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA224);
-            AddAlgorithm("SHA256WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA256);
-            AddAlgorithm("SHA384WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA384);
-            AddAlgorithm("SHA512WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA512);
-            AddAlgorithm("RIPEMD160WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_RIPEMD160);
 
-            AddAlgorithm("SHA3-224WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA3_224);
-            AddAlgorithm("SHA3-256WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA3_256);
-            AddAlgorithm("SHA3-384WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA3_384);
-            AddAlgorithm("SHA3-512WITHPLAIN-ECDSA", BsiObjectIdentifiers.ecdsa_plain_SHA3_512);
 
             // RFC 8692
             AddAlgorithm("SHAKE128WITHRSAPSS", X509ObjectIdentifiers.id_RSASSA_PSS_SHAKE128);
@@ -213,10 +184,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             //AddAlgorithm("RIPEMD160WITHSM2", GMObjectIdentifiers.sm2sign_with_rmd160);
             //AddAlgorithm("SHA1WITHSM2", GMObjectIdentifiers.sm2sign_with_sha1);
             //AddAlgorithm("SHA224WITHSM2", GMObjectIdentifiers.sm2sign_with_sha224);
-            AddAlgorithm("SHA256WITHSM2", GMObjectIdentifiers.sm2sign_with_sha256);
-            //AddAlgorithm("SHA384WITHSM2", GMObjectIdentifiers.sm2sign_with_sha384);
-            //AddAlgorithm("SHA512WITHSM2", GMObjectIdentifiers.sm2sign_with_sha512);
-            AddAlgorithm("SM3WITHSM2", GMObjectIdentifiers.sm2sign_with_sm3);
+
 
             AddAlgorithm("SHA256WITHXMSS", BCObjectIdentifiers.xmss_SHA256ph);
             AddAlgorithm("SHA512WITHXMSS", BCObjectIdentifiers.xmss_SHA512ph);
@@ -301,23 +269,14 @@ namespace Org.BouncyCastle.Operators.Utilities
             NoParams.Add(NistObjectIdentifiers.IdEcdsaWithSha3_512);
 
             //NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA1);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA224);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA256);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA384);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA512);
 
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_224);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_256);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_384);
-            NoParams.Add(BsiObjectIdentifiers.ecdsa_plain_SHA3_512);
+
+
 
             //
             // RFC 4491
             //
-            NoParams.Add(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94);
-            NoParams.Add(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001);
-            NoParams.Add(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256);
-            NoParams.Add(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512);
+
 
 #pragma warning disable CS0618 // Type or member is obsolete
             //
@@ -412,10 +371,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             //NoParams.Add(GMObjectIdentifiers.sm2sign_with_rmd160);
             //NoParams.Add(GMObjectIdentifiers.sm2sign_with_sha1);
             //NoParams.Add(GMObjectIdentifiers.sm2sign_with_sha224);
-            NoParams.Add(GMObjectIdentifiers.sm2sign_with_sha256);
-            //NoParams.Add(GMObjectIdentifiers.sm2sign_with_sha384);
-            //NoParams.Add(GMObjectIdentifiers.sm2sign_with_sha512);
-            NoParams.Add(GMObjectIdentifiers.sm2sign_with_sm3);
+
 
             // RFC 8692
             NoParams.Add(X509ObjectIdentifiers.id_RSASSA_PSS_SHAKE128);
@@ -492,10 +448,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             AddDigestOid(TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD128, TeleTrusTObjectIdentifiers.RipeMD128);
             AddDigestOid(TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD160, TeleTrusTObjectIdentifiers.RipeMD160);
             AddDigestOid(TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD256, TeleTrusTObjectIdentifiers.RipeMD256);
-            AddDigestOid(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94, CryptoProObjectIdentifiers.GostR3411);
-            AddDigestOid(CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001, CryptoProObjectIdentifiers.GostR3411);
-            AddDigestOid(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256, RosstandartObjectIdentifiers.id_tc26_gost_3411_12_256);
-            AddDigestOid(RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512, RosstandartObjectIdentifiers.id_tc26_gost_3411_12_512);
+
 
             AddDigestOid(X9ObjectIdentifiers.IdDsaWithSha1, OiwObjectIdentifiers.IdSha1);
             AddDigestOid(OiwObjectIdentifiers.DsaWithSha1, OiwObjectIdentifiers.IdSha1);
@@ -567,21 +520,7 @@ namespace Org.BouncyCastle.Operators.Utilities
             AddAlgorithm("Ed25519", EdECObjectIdentifiers.id_Ed25519, digestOid: null, isNoParams: true);
             AddAlgorithm("Ed448", EdECObjectIdentifiers.id_Ed448, digestOid: null, isNoParams: true);
 
-            /*
-             * ML-DSA
-             */
-            foreach (MLDsaParameters mlDsa in MLDsaParameters.ByName.Values)
-            {
-                AddAlgorithm(mlDsa.Name, mlDsa.Oid, mlDsa.PreHashOid, isNoParams: true);
-            }
 
-            /*
-             * SLH-DSA
-             */
-            foreach (SlhDsaParameters slhDsa in SlhDsaParameters.ByName.Values)
-            {
-                AddAlgorithm(slhDsa.Name, slhDsa.Oid, slhDsa.PreHashOid, isNoParams: true);
-            }
         }
 
         protected DefaultSignatureAlgorithmFinder()

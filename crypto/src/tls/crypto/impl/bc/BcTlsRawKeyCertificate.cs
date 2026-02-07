@@ -1,18 +1,17 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cmp;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /// <summary>Implementation class for a single X.509 certificate based on the BC light-weight API.</summary>
     public class BcTlsRawKeyCertificate
@@ -220,19 +219,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             //    return new BcTls13Verifier(verifier);
             //}
 
-            case SignatureScheme.mldsa44:
-            case SignatureScheme.mldsa65:
-            case SignatureScheme.mldsa87:
-            {
-                var mlDsaAlgOid = PqcUtilities.GetMLDsaObjectidentifier(signatureScheme);
-                ValidateMLDsa(mlDsaAlgOid);
 
-                var publicKey = GetPubKeyMLDsa();
-
-                var verifier = SignerUtilities.InitSigner(mlDsaAlgOid, forSigning: false, publicKey, random: null);
-
-                return new BcTls13Verifier(verifier);
-            }
 
             default:
                 throw new TlsFatalAlert(AlertDescription.internal_error);
@@ -366,17 +353,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         }
 
         /// <exception cref="IOException"/>
-        public virtual MLDsaPublicKeyParameters GetPubKeyMLDsa()
-        {
-            try
-            {
-                return (MLDsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not ML-DSA", e);
-            }
-        }
+
 
         /// <exception cref="IOException"/>
         public virtual RsaKeyParameters GetPubKeyRsa()
@@ -444,11 +421,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return true;
         }
 
-        protected virtual bool SupportsMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
-            return PqcUtilities.SupportsMLDsa(pubKeyAlgID, mlDsaAlgOid);
-        }
+
 
         protected virtual bool SupportsRsa_Pkcs1()
         {
@@ -542,11 +515,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         }
 
         /// <exception cref="IOException"/>
-        protected virtual void ValidateMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            if (!SupportsMLDsa(mlDsaAlgOid))
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "No support for ML-DSA signature scheme");
-        }
+
 
         /// <exception cref="IOException"/>
         protected virtual void ValidateRsa_Pkcs1()

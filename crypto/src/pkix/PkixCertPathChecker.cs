@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     public abstract class PkixCertPathChecker
     {

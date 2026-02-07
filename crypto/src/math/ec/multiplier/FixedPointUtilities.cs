@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier
 {
     public class FixedPointUtilities
     {

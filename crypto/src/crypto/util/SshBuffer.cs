@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities
 {
     internal class SshBuffer
     {

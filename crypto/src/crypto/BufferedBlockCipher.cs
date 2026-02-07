@@ -1,11 +1,11 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /**
 	* A wrapper class that allows block ciphers to be used to process data in
@@ -31,10 +31,7 @@ namespace Org.BouncyCastle.Crypto
         {
         }
 
-        public BufferedBlockCipher(IBlockCipher cipher)
-            : this(EcbBlockCipher.GetBlockCipherMode(cipher))
-        {
-        }
+
 
         /**
 		* Create a buffered block cipher without padding.

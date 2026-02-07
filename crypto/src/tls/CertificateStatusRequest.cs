@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Implementation of the RFC 3546 3.6. CertificateStatusRequest.</summary>
     public sealed class CertificateStatusRequest

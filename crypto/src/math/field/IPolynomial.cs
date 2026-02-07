@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.Field
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Field
 {
     public interface IPolynomial
     {

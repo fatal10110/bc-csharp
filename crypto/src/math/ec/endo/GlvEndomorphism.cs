@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.EC.Endo
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Endo
 {
     public interface GlvEndomorphism
         :   ECEndomorphism

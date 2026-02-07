@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
      * The TbsCertificate object.
@@ -151,7 +151,7 @@ namespace Org.BouncyCastle.Asn1.X509
         {
             if (m_seq != null)
             {
-                string property = Platform.GetEnvironmentVariable("Org.BouncyCastle.X509.Allow_Non-DER_TBSCert");
+                string property = Platform.GetEnvironmentVariable("TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Allow_Non-DER_TBSCert");
                 if (null == property || Platform.EqualsIgnoreCase("true", property))
                     return m_seq;
             }

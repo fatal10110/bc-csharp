@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier
 {
     /**
      * Class holding precomputation data for the WTNAF (Window

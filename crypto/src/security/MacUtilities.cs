@@ -1,21 +1,20 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Iana;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Paddings;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Iana;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Paddings;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     /// <remarks>
     ///  Utility class for creating HMac object from their names/Oids
@@ -35,7 +34,7 @@ namespace Org.BouncyCastle.Security
             AlgorithmOidMap[IanaObjectIdentifiers.HmacTiger] = "HMAC-TIGER";
 
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha1] = "HMAC-SHA1";
-            AlgorithmOidMap[MiscObjectIdentifiers.HMAC_SHA1] = "HMAC-SHA1";
+
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha224] = "HMAC-SHA224";
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha256] = "HMAC-SHA256";
             AlgorithmOidMap[PkcsObjectIdentifiers.IdHmacWithSha384] = "HMAC-SHA384";
@@ -48,39 +47,16 @@ namespace Org.BouncyCastle.Security
             AlgorithmOidMap[NistObjectIdentifiers.IdHMacWithSha3_384] = "HMAC-SHA3-384";
             AlgorithmOidMap[NistObjectIdentifiers.IdHMacWithSha3_512] = "HMAC-SHA3-512";
 
-            AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_hmac_gost_3411_12_256] = "HMAC-GOST3411-2012-256";
-            AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_hmac_gost_3411_12_512] = "HMAC-GOST3411-2012-512";
+
 
             // TODO AESMAC?
 
-            AlgorithmMap["DES"] = "DESMAC";
-            AlgorithmMap["DES/CFB8"] = "DESMAC/CFB8";
-            AlgorithmMap["DES64"] = "DESMAC64";
-            AlgorithmMap["DESEDE"] = "DESEDEMAC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.DesEde3Cbc] = "DESEDEMAC";
-            AlgorithmMap["DESEDE/CFB8"] = "DESEDEMAC/CFB8";
-            AlgorithmMap["DESISO9797MAC"] = "DESWITHISO9797";
-            AlgorithmMap["DESEDE64"] = "DESEDEMAC64";
 
-            AlgorithmMap["DESEDE64WITHISO7816-4PADDING"] = "DESEDEMAC64WITHISO7816-4PADDING";
-            AlgorithmMap["DESEDEISO9797ALG1MACWITHISO7816-4PADDING"] = "DESEDEMAC64WITHISO7816-4PADDING";
-            AlgorithmMap["DESEDEISO9797ALG1WITHISO7816-4PADDING"] = "DESEDEMAC64WITHISO7816-4PADDING";
 
-            AlgorithmMap["ISO9797ALG3"] = "ISO9797ALG3MAC";
-            AlgorithmMap["ISO9797ALG3MACWITHISO7816-4PADDING"] = "ISO9797ALG3WITHISO7816-4PADDING";
 
-            AlgorithmMap["SKIPJACK"] = "SKIPJACKMAC";
-            AlgorithmMap["SKIPJACK/CFB8"] = "SKIPJACKMAC/CFB8";
-            AlgorithmMap["IDEA"] = "IDEAMAC";
-            AlgorithmMap["IDEA/CFB8"] = "IDEAMAC/CFB8";
-            AlgorithmMap["RC2"] = "RC2MAC";
-            AlgorithmMap["RC2/CFB8"] = "RC2MAC/CFB8";
-            AlgorithmMap["RC5"] = "RC5MAC";
-            AlgorithmMap["RC5/CFB8"] = "RC5MAC/CFB8";
-            AlgorithmMap["GOST28147"] = "GOST28147MAC";
-            AlgorithmMap["VMPC"] = "VMPCMAC";
-            AlgorithmMap["VMPC-MAC"] = "VMPCMAC";
-            AlgorithmMap["SIPHASH"] = "SIPHASH-2-4";
+
+
+
 
             AlgorithmMap["PBEWITHHMACSHA"] = "PBEWITHHMACSHA1";
             AlgorithmOidMap[OiwObjectIdentifiers.IdSha1] = "PBEWITHHMACSHA1";
@@ -193,91 +169,8 @@ namespace Org.BouncyCastle.Security
             {
                 return new CMac(AesUtilities.CreateEngine());
             }
-            if (mechanism == "DESMAC")
-            {
-                return new CbcBlockCipherMac(new DesEngine());
-            }
-            if (mechanism == "DESMAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new DesEngine());
-            }
-            if (mechanism == "DESMAC64")
-            {
-                return new CbcBlockCipherMac(new DesEngine(), 64);
-            }
-            if (mechanism == "DESEDECMAC")
-            {
-                return new CMac(new DesEdeEngine());
-            }
-            if (mechanism == "DESEDEMAC")
-            {
-                return new CbcBlockCipherMac(new DesEdeEngine());
-            }
-            if (mechanism == "DESEDEMAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new DesEdeEngine());
-            }
-            if (mechanism == "DESEDEMAC64")
-            {
-                return new CbcBlockCipherMac(new DesEdeEngine(), 64);
-            }
-            if (mechanism == "DESEDEMAC64WITHISO7816-4PADDING")
-            {
-                return new CbcBlockCipherMac(new DesEdeEngine(), 64, new ISO7816d4Padding());
-            }
-            if (mechanism == "DESWITHISO9797"
-                || mechanism == "ISO9797ALG3MAC")
-            {
-                return new ISO9797Alg3Mac(new DesEngine());
-            }
-            if (mechanism == "ISO9797ALG3WITHISO7816-4PADDING")
-            {
-                return new ISO9797Alg3Mac(new DesEngine(), new ISO7816d4Padding());
-            }
-            if (mechanism == "SKIPJACKMAC")
-            {
-                return new CbcBlockCipherMac(new SkipjackEngine());
-            }
-            if (mechanism == "SKIPJACKMAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new SkipjackEngine());
-            }
-            if (mechanism == "IDEAMAC")
-            {
-                return new CbcBlockCipherMac(new IdeaEngine());
-            }
-            if (mechanism == "IDEAMAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new IdeaEngine());
-            }
-            if (mechanism == "RC2MAC")
-            {
-                return new CbcBlockCipherMac(new RC2Engine());
-            }
-            if (mechanism == "RC2MAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new RC2Engine());
-            }
-            if (mechanism == "RC5MAC")
-            {
-                return new CbcBlockCipherMac(new RC532Engine());
-            }
-            if (mechanism == "RC5MAC/CFB8")
-            {
-                return new CfbBlockCipherMac(new RC532Engine());
-            }
-            if (mechanism == "GOST28147MAC")
-            {
-                return new Gost28147Mac();
-            }
-            if (mechanism == "VMPCMAC")
-            {
-                return new VmpcMac();
-            }
-            if (mechanism == "SIPHASH-2-4")
-            {
-                return new SipHash();
-            }
+
+
             return null;
         }
 

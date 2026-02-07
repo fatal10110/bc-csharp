@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Math.EC.Multiplier
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier
 {
     public class FixedPointCombMultiplier
         : AbstractECMultiplier

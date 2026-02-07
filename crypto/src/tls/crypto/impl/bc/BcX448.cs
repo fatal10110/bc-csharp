@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.EC.Rfc7748;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Rfc7748;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /// <summary>Support class for X448 using the BC light-weight library.</summary>
     // TODO[api] Make sealed

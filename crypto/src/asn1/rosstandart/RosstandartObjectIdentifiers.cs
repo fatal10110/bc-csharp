@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Asn1.Rosstandart
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart
 {
     // TODO[api] Make static
     public abstract class RosstandartObjectIdentifiers
