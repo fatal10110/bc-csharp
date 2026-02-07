@@ -12,9 +12,9 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Math.EC.Rfc7748
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Rfc7748
 {
     public static class X25519Field
     {

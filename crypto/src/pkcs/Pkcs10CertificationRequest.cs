@@ -2,24 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Bsi;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Operators;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Bsi;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
-namespace Org.BouncyCastle.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs
 {
     /// <remarks>
     /// A class for verifying and creating Pkcs10 Certification requests.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Server certificate carrier interface.</summary>
     public interface TlsServerCertificate

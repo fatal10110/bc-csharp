@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Macs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs
 {
     /// <summary>
     /// Implementation of SipHash as specified in "SipHash: a fast short-input PRF", by Jean-Philippe

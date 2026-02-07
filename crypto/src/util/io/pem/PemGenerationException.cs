@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Utilities.IO.Pem
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem
 {
     [Serializable]
     public class PemGenerationException

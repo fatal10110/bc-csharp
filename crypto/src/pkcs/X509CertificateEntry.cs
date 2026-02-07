@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
-namespace Org.BouncyCastle.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs
 {
     public class X509CertificateEntry
         : Pkcs12Entry

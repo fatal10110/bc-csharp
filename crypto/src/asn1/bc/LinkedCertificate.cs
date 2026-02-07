@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.BC
 {
     /**
      * Extension to tie an alternate certificate to the containing certificate.

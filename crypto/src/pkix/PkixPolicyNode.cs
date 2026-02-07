@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Text;
 
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     /// <summary>
     /// Summary description for PkixPolicyNode.

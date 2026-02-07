@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Parsing and encoding of a <i>CertificateRequest</i> struct from RFC 4346.</summary>
     /// <remarks>

@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Asn1.Cryptlib
+﻿namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Cryptlib
 {
     internal static class CryptlibObjectIdentifiers
     {

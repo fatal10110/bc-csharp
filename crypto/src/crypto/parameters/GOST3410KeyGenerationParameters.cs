@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
 	public class Gost3410KeyGenerationParameters
 		: KeyGenerationParameters

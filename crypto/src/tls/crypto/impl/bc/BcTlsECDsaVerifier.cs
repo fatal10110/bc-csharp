@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /// <summary>Implementation class for the verification of the raw ECDSA signature type using the BC light-weight
     /// API.</summary>

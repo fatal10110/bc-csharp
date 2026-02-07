@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs
 {
     public class RsaesOaepParameters
 		: Asn1Encodable

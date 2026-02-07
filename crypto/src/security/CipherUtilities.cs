@@ -1,28 +1,27 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Nsri;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Agreement;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Paddings;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Kisa;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nsri;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ntt;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Encodings;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Paddings;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     /// <remarks>
     ///  Cipher Utility class contains methods that can not be specifically grouped into other classes.
@@ -31,45 +30,8 @@ namespace Org.BouncyCastle.Security
     {
         private enum CipherAlgorithm {
             AES,
-            ARC4,
-            ARIA,
-            BLOWFISH,
-            CAMELLIA,
-            CAST5,
-            CAST6,
-            CHACHA,
-            CHACHA20_POLY1305,
-            CHACHA7539,
-            DES,
-            DESEDE,
-            ELGAMAL,
-            GOST28147,
-            HC128,
-            HC256,
-            IDEA,
-            NOEKEON,
-            PBEWITHSHAAND128BITRC4,
-            PBEWITHSHAAND40BITRC4,
-            RC2,
-            RC5,
-            RC5_64,
-            RC6,
-            RIJNDAEL,
-            RSA,
-            SALSA20,
-            SEED,
-            SERPENT,
-            SKIPJACK,
-            SM4,
-            TEA,
-            THREEFISH_256,
-            THREEFISH_512,
-            THREEFISH_1024,
-            TNEPRES,
-            TWOFISH,
-            VMPC,
-            VMPC_KSA3,
-            XTEA,
+
+
         };
 
         private enum CipherMode { ECB, NONE, CBC, CCM, CFB, CTR, CTS, EAX, GCM, GOFB, OCB, OFB, OPENPGPCFB, SIC };
@@ -139,13 +101,7 @@ namespace Org.BouncyCastle.Security
             AlgorithmOidMap[NistObjectIdentifiers.IdAes192Cfb] = "AES/CFB/NOPADDING";
             AlgorithmOidMap[NistObjectIdentifiers.IdAes256Cfb] = "AES/CFB/NOPADDING";
 
-            AlgorithmOidMap[NistObjectIdentifiers.IdAes128Ecb] = "AES/ECB/PKCS7PADDING";
-            AlgorithmOidMap[NistObjectIdentifiers.IdAes192Ecb] = "AES/ECB/PKCS7PADDING";
-            AlgorithmOidMap[NistObjectIdentifiers.IdAes256Ecb] = "AES/ECB/PKCS7PADDING";
-            AlgorithmMap["AES//PKCS7"] = "AES/ECB/PKCS7PADDING";
-            AlgorithmMap["AES//PKCS7PADDING"] = "AES/ECB/PKCS7PADDING";
-            AlgorithmMap["AES//PKCS5"] = "AES/ECB/PKCS7PADDING";
-            AlgorithmMap["AES//PKCS5PADDING"] = "AES/ECB/PKCS7PADDING";
+
 
             AlgorithmOidMap[NistObjectIdentifiers.IdAes128Gcm] = "AES/GCM/NOPADDING";
             AlgorithmOidMap[NistObjectIdentifiers.IdAes192Gcm] = "AES/GCM/NOPADDING";
@@ -155,83 +111,24 @@ namespace Org.BouncyCastle.Security
             AlgorithmOidMap[NistObjectIdentifiers.IdAes192Ofb] = "AES/OFB/NOPADDING";
             AlgorithmOidMap[NistObjectIdentifiers.IdAes256Ofb] = "AES/OFB/NOPADDING";
 
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_cbc] = "ARIA/CBC/PKCS7PADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_cbc] = "ARIA/CBC/PKCS7PADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_cbc] = "ARIA/CBC/PKCS7PADDING";
 
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_ccm] = "ARIA/CCM/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_ccm] = "ARIA/CCM/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_ccm] = "ARIA/CCM/NOPADDING";
-
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_cfb] = "ARIA/CFB/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_cfb] = "ARIA/CFB/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_cfb] = "ARIA/CFB/NOPADDING";
-
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_ctr] = "ARIA/CTR/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_ctr] = "ARIA/CTR/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_ctr] = "ARIA/CTR/NOPADDING";
-
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_ecb] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_ecb] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_ecb] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmMap["ARIA//PKCS7"] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmMap["ARIA//PKCS7PADDING"] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmMap["ARIA//PKCS5"] = "ARIA/ECB/PKCS7PADDING";
-            AlgorithmMap["ARIA//PKCS5PADDING"] = "ARIA/ECB/PKCS7PADDING";
-
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_gcm] = "ARIA/GCM/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_gcm] = "ARIA/GCM/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_gcm] = "ARIA/GCM/NOPADDING";
-
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria128_ofb] = "ARIA/OFB/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria192_ofb] = "ARIA/OFB/NOPADDING";
-            AlgorithmOidMap[NsriObjectIdentifiers.id_aria256_ofb] = "ARIA/OFB/NOPADDING";
 
             AlgorithmMap["RSA/ECB/PKCS1"] = "RSA//PKCS1PADDING";
             AlgorithmMap["RSA/ECB/PKCS1PADDING"] = "RSA//PKCS1PADDING";
             AlgorithmOidMap[PkcsObjectIdentifiers.RsaEncryption] = "RSA//PKCS1PADDING";
             AlgorithmOidMap[PkcsObjectIdentifiers.IdRsaesOaep] = "RSA//OAEPPADDING";
 
-            AlgorithmOidMap[OiwObjectIdentifiers.DesCbc] = "DES/CBC";
-            AlgorithmOidMap[OiwObjectIdentifiers.DesCfb] = "DES/CFB";
-            AlgorithmOidMap[OiwObjectIdentifiers.DesEcb] = "DES/ECB";
-            AlgorithmOidMap[OiwObjectIdentifiers.DesOfb] = "DES/OFB";
-            AlgorithmOidMap[OiwObjectIdentifiers.DesEde] = "DESEDE";
-            AlgorithmMap["TDEA"] = "DESEDE";
-            AlgorithmOidMap[PkcsObjectIdentifiers.DesEde3Cbc] = "DESEDE/CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.RC2Cbc] = "RC2/CBC";
-            AlgorithmOidMap[MiscObjectIdentifiers.as_sys_sec_alg_ideaCBC] = "IDEA/CBC";
-            AlgorithmOidMap[MiscObjectIdentifiers.cast5CBC] = "CAST5/CBC";
-
-            AlgorithmMap["RC4"] = "ARC4";
-            AlgorithmMap["ARCFOUR"] = "ARC4";
-            AlgorithmOidMap[PkcsObjectIdentifiers.rc4] = "ARC4";
 
 
 
-            AlgorithmMap["PBEWITHSHA1AND128BITRC4"] = "PBEWITHSHAAND128BITRC4";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithShaAnd128BitRC4] = "PBEWITHSHAAND128BITRC4";
-            AlgorithmMap["PBEWITHSHA1AND40BITRC4"] = "PBEWITHSHAAND40BITRC4";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithShaAnd40BitRC4] = "PBEWITHSHAAND40BITRC4";
 
-            AlgorithmMap["PBEWITHSHA1ANDDES"] = "PBEWITHSHA1ANDDES-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithSha1AndDesCbc] = "PBEWITHSHA1ANDDES-CBC";
-            AlgorithmMap["PBEWITHSHA1ANDRC2"] = "PBEWITHSHA1ANDRC2-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithSha1AndRC2Cbc] = "PBEWITHSHA1ANDRC2-CBC";
 
-            AlgorithmMap["PBEWITHSHA1AND3-KEYTRIPLEDES-CBC"] = "PBEWITHSHAAND3-KEYTRIPLEDES-CBC";
-            AlgorithmMap["PBEWITHSHAAND3KEYTRIPLEDES"] = "PBEWITHSHAAND3-KEYTRIPLEDES-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithShaAnd3KeyTripleDesCbc] = "PBEWITHSHAAND3-KEYTRIPLEDES-CBC";
-            AlgorithmMap["PBEWITHSHA1ANDDESEDE"] = "PBEWITHSHAAND3-KEYTRIPLEDES-CBC";
 
-            AlgorithmMap["PBEWITHSHA1AND2-KEYTRIPLEDES-CBC"] = "PBEWITHSHAAND2-KEYTRIPLEDES-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithShaAnd2KeyTripleDesCbc] = "PBEWITHSHAAND2-KEYTRIPLEDES-CBC";
 
-            AlgorithmMap["PBEWITHSHA1AND128BITRC2-CBC"] = "PBEWITHSHAAND128BITRC2-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbeWithShaAnd128BitRC2Cbc] = "PBEWITHSHAAND128BITRC2-CBC";
 
-            AlgorithmMap["PBEWITHSHA1AND40BITRC2-CBC"] = "PBEWITHSHAAND40BITRC2-CBC";
-            AlgorithmOidMap[PkcsObjectIdentifiers.PbewithShaAnd40BitRC2Cbc] = "PBEWITHSHAAND40BITRC2-CBC";
+
+
+
 
             AlgorithmMap["PBEWITHSHA1AND128BITAES-CBC-BC"] = "PBEWITHSHAAND128BITAES-CBC-BC";
             AlgorithmMap["PBEWITHSHA-1AND128BITAES-CBC-BC"] = "PBEWITHSHAAND128BITAES-CBC-BC";
@@ -247,27 +144,7 @@ namespace Org.BouncyCastle.Security
             AlgorithmMap["PBEWITHSHA-256AND256BITAES-CBC-BC"] = "PBEWITHSHA256AND256BITAES-CBC-BC";
 
 
-            AlgorithmMap["GOST"] = "GOST28147";
-            AlgorithmMap["GOST-28147"] = "GOST28147";
-            AlgorithmOidMap[CryptoProObjectIdentifiers.GostR28147Gcfb] = "GOST28147/CBC/PKCS7PADDING";
 
-            AlgorithmMap["RC5-32"] = "RC5";
-
-            AlgorithmOidMap[NttObjectIdentifiers.IdCamellia128Cbc] = "CAMELLIA/CBC/PKCS7PADDING";
-            AlgorithmOidMap[NttObjectIdentifiers.IdCamellia192Cbc] = "CAMELLIA/CBC/PKCS7PADDING";
-            AlgorithmOidMap[NttObjectIdentifiers.IdCamellia256Cbc] = "CAMELLIA/CBC/PKCS7PADDING";
-
-            AlgorithmOidMap[KisaObjectIdentifiers.IdSeedCbc] = "SEED/CBC/PKCS7PADDING";
-
-            /*
-             * TODO[api] Incorrect version of cryptlib_algorithm_blowfish_CBC
-             * Remove at major version update and delete bad test data "pbes2.bf-cbc.key"
-             */
-            AlgorithmOidMap[new DerObjectIdentifier("1.3.6.1.4.1.3029.1.2")] = "BLOWFISH/CBC";
-            AlgorithmOidMap[MiscObjectIdentifiers.cryptlib_algorithm_blowfish_CBC] = "BLOWFISH/CBC";
-
-            AlgorithmMap["CHACHA20"] = "CHACHA7539";
-            AlgorithmOidMap[PkcsObjectIdentifiers.IdAlgAeadChaCha20Poly1305] = "CHACHA20-POLY1305";
 
 #if DEBUG
             foreach (var key in AlgorithmMap.Keys)
@@ -358,28 +235,7 @@ namespace Org.BouncyCastle.Security
             {
                 if (Platform.EndsWith(mechanism, "-CBC"))
                 {
-                    if (mechanism == "PBEWITHSHA1ANDDES-CBC")
-                    {
-                        return new PaddedBufferedBlockCipher(
-                            new CbcBlockCipher(new DesEngine()));
-                    }
-                    else if (mechanism == "PBEWITHSHA1ANDRC2-CBC")
-                    {
-                        return new PaddedBufferedBlockCipher(
-                            new CbcBlockCipher(new RC2Engine()));
-                    }
-                    else if (Strings.IsOneOf(mechanism,
-                        "PBEWITHSHAAND2-KEYTRIPLEDES-CBC", "PBEWITHSHAAND3-KEYTRIPLEDES-CBC"))
-                    {
-                        return new PaddedBufferedBlockCipher(
-                            new CbcBlockCipher(new DesEdeEngine()));
-                    }
-                    else if (Strings.IsOneOf(mechanism,
-                        "PBEWITHSHAAND128BITRC2-CBC", "PBEWITHSHAAND40BITRC2-CBC"))
-                    {
-                        return new PaddedBufferedBlockCipher(
-                            new CbcBlockCipher(new RC2Engine()));
-                    }
+
                 }
                 else if (Platform.EndsWith(mechanism, "-BC") || Platform.EndsWith(mechanism, "-OPENSSL"))
                 {
@@ -419,121 +275,8 @@ namespace Org.BouncyCastle.Security
             case CipherAlgorithm.AES:
                 blockCipher = AesUtilities.CreateEngine();
                 break;
-            case CipherAlgorithm.ARC4:
-                streamCipher = new RC4Engine();
-                break;
-            case CipherAlgorithm.ARIA:
-                blockCipher = new AriaEngine();
-                break;
-            case CipherAlgorithm.BLOWFISH:
-                blockCipher = new BlowfishEngine();
-                break;
-            case CipherAlgorithm.CAMELLIA:
-                blockCipher = new CamelliaEngine();
-                break;
-            case CipherAlgorithm.CAST5:
-                blockCipher = new Cast5Engine();
-                break;
-            case CipherAlgorithm.CAST6:
-                blockCipher = new Cast6Engine();
-                break;
-            case CipherAlgorithm.CHACHA:
-                streamCipher = new ChaChaEngine();
-                break;
-            case CipherAlgorithm.CHACHA20_POLY1305:
-                aeadCipher = new ChaCha20Poly1305();
-                break;
-            case CipherAlgorithm.CHACHA7539:
-                streamCipher = new ChaCha7539Engine();
-                break;
-            case CipherAlgorithm.DES:
-                blockCipher = new DesEngine();
-                break;
-            case CipherAlgorithm.DESEDE:
-                blockCipher = new DesEdeEngine();
-                break;
-            case CipherAlgorithm.ELGAMAL:
-                asymBlockCipher = new ElGamalEngine();
-                break;
-            case CipherAlgorithm.GOST28147:
-                blockCipher = new Gost28147Engine();
-                break;
-            case CipherAlgorithm.HC128:
-                streamCipher = new HC128Engine();
-                break;
-            case CipherAlgorithm.HC256:
-                streamCipher = new HC256Engine();
-                break;
-            case CipherAlgorithm.IDEA:
-                blockCipher = new IdeaEngine();
-                break;
-            case CipherAlgorithm.NOEKEON:
-                blockCipher = new NoekeonEngine();
-                break;
-            case CipherAlgorithm.PBEWITHSHAAND128BITRC4:
-            case CipherAlgorithm.PBEWITHSHAAND40BITRC4:
-                streamCipher = new RC4Engine();
-                break;
-            case CipherAlgorithm.RC2:
-                blockCipher = new RC2Engine();
-                break;
-            case CipherAlgorithm.RC5:
-                blockCipher = new RC532Engine();
-                break;
-            case CipherAlgorithm.RC5_64:
-                blockCipher = new RC564Engine();
-                break;
-            case CipherAlgorithm.RC6:
-                blockCipher = new RC6Engine();
-                break;
-            case CipherAlgorithm.RIJNDAEL:
-                blockCipher = new RijndaelEngine();
-                break;
-            case CipherAlgorithm.RSA:
-                asymBlockCipher = new RsaBlindedEngine();
-                break;
-            case CipherAlgorithm.SALSA20:
-                streamCipher = new Salsa20Engine();
-                break;
-            case CipherAlgorithm.SEED:
-                blockCipher = new SeedEngine();
-                break;
-            case CipherAlgorithm.SERPENT:
-                blockCipher = new SerpentEngine();
-                break;
-            case CipherAlgorithm.SKIPJACK:
-                blockCipher = new SkipjackEngine();
-                break;
-            case CipherAlgorithm.SM4:
-                blockCipher = new SM4Engine();
-                break;
-            case CipherAlgorithm.TEA:
-                blockCipher = new TeaEngine();
-                break;
-            case CipherAlgorithm.THREEFISH_256:
-                blockCipher = new ThreefishEngine(ThreefishEngine.BLOCKSIZE_256);
-                break;
-            case CipherAlgorithm.THREEFISH_512:
-                blockCipher = new ThreefishEngine(ThreefishEngine.BLOCKSIZE_512);
-                break;
-            case CipherAlgorithm.THREEFISH_1024:
-                blockCipher = new ThreefishEngine(ThreefishEngine.BLOCKSIZE_1024);
-                break;
-            case CipherAlgorithm.TNEPRES:
-                blockCipher = new TnepresEngine();
-                break;
-            case CipherAlgorithm.TWOFISH:
-                blockCipher = new TwofishEngine();
-                break;
-            case CipherAlgorithm.VMPC:
-                streamCipher = new VmpcEngine();
-                break;
-            case CipherAlgorithm.VMPC_KSA3:
-                streamCipher = new VmpcKsa3Engine();
-                break;
-            case CipherAlgorithm.XTEA:
-                blockCipher = new XteaEngine();
-                break;
+
+
             default:
                 return null;
             }
@@ -753,10 +496,7 @@ namespace Org.BouncyCastle.Security
 
             if (blockCipher != null)
             {
-                if (blockCipherMode == null)
-                {
-                    blockCipherMode = EcbBlockCipher.GetBlockCipherMode(blockCipher);
-                }
+                    throw new SecurityUtilityException("ECB mode not supported");
 
                 if (cts)
                     return new CtsBlockCipher(blockCipherMode);
@@ -806,32 +546,7 @@ namespace Org.BouncyCastle.Security
             switch (cipherAlgorithm)
             {
             case CipherAlgorithm.AES: return AesUtilities.CreateEngine();
-            case CipherAlgorithm.ARIA: return new AriaEngine();
-            case CipherAlgorithm.BLOWFISH: return new BlowfishEngine();
-            case CipherAlgorithm.CAMELLIA: return new CamelliaEngine();
-            case CipherAlgorithm.CAST5: return new Cast5Engine();
-            case CipherAlgorithm.CAST6: return new Cast6Engine();
-            case CipherAlgorithm.DES: return new DesEngine();
-            case CipherAlgorithm.DESEDE: return new DesEdeEngine();
-            case CipherAlgorithm.GOST28147: return new Gost28147Engine();
-            case CipherAlgorithm.IDEA: return new IdeaEngine();
-            case CipherAlgorithm.NOEKEON: return new NoekeonEngine();
-            case CipherAlgorithm.RC2: return new RC2Engine();
-            case CipherAlgorithm.RC5: return new RC532Engine();
-            case CipherAlgorithm.RC5_64: return new RC564Engine();
-            case CipherAlgorithm.RC6: return new RC6Engine();
-            case CipherAlgorithm.RIJNDAEL: return new RijndaelEngine();
-            case CipherAlgorithm.SEED: return new SeedEngine();
-            case CipherAlgorithm.SERPENT: return new SerpentEngine();
-            case CipherAlgorithm.SKIPJACK: return new SkipjackEngine();
-            case CipherAlgorithm.SM4: return new SM4Engine();
-            case CipherAlgorithm.TEA: return new TeaEngine();
-            case CipherAlgorithm.THREEFISH_256: return new ThreefishEngine(ThreefishEngine.BLOCKSIZE_256);
-            case CipherAlgorithm.THREEFISH_512: return new ThreefishEngine(ThreefishEngine.BLOCKSIZE_512);
-            case CipherAlgorithm.THREEFISH_1024: return new ThreefishEngine(ThreefishEngine.BLOCKSIZE_1024);
-            case CipherAlgorithm.TNEPRES: return new TnepresEngine();
-            case CipherAlgorithm.TWOFISH: return new TwofishEngine();
-            case CipherAlgorithm.XTEA: return new XteaEngine();
+
             default:
                 throw new SecurityUtilityException("Cipher " + cipherAlgorithm + " not recognised or not a block cipher");
             }

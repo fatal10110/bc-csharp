@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Math.EC.Rfc8032;
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Rfc8032;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
     public sealed class Ed448PublicKeyParameters
         : AsymmetricKeyParameter

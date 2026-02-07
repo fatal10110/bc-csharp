@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Buffers input until the hash algorithm is determined.</summary>
     internal sealed class DeferredHash

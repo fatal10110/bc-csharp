@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs
 {
 	/// <summary>Base exception for PKCS related issues.</summary>
 	[Serializable]

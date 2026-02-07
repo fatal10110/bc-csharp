@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto.IO;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Operators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators
 {
     public class Asn1CipherBuilderWithKey : ICipherBuilderWithKey
     {

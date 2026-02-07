@@ -3,11 +3,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.ExceptionServices;
 
-using Org.BouncyCastle.Tls.Crypto;
-using Org.BouncyCastle.Tls.Crypto.Impl;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>An implementation of the TLS 1.0/1.1/1.2 record layer.</summary>
     internal sealed class RecordStream

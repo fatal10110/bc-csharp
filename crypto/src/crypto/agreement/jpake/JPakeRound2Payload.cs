@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Agreement.JPake
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement.JPake
 {
     /// <summary>
     /// The payload sent/received during the second round of a J-PAKE exchange.

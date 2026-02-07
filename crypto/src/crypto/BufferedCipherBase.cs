@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     public abstract class BufferedCipherBase
         : IBufferedCipher

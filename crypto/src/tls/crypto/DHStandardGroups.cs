@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Standard Diffie-Hellman groups from various IETF specifications.</summary>
     public class DHStandardGroups

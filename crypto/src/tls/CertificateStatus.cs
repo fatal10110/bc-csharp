@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Ocsp;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ocsp;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     public sealed class CertificateStatus
     {

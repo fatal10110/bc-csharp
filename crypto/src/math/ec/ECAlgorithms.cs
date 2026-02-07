@@ -1,11 +1,11 @@
 using System;
 
-using Org.BouncyCastle.Math.EC.Endo;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Math.Field;
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Endo;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Field;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Math.EC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC
 {
     public class ECAlgorithms
     {

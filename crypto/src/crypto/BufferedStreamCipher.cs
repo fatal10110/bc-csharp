@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
 	public class BufferedStreamCipher
 		: BufferedCipherBase

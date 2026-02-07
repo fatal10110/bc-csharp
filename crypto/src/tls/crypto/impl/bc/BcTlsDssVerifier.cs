@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Signers;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /// <summary>BC light-weight base class for the verifiers supporting the two DSA style algorithms from FIPS PUB
     /// 186-4: DSA and ECDSA.</summary>

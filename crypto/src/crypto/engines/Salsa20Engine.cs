@@ -8,11 +8,11 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines
 {
 	/// <summary>
 	/// Implementation of Daniel J. Bernstein's Salsa20 stream cipher, Snuffle 2005

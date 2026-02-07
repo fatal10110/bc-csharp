@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Interface for MAC services.</summary>
     public interface TlsMac

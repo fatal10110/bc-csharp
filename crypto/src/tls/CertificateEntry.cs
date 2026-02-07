@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     public sealed class CertificateEntry
     {

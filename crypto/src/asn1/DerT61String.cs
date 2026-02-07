@@ -1,9 +1,9 @@
 using System;
 using System.IO;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     /**
      * Der T61String (also the teletex string) - 8-bit characters

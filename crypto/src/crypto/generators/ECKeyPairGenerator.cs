@@ -1,15 +1,15 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators
 {
     public class ECKeyPairGenerator
         : IAsymmetricCipherKeyPairGenerator

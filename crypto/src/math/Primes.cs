@@ -1,11 +1,11 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math
 {
     /// <summary>Utility methods for generating primes and testing for primality.</summary>
     public static class Primes

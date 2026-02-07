@@ -1,20 +1,20 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509
 {
     /// <summary>
     /// A factory to produce Public Key Info Objects.
@@ -156,29 +156,7 @@ namespace Org.BouncyCastle.X509
                 return new SubjectPublicKeyInfo(algID, ed25519Key.GetEncoded());
             }
 
-            if (publicKey is MLDsaPublicKeyParameters mlDsaKey)
-            {
-                var algID = new AlgorithmIdentifier(mlDsaKey.Parameters.Oid);
 
-                // TODO[pqc] Avoid redundant copies?
-                return new SubjectPublicKeyInfo(algID, publicKey: mlDsaKey.GetEncoded());
-            }
-
-            if (publicKey is MLKemPublicKeyParameters mlKemKey)
-            {
-                var algID = new AlgorithmIdentifier(mlKemKey.Parameters.Oid);
-
-                // TODO[pqc] Avoid redundant copies?
-                return new SubjectPublicKeyInfo(algID, publicKey: mlKemKey.GetEncoded());
-            }
-
-            if (publicKey is SlhDsaPublicKeyParameters slhDsaKey)
-            {
-                var algID = new AlgorithmIdentifier(slhDsaKey.Parameters.Oid);
-
-                // TODO[pqc] Avoid redundant copies?
-                return new SubjectPublicKeyInfo(algID, publicKey: slhDsaKey.GetEncoded());
-            }
 
             throw new ArgumentException("Class provided no convertible: " + Platform.GetTypeName(publicKey));
         }

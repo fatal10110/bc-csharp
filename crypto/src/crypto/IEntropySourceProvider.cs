@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>
     /// Base interface describing a provider of entropy sources.

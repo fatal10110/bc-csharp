@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Parsing and encoding of a <i>Certificate</i> struct from RFC 4346.</summary>
     /// <remarks>

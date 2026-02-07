@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9
 {
     // TODO[api] Make static
     public abstract class X9ObjectIdentifiers

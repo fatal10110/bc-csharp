@@ -1,8 +1,8 @@
 ﻿using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>Base class for supporting a TLS key exchange implementation.</summary>
     public abstract class AbstractTlsKeyExchange

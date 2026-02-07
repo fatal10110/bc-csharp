@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>
     /// Operators that reduce their input to a single block return an object

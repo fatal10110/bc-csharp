@@ -1,29 +1,28 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Bsi;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.Eac;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.GM;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.TeleTrust;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Digests;
-using Org.BouncyCastle.Crypto.Encodings;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Signers;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Bsi;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.GM;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.TeleTrust;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Encodings;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     /// <summary>
     ///  Signer Utility class contains methods that can not be specifically grouped into other classes.
@@ -308,116 +307,9 @@ namespace Org.BouncyCastle.Security
             AlgorithmMap["SHA3-512WITHECDSA"] = "SHA3-512withECDSA";
             AlgorithmOidMap[NistObjectIdentifiers.IdEcdsaWithSha3_512] = "SHA3-512withECDSA";
 
-            AlgorithmMap["NONEWITHCVC-ECDSA"] = "NONEwithCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHNONE"] = "NONEwithCVC-ECDSA";
 
-            AlgorithmMap["SHA1/CVC-ECDSA"] = "SHA-1withCVC-ECDSA";
-            AlgorithmMap["SHA-1/CVC-ECDSA"] = "SHA-1withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA1"] = "SHA-1withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA-1"] = "SHA-1withCVC-ECDSA";
-            AlgorithmMap["SHA1WITHCVC-ECDSA"] = "SHA-1withCVC-ECDSA";
-            AlgorithmMap["SHA-1WITHCVC-ECDSA"] = "SHA-1withCVC-ECDSA";
-            AlgorithmOidMap[EacObjectIdentifiers.id_TA_ECDSA_SHA_1] = "SHA-1withCVC-ECDSA";
 
-            AlgorithmMap["SHA224/CVC-ECDSA"] = "SHA-224withCVC-ECDSA";
-            AlgorithmMap["SHA-224/CVC-ECDSA"] = "SHA-224withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA224"] = "SHA-224withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA-224"] = "SHA-224withCVC-ECDSA";
-            AlgorithmMap["SHA224WITHCVC-ECDSA"] = "SHA-224withCVC-ECDSA";
-            AlgorithmMap["SHA-224WITHCVC-ECDSA"] = "SHA-224withCVC-ECDSA";
-            AlgorithmOidMap[EacObjectIdentifiers.id_TA_ECDSA_SHA_224] = "SHA-224withCVC-ECDSA";
 
-            AlgorithmMap["SHA256/CVC-ECDSA"] = "SHA-256withCVC-ECDSA";
-            AlgorithmMap["SHA-256/CVC-ECDSA"] = "SHA-256withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA256"] = "SHA-256withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA-256"] = "SHA-256withCVC-ECDSA";
-            AlgorithmMap["SHA256WITHCVC-ECDSA"] = "SHA-256withCVC-ECDSA";
-            AlgorithmMap["SHA-256WITHCVC-ECDSA"] = "SHA-256withCVC-ECDSA";
-            AlgorithmOidMap[EacObjectIdentifiers.id_TA_ECDSA_SHA_256] = "SHA-256withCVC-ECDSA";
-
-            AlgorithmMap["SHA384/CVC-ECDSA"] = "SHA-384withCVC-ECDSA";
-            AlgorithmMap["SHA-384/CVC-ECDSA"] = "SHA-384withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA384"] = "SHA-384withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA-384"] = "SHA-384withCVC-ECDSA";
-            AlgorithmMap["SHA384WITHCVC-ECDSA"] = "SHA-384withCVC-ECDSA";
-            AlgorithmMap["SHA-384WITHCVC-ECDSA"] = "SHA-384withCVC-ECDSA";
-            AlgorithmOidMap[EacObjectIdentifiers.id_TA_ECDSA_SHA_384] = "SHA-384withCVC-ECDSA";
-
-            AlgorithmMap["SHA512/CVC-ECDSA"] = "SHA-512withCVC-ECDSA";
-            AlgorithmMap["SHA-512/CVC-ECDSA"] = "SHA-512withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA512"] = "SHA-512withCVC-ECDSA";
-            AlgorithmMap["CVC-ECDSAWITHSHA-512"] = "SHA-512withCVC-ECDSA";
-            AlgorithmMap["SHA512WITHCVC-ECDSA"] = "SHA-512withCVC-ECDSA";
-            AlgorithmMap["SHA-512WITHCVC-ECDSA"] = "SHA-512withCVC-ECDSA";
-            AlgorithmOidMap[EacObjectIdentifiers.id_TA_ECDSA_SHA_512] = "SHA-512withCVC-ECDSA";
-
-            AlgorithmMap["NONEWITHPLAIN-ECDSA"] = "NONEwithPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHNONE"] = "NONEwithPLAIN-ECDSA";
-
-            AlgorithmMap["SHA1/PLAIN-ECDSA"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmMap["SHA-1/PLAIN-ECDSA"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA1"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA-1"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmMap["SHA1WITHPLAIN-ECDSA"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmMap["SHA-1WITHPLAIN-ECDSA"] = "SHA-1withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA1] = "SHA-1withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA224/PLAIN-ECDSA"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmMap["SHA-224/PLAIN-ECDSA"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA224"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA-224"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmMap["SHA224WITHPLAIN-ECDSA"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmMap["SHA-224WITHPLAIN-ECDSA"] = "SHA-224withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA224] = "SHA-224withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA256/PLAIN-ECDSA"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmMap["SHA-256/PLAIN-ECDSA"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA256"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA-256"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmMap["SHA256WITHPLAIN-ECDSA"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmMap["SHA-256WITHPLAIN-ECDSA"] = "SHA-256withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA256] = "SHA-256withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA384/PLAIN-ECDSA"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmMap["SHA-384/PLAIN-ECDSA"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA384"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA-384"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmMap["SHA384WITHPLAIN-ECDSA"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmMap["SHA-384WITHPLAIN-ECDSA"] = "SHA-384withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA384] = "SHA-384withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA512/PLAIN-ECDSA"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmMap["SHA-512/PLAIN-ECDSA"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA512"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA-512"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmMap["SHA512WITHPLAIN-ECDSA"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmMap["SHA-512WITHPLAIN-ECDSA"] = "SHA-512withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA512] = "SHA-512withPLAIN-ECDSA";
-
-            AlgorithmMap["RIPEMD160/PLAIN-ECDSA"] = "RIPEMD160withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHRIPEMD160"] = "RIPEMD160withPLAIN-ECDSA";
-            AlgorithmMap["RIPEMD160WITHPLAIN-ECDSA"] = "RIPEMD160withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_RIPEMD160] = "RIPEMD160withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA3-224/PLAIN-ECDSA"] = "SHA3-224withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA3-224"] = "SHA3-224withPLAIN-ECDSA";
-            AlgorithmMap["SHA3-224WITHPLAIN-ECDSA"] = "SHA3-224withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA3_224] = "SHA3-224withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA3-256/PLAIN-ECDSA"] = "SHA3-256withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA3-256"] = "SHA3-256withPLAIN-ECDSA";
-            AlgorithmMap["SHA3-256WITHPLAIN-ECDSA"] = "SHA3-256withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA3_256] = "SHA3-256withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA3-384/PLAIN-ECDSA"] = "SHA3-384withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA3-384"] = "SHA3-384withPLAIN-ECDSA";
-            AlgorithmMap["SHA3-384WITHPLAIN-ECDSA"] = "SHA3-384withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA3_384] = "SHA3-384withPLAIN-ECDSA";
-
-            AlgorithmMap["SHA3-512/PLAIN-ECDSA"] = "SHA3-512withPLAIN-ECDSA";
-            AlgorithmMap["PLAIN-ECDSAWITHSHA3-512"] = "SHA3-512withPLAIN-ECDSA";
-            AlgorithmMap["SHA3-512WITHPLAIN-ECDSA"] = "SHA3-512withPLAIN-ECDSA";
-            AlgorithmOidMap[BsiObjectIdentifiers.ecdsa_plain_SHA3_512] = "SHA3-512withPLAIN-ECDSA";
 
             AlgorithmMap["SHA1WITHECNR"] = "SHA-1withECNR";
             AlgorithmMap["SHA-1WITHECNR"] = "SHA-1withECNR";
@@ -430,40 +322,7 @@ namespace Org.BouncyCastle.Security
             AlgorithmMap["SHA512WITHECNR"] = "SHA-512withECNR";
             AlgorithmMap["SHA-512WITHECNR"] = "SHA-512withECNR";
 
-            AlgorithmMap["GOST-3410"] = "GOST3410";
-            AlgorithmMap["GOST-3410-94"] = "GOST3410";
-            AlgorithmMap["GOST3411WITHGOST3410"] = "GOST3410";
-            AlgorithmMap["GOST3411/GOST3410"] = "GOST3410";
-            AlgorithmOidMap[CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94] = "GOST3410";
 
-            AlgorithmMap["ECGOST-3410"] = "ECGOST3410";
-            AlgorithmMap["GOST-3410-2001"] = "ECGOST3410";
-            AlgorithmMap["GOST3411WITHECGOST3410"] = "ECGOST3410";
-            AlgorithmMap["GOST3411/ECGOST3410"] = "ECGOST3410";
-            AlgorithmOidMap[CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001] = "ECGOST3410";
-
-            AlgorithmMap["GOST-3410-2012-256"] = "ECGOST3410-2012-256";
-            AlgorithmMap["GOST3411WITHECGOST3410-2012-256"] = "ECGOST3410-2012-256";
-            AlgorithmMap["GOST3411-2012-256WITHECGOST3410"] = "ECGOST3410-2012-256";
-            AlgorithmMap["GOST3411-2012-256WITHECGOST3410-2012-256"] = "ECGOST3410-2012-256";
-            AlgorithmMap["GOST3411-2012-256/ECGOST3410"] = "ECGOST3410-2012-256";
-            AlgorithmMap["GOST3411-2012-256/ECGOST3410-2012-256"] = "ECGOST3410-2012-256";
-            AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256] =
-                "ECGOST3410-2012-256";
-
-            AlgorithmMap["GOST-3410-2012-512"] = "ECGOST3410-2012-512";
-            AlgorithmMap["GOST3411WITHECGOST3410-2012-512"] = "ECGOST3410-2012-512";
-            AlgorithmMap["GOST3411-2012-512WITHECGOST3410"] = "ECGOST3410-2012-512";
-            AlgorithmMap["GOST3411-2012-512WITHECGOST3410-2012-512"] = "ECGOST3410-2012-512";
-            AlgorithmMap["GOST3411-2012-512/ECGOST3410"] = "ECGOST3410-2012-512";
-            AlgorithmMap["GOST3411-2012-512/ECGOST3410-2012-512"] = "ECGOST3410-2012-512";
-            AlgorithmOidMap[RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512] =
-                "ECGOST3410-2012-512";
-
-            AlgorithmMap["SHA256WITHSM2"] = "SHA256withSM2";
-            AlgorithmOidMap[GMObjectIdentifiers.sm2sign_with_sha256] = "SHA256withSM2";
-            AlgorithmMap["SM3WITHSM2"] = "SM3withSM2";
-            AlgorithmOidMap[GMObjectIdentifiers.sm2sign_with_sm3] = "SM3withSM2";
 
             Oids["MD2withRSA"] = PkcsObjectIdentifiers.MD2WithRsaEncryption;
             Oids["MD4withRSA"] = PkcsObjectIdentifiers.MD4WithRsaEncryption;
@@ -488,9 +347,7 @@ namespace Org.BouncyCastle.Security
             Oids["SHA-384withRSAandMGF1"] = PkcsObjectIdentifiers.IdRsassaPss;
             Oids["SHA-512withRSAandMGF1"] = PkcsObjectIdentifiers.IdRsassaPss;
 
-            Oids["RIPEMD128withRSA"] = TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD128;
-            Oids["RIPEMD160withRSA"] = TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD160;
-            Oids["RIPEMD256withRSA"] = TeleTrusTObjectIdentifiers.RsaSignatureWithRipeMD256;
+
 
             Oids["SHA-1withDSA"] = X9ObjectIdentifiers.IdDsaWithSha1;
             Oids["SHA-224withDSA"] = NistObjectIdentifiers.DsaWithSha224;
@@ -508,39 +365,7 @@ namespace Org.BouncyCastle.Security
             Oids["SHA-256withECDSA"] = X9ObjectIdentifiers.ECDsaWithSha256;
             Oids["SHA-384withECDSA"] = X9ObjectIdentifiers.ECDsaWithSha384;
             Oids["SHA-512withECDSA"] = X9ObjectIdentifiers.ECDsaWithSha512;
-            Oids["RIPEMD160withECDSA"] = TeleTrusTObjectIdentifiers.ECSignWithRipeMD160;
 
-            Oids["SHA3-224withECDSA"] = NistObjectIdentifiers.IdEcdsaWithSha3_224;
-            Oids["SHA3-256withECDSA"] = NistObjectIdentifiers.IdEcdsaWithSha3_256;
-            Oids["SHA3-384withECDSA"] = NistObjectIdentifiers.IdEcdsaWithSha3_384;
-            Oids["SHA3-512withECDSA"] = NistObjectIdentifiers.IdEcdsaWithSha3_512;
-
-            Oids["SHA-1withCVC-ECDSA"] = EacObjectIdentifiers.id_TA_ECDSA_SHA_1;
-            Oids["SHA-224withCVC-ECDSA"] = EacObjectIdentifiers.id_TA_ECDSA_SHA_224;
-            Oids["SHA-256withCVC-ECDSA"] = EacObjectIdentifiers.id_TA_ECDSA_SHA_256;
-            Oids["SHA-384withCVC-ECDSA"] = EacObjectIdentifiers.id_TA_ECDSA_SHA_384;
-            Oids["SHA-512withCVC-ECDSA"] = EacObjectIdentifiers.id_TA_ECDSA_SHA_512;
-
-            Oids["SHA-1withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA1;
-            Oids["SHA-224withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA224;
-            Oids["SHA-256withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA256;
-            Oids["SHA-384withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA384;
-            Oids["SHA-512withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA512;
-            Oids["RIPEMD160withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_RIPEMD160;
-
-            Oids["SHA3-224withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA3_224;
-            Oids["SHA3-256withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA3_256;
-            Oids["SHA3-384withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA3_384;
-            Oids["SHA3-512withPLAIN-ECDSA"] = BsiObjectIdentifiers.ecdsa_plain_SHA3_512;
-
-            Oids["GOST3410"] = CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x94;
-            Oids["ECGOST3410"] = CryptoProObjectIdentifiers.GostR3411x94WithGostR3410x2001;
-
-            Oids["ECGOST3410-2012-256"] = RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256;
-            Oids["ECGOST3410-2012-512"] = RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512;
-
-            Oids["SHA256withSM2"] = GMObjectIdentifiers.sm2sign_with_sha256;
-            Oids["SM3withSM2"] = GMObjectIdentifiers.sm2sign_with_sm3;
 
             /*
              * EdDSA
@@ -551,21 +376,7 @@ namespace Org.BouncyCastle.Security
             AddAlgorithm("Ed448", EdECObjectIdentifiers.id_Ed448, isNoRandom: true);
             AddAlgorithm("Ed448ph", oid: null, isNoRandom: true);
 
-            /*
-             * ML-DSA
-             */
-            foreach (MLDsaParameters mlDsa in MLDsaParameters.ByName.Values)
-            {
-                AddAlgorithm(mlDsa.Name, mlDsa.Oid, isNoRandom: false);
-            }
 
-            /*
-             * SLH-DSA
-             */
-            foreach (SlhDsaParameters slhDsa in SlhDsaParameters.ByName.Values)
-            {
-                AddAlgorithm(slhDsa.Name, slhDsa.Oid, isNoRandom: false);
-            }
 
 #if DEBUG
             foreach (var key in AlgorithmMap.Keys)
@@ -824,26 +635,9 @@ namespace Org.BouncyCastle.Security
                 return new SM2Signer(digest);
             }
 
-            if (mechanism.Equals("GOST3410"))
-            {
-                return new Gost3410DigestSigner(new Gost3410Signer(), new Gost3411Digest());
-            }
 
-            if (Platform.StartsWith(mechanism, "ECGOST3410"))
-            {
-                if (mechanism.Equals("ECGOST3410"))
-                {
-                    return new Gost3410DigestSigner(new ECGost3410Signer(), new Gost3411Digest());
-                }
-                if (mechanism.Equals("ECGOST3410-2012-256"))
-                {
-                    return new Gost3410DigestSigner(new ECGost3410Signer(), new Gost3411_2012_256Digest());
-                }
-                if (mechanism.Equals("ECGOST3410-2012-512"))
-                {
-                    return new Gost3410DigestSigner(new ECGost3410Signer(), new Gost3411_2012_512Digest());
-                }
-            }
+
+
 
             if (Platform.EndsWith(mechanism, "/ISO9796-2"))
             {
@@ -882,25 +676,7 @@ namespace Org.BouncyCastle.Security
                 }
             }
 
-            if (MLDsaParameters.ByName.TryGetValue(mechanism, out MLDsaParameters mlDsaParameters))
-            {
-                var preHashOid = mlDsaParameters.PreHashOid;
-                if (preHashOid == null)
-                    return new MLDsaSigner(mlDsaParameters, deterministic: false);
 
-                var preHashDigest = DigestUtilities.GetDigest(preHashOid);
-                return new HashMLDsaSigner(mlDsaParameters, deterministic: false);
-            }
-
-            if (SlhDsaParameters.ByName.TryGetValue(mechanism, out SlhDsaParameters slhDsaParameters))
-            {
-                var preHashOid = slhDsaParameters.PreHashOid;
-                if (preHashOid == null)
-                    return new SlhDsaSigner(slhDsaParameters, deterministic: false);
-
-                var preHashDigest = DigestUtilities.GetDigest(preHashOid);
-                return new HashSlhDsaSigner(slhDsaParameters, deterministic: false);
-            }
 
             return null;
         }

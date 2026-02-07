@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
     public class RsaKeyGenerationParameters
 		: KeyGenerationParameters

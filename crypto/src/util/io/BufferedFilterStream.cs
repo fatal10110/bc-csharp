@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO
 {
     internal sealed class BufferedFilterStream
         : FilterStream

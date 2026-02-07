@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
     /**
     * Implements the Segmented Integer Counter (SIC) mode on top of a simple

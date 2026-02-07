@@ -4,12 +4,12 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 #endif
 
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Engines
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines
 {
     /// <summary>ASCON v1.2 AEAD, https://ascon.iaik.tugraz.at/ .</summary>
     /// <remarks>

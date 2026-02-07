@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Basic config for SRP.</summary>
     public class TlsSrpConfig

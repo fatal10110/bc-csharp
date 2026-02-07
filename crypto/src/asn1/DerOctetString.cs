@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     public class DerOctetString
         : Asn1OctetString

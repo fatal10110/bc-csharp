@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     internal sealed class Asn1UniversalTypes
     {

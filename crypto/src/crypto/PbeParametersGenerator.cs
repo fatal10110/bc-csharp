@@ -1,9 +1,9 @@
 using System;
 using System.Text;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /**
      * base class for all Password Based Encyrption (PBE) parameter generator classes.

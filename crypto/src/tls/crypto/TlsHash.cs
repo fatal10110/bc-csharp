@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Interface for message digest, or hash, services.</summary>
     public interface TlsHash

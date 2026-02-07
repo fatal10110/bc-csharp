@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
 
-namespace Org.BouncyCastle.Asn1.Sec
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec
 {
     // TODO[api] Make static
     public abstract class SecObjectIdentifiers

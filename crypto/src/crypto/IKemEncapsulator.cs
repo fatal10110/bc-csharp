@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     public interface IKemEncapsulator
     {

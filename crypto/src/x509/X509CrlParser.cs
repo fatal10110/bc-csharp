@@ -2,13 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Security.Certificates;
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security.Certificates;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509
 {
 	public class X509CrlParser
 	{

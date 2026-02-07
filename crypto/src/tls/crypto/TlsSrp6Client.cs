@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Basic interface for an SRP-6 client implementation.</summary>
     public interface TlsSrp6Client

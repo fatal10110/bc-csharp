@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     internal sealed class BcTlsHmac
         : TlsHmac

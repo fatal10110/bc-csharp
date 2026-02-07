@@ -7,9 +7,9 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Math.Raw
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw
 {
     internal static class Nat256
     {

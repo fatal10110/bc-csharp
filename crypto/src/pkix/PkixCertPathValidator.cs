@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     /**
 	 * The <i>Service Provider Interface</i> (<b>SPI</b>)

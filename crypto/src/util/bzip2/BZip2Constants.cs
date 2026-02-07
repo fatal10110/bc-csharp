@@ -22,7 +22,7 @@
  * great code.
  */
 
-namespace Org.BouncyCastle.Utilities.Bzip2
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Bzip2
 {
     /**
     * Base class for both the compress and decompress classes.

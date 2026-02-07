@@ -3,10 +3,10 @@
 using System.Runtime.CompilerServices;
 #endif
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     /*
       The BLAKE2 cryptographic hash function was designed by Jean-

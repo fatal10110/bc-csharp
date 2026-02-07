@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Math.EC.Endo
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Endo
 {
     public class ScalarSplitParameters
     {

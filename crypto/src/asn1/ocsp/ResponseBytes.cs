@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ocsp
 {
     public class ResponseBytes
         : Asn1Encodable

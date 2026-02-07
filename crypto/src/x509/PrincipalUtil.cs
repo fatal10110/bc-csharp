@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509
 {
     /// <remarks>
     /// A utility class that will extract X509Principal objects from X.509 certificates.

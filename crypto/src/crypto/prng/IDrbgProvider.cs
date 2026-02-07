@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Prng.Drbg;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng.Drbg;
 
-namespace Org.BouncyCastle.Crypto.Prng
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng
 {
     internal interface IDrbgProvider
     {

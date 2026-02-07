@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Math.Raw;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Sec
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Custom.Sec
 {
     internal class SecP224K1FieldElement
         : AbstractFpFieldElement

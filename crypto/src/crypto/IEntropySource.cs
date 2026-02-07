@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
 	/// <summary>
 	/// Base interface describing an entropy source for a DRBG.

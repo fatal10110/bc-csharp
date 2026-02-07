@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9
 {
     public abstract class X9IntegerConverter
     {

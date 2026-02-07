@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>Base interface for general purpose byte derivation functions.</summary>
     public interface IDerivationFunction

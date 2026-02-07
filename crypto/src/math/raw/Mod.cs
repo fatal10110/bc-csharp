@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.Raw
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw
 {
     /// <summary>
     /// Modular inversion as implemented in this class is based on the paper "Fast constant-time gcd computation and

@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.X509.Qualified
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509.Qualified
 {
     /**
     * The MonetaryValue object.

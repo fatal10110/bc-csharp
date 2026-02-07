@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.X500;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X500;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
      * <pre>

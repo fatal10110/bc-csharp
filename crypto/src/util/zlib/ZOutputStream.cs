@@ -37,9 +37,9 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Utilities.Zlib
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Zlib
 {
     public class ZOutputStream
         : BaseOutputStream

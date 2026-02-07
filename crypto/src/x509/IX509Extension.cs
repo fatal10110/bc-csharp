@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.X509
 {
 	public interface IX509Extension
 	{

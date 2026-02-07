@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO
 {
 	public class TeeInputStream
 		: BaseInputStream

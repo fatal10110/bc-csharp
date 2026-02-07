@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Org.BouncyCastle.Utilities.IO.Compression
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Compression
 {
     using Impl = Utilities.Bzip2;
 

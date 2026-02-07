@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Org.BouncyCastle.Crypto.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities
 {
     /**
      * A basic alphabet mapper that just creates a mapper based on the

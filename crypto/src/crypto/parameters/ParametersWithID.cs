@@ -3,7 +3,7 @@
 using System.Buffers;
 #endif
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
     public class ParametersWithID
         : ICipherParameters

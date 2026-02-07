@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Crypto
+﻿namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>
     /// Standard char[] to byte[] converters for password based derivation algorithms.

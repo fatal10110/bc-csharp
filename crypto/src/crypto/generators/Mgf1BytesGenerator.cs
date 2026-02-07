@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators
 {
     /// <summary>Generator for MGF1 as defined in Pkcs 1v2</summary>
     public sealed class Mgf1BytesGenerator

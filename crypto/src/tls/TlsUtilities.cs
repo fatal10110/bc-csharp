@@ -3,25 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Bsi;
-using Org.BouncyCastle.Asn1.Eac;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Tls.Crypto;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.Utilities.Date;
-using Org.BouncyCastle.Utilities.Encoders;
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Bsi;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Date;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     public abstract class TlsUtilities
     {
@@ -68,27 +67,14 @@ namespace Org.BouncyCastle.Tls
             AddCertSigAlgOid(d, X9ObjectIdentifiers.ECDsaWithSha512, HashAlgorithm.sha512, SignatureAlgorithm.ecdsa);
             AddCertSigAlgOid(d, X9ObjectIdentifiers.IdDsaWithSha1, HashAlgorithm.sha1, SignatureAlgorithm.dsa);
 
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_ECDSA_SHA_1, HashAlgorithm.sha1, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_ECDSA_SHA_224, HashAlgorithm.sha224, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_ECDSA_SHA_256, HashAlgorithm.sha256, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_ECDSA_SHA_384, HashAlgorithm.sha384, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_ECDSA_SHA_512, HashAlgorithm.sha512, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_RSA_v1_5_SHA_1, HashAlgorithm.sha1, SignatureAlgorithm.rsa);
-            AddCertSigAlgOid(d, EacObjectIdentifiers.id_TA_RSA_v1_5_SHA_256, HashAlgorithm.sha256, SignatureAlgorithm.rsa);
 
-            AddCertSigAlgOid(d, BsiObjectIdentifiers.ecdsa_plain_SHA1, HashAlgorithm.sha1, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, BsiObjectIdentifiers.ecdsa_plain_SHA224, HashAlgorithm.sha224, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, BsiObjectIdentifiers.ecdsa_plain_SHA256, HashAlgorithm.sha256, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, BsiObjectIdentifiers.ecdsa_plain_SHA384, HashAlgorithm.sha384, SignatureAlgorithm.ecdsa);
-            AddCertSigAlgOid(d, BsiObjectIdentifiers.ecdsa_plain_SHA512, HashAlgorithm.sha512, SignatureAlgorithm.ecdsa);
+
+
 
             AddCertSigAlgOid(d, EdECObjectIdentifiers.id_Ed25519, SignatureAndHashAlgorithm.ed25519);
             AddCertSigAlgOid(d, EdECObjectIdentifiers.id_Ed448, SignatureAndHashAlgorithm.ed448);
 
-            AddCertSigAlgOid(d, RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_256,
-                SignatureAndHashAlgorithm.gostr34102012_256);
-            AddCertSigAlgOid(d, RosstandartObjectIdentifiers.id_tc26_signwithdigest_gost_3410_12_512,
-                SignatureAndHashAlgorithm.gostr34102012_512);
+
 
             // TODO[RFC 8998]
             //AddCertSigAlgOid(d, GMObjectIdentifiers.sm2sign_with_sm3, HashAlgorithm.sm3, SignatureAlgorithm.sm2);
@@ -2265,86 +2251,7 @@ namespace Org.BouncyCastle.Tls
             return credentialedSigner.GenerateRawSignature(hash);
         }
 
-        internal static void VerifyCertificateVerifyClient(TlsServerContext serverContext,
-            CertificateRequest certificateRequest, DigitallySigned certificateVerify, TlsHandshakeHash handshakeHash)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-            Certificate clientCertificate = securityParameters.PeerCertificate;
-            TlsCertificate verifyingCert = clientCertificate.GetCertificateAt(0);
-            SignatureAndHashAlgorithm sigAndHashAlg = certificateVerify.Algorithm;
-            short signatureAlgorithm;
 
-            if (null == sigAndHashAlg)
-            {
-                signatureAlgorithm = verifyingCert.GetLegacySignatureAlgorithm();
-
-                CheckClientCertificateType(certificateRequest, GetLegacyClientCertType(signatureAlgorithm),
-                    AlertDescription.unsupported_certificate);
-            }
-            else
-            {
-                VerifySupportedSignatureAlgorithm(securityParameters.ServerSigAlgs, sigAndHashAlg);
-
-                signatureAlgorithm = sigAndHashAlg.Signature;
-
-                CheckClientCertificateType(certificateRequest,
-                    SignatureAlgorithm.GetClientCertificateType(signatureAlgorithm), AlertDescription.illegal_parameter);
-            }
-
-            // Verify the CertificateVerify message contains a correct signature.
-            bool verified;
-            try
-            {
-                TlsVerifier verifier = verifyingCert.CreateVerifier(signatureAlgorithm);
-                TlsStreamVerifier streamVerifier = verifier.GetStreamVerifier(certificateVerify);
-
-                if (streamVerifier != null)
-                {
-                    handshakeHash.CopyBufferTo(streamVerifier.Stream);
-                    verified = streamVerifier.IsVerified();
-                }
-                else
-                {
-                    byte[] hash;
-                    if (IsTlsV12(serverContext))
-                    {
-                        hash = handshakeHash.GetFinalHash(SignatureScheme.GetCryptoHashAlgorithm(sigAndHashAlg));
-                    }
-                    else
-                    {
-                        hash = securityParameters.SessionHash;
-                    }
-
-                    verified = verifier.VerifyRawSignature(certificateVerify, hash);
-                }
-            }
-            catch (TlsFatalAlert )
-            {
-                throw;
-            }
-            catch (Exception e)
-            {
-                throw new TlsFatalAlert(AlertDescription.decrypt_error, e);
-            }
-
-            if (!verified)
-            {
-                throw new TlsFatalAlert(AlertDescription.decrypt_error);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        internal static void Verify13CertificateVerifyClient(TlsServerContext serverContext,
-            TlsHandshakeHash handshakeHash, CertificateVerify certificateVerify)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-
-            var supportedAlgorithms = securityParameters.ServerSigAlgs;
-            TlsCertificate certificate = securityParameters.PeerCertificate.GetCertificateAt(0);
-
-            Verify13CertificateVerify(supportedAlgorithms, "TLS 1.3, client CertificateVerify", handshakeHash,
-                certificate, certificateVerify);
-        }
 
         /// <exception cref="IOException"/>
         internal static void Verify13CertificateVerifyServer(TlsClientContext clientContext,
@@ -4342,82 +4249,14 @@ namespace Org.BouncyCastle.Tls
         }
 
         /// <exception cref="IOException"/>
-        private static TlsKeyExchange CreateKeyExchangeServer(TlsServer server, int keyExchange)
+
+        internal static TlsKeyExchange InitKeyExchangeClient(TlsClientContext context, TlsClient client)
         {
-            TlsKeyExchangeFactory factory = server.GetKeyExchangeFactory();
-
-            switch (keyExchange)
-            {
-            case KeyExchangeAlgorithm.DH_anon:
-                return factory.CreateDHanonKeyExchangeServer(keyExchange, server.GetDHConfig());
-
-            case KeyExchangeAlgorithm.DH_DSS:
-            case KeyExchangeAlgorithm.DH_RSA:
-                return factory.CreateDHKeyExchange(keyExchange);
-
-            case KeyExchangeAlgorithm.DHE_DSS:
-            case KeyExchangeAlgorithm.DHE_RSA:
-                return factory.CreateDheKeyExchangeServer(keyExchange, server.GetDHConfig());
-
-            case KeyExchangeAlgorithm.ECDH_anon:
-                return factory.CreateECDHanonKeyExchangeServer(keyExchange, server.GetECDHConfig());
-
-            case KeyExchangeAlgorithm.ECDH_ECDSA:
-            case KeyExchangeAlgorithm.ECDH_RSA:
-                return factory.CreateECDHKeyExchange(keyExchange);
-
-            case KeyExchangeAlgorithm.ECDHE_ECDSA:
-            case KeyExchangeAlgorithm.ECDHE_RSA:
-                return factory.CreateECDheKeyExchangeServer(keyExchange, server.GetECDHConfig());
-
-            case KeyExchangeAlgorithm.RSA:
-                return factory.CreateRsaKeyExchange(keyExchange);
-
-            case KeyExchangeAlgorithm.DHE_PSK:
-                return factory.CreatePskKeyExchangeServer(keyExchange, server.GetPskIdentityManager(),
-                    server.GetDHConfig(), null);
-
-            case KeyExchangeAlgorithm.ECDHE_PSK:
-                return factory.CreatePskKeyExchangeServer(keyExchange, server.GetPskIdentityManager(), null,
-                    server.GetECDHConfig());
-
-            case KeyExchangeAlgorithm.PSK:
-            case KeyExchangeAlgorithm.RSA_PSK:
-                return factory.CreatePskKeyExchangeServer(keyExchange, server.GetPskIdentityManager(), null, null);
-
-            case KeyExchangeAlgorithm.SRP:
-            case KeyExchangeAlgorithm.SRP_DSS:
-            case KeyExchangeAlgorithm.SRP_RSA:
-                return factory.CreateSrpKeyExchangeServer(keyExchange, server.GetSrpLoginParameters());
-
-            default:
-                /*
-                 * Note: internal error here; the TlsProtocol implementation verifies that the
-                 * server-selected cipher suite was in the list of client-offered cipher suites, so if
-                 * we now can't produce an implementation, we shouldn't have offered it!
-                 */
-                throw new TlsFatalAlert(AlertDescription.internal_error);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        internal static TlsKeyExchange InitKeyExchangeClient(TlsClientContext clientContext, TlsClient client)
-        {
-            SecurityParameters securityParameters = clientContext.SecurityParameters;
-            TlsKeyExchange keyExchange = CreateKeyExchangeClient(client, securityParameters.KeyExchangeAlgorithm);
-            keyExchange.Init(clientContext);
+            int keyExchangeAlgorithm = context.SecurityParameters.KeyExchangeAlgorithm;
+            TlsKeyExchange keyExchange = CreateKeyExchangeClient(client, keyExchangeAlgorithm);
+            keyExchange.Init(context);
             return keyExchange;
         }
-
-        /// <exception cref="IOException"/>
-        internal static TlsKeyExchange InitKeyExchangeServer(TlsServerContext serverContext, TlsServer server)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-            TlsKeyExchange keyExchange = CreateKeyExchangeServer(server, securityParameters.KeyExchangeAlgorithm);
-            keyExchange.Init(serverContext);
-            return keyExchange;
-        }
-
         internal static TlsCipher InitCipher(TlsContext context)
         {
             SecurityParameters securityParameters = context.SecurityParameters;
@@ -4443,63 +4282,18 @@ namespace Org.BouncyCastle.Tls
         {
             if (context.IsServer)
             {
-                CheckSigAlgOfClientCerts(context, peerCertPath);
+                throw new TlsFatalAlert(AlertDescription.internal_error);
             }
-            else
-            {
-                CheckSigAlgOfServerCerts(context, peerCertPath);
-            }
+
+            CheckSigAlgOfServerCerts(context, peerCertPath);
         }
 
-        private static void CheckSigAlgOfClientCerts(TlsContext context, TlsCertificate[] clientCertPath)
+
+
+        internal static void EstablishServerSigAlgs(SecurityParameters securityParameters, CertificateRequest certificateRequest)
         {
-            SecurityParameters securityParameters = context.SecurityParameters;
-            short[] clientCertTypes = securityParameters.ClientCertTypes;
-            var serverSigAlgsCert = securityParameters.ServerSigAlgsCert;
-
-            int trustAnchorPos = clientCertPath.Length - 1;
-            for (int i = 0; i < trustAnchorPos; ++i)
-            {
-                TlsCertificate subjectCert = clientCertPath[i];
-                TlsCertificate issuerCert = clientCertPath[i + 1];
-
-                SignatureAndHashAlgorithm sigAndHashAlg = GetCertSigAndHashAlg(subjectCert, issuerCert);
-
-                bool valid = false;
-                if (null == sigAndHashAlg)
-                {
-                    // We don't recognize the 'signatureAlgorithm' of the certificate
-                }
-                else if (null == serverSigAlgsCert)
-                {
-                    // TODO Review this (legacy) logic with RFC 4346 (7.4?.2?)
-                    if (null != clientCertTypes)
-                    {
-                        for (int j = 0; j < clientCertTypes.Length; ++j)
-                        {
-                            short signatureAlgorithm = GetLegacySignatureAlgorithmClientCert(clientCertTypes[j]);
-                            if (sigAndHashAlg.Signature == signatureAlgorithm)
-                            {
-                                valid = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    /*
-                     * RFC 5246 7.4.4 Any certificates provided by the client MUST be signed using a
-                     * hash/signature algorithm pair found in supported_signature_algorithms.
-                     */
-                    valid = ContainsSignatureAlgorithm(serverSigAlgsCert, sigAndHashAlg);
-                }
-
-                if (!valid)
-                {
-                    throw new TlsFatalAlert(AlertDescription.bad_certificate);
-                }
-            }
+            securityParameters.m_serverSigAlgs = certificateRequest.SupportedSignatureAlgorithms;
+            securityParameters.m_serverSigAlgsCert = certificateRequest.SupportedSignatureAlgorithmsCert;
         }
 
         private static void CheckSigAlgOfServerCerts(TlsContext context, TlsCertificate[] serverCertPath)
@@ -4594,44 +4388,7 @@ namespace Org.BouncyCastle.Tls
             }
         }
 
-        internal static void ProcessClientCertificate(TlsServerContext serverContext, Certificate clientCertificate,
-            TlsKeyExchange keyExchange, TlsServer server)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-            if (null != securityParameters.PeerCertificate)
-                throw new TlsFatalAlert(AlertDescription.unexpected_message);
 
-            bool isTlsV13 = IsTlsV13(securityParameters.NegotiatedVersion);
-            if (isTlsV13)
-            {
-                // 'keyExchange' not used
-            }
-            else if (clientCertificate.IsEmpty)
-            {
-                /*
-                 * NOTE: We tolerate SSLv3 clients sending an empty chain, although "If no suitable
-                 * certificate is available, the client should send a no_certificate alert instead".
-                 */
-
-                keyExchange.SkipClientCredentials();
-            }
-            else
-            {
-                keyExchange.ProcessClientCertificate(clientCertificate);
-            }
-
-            securityParameters.m_peerCertificate = clientCertificate;
-
-            /*
-             * RFC 5246 7.4.6. If the client does not send any certificates, the server MAY at its
-             * discretion either continue the handshake without client authentication, or respond with a
-             * fatal handshake_failure alert. Also, if some aspect of the certificate chain was
-             * unacceptable (e.g., it was not signed by a known, trusted CA), the server MAY at its
-             * discretion either continue the handshake (considering the client unauthenticated) or send
-             * a fatal alert.
-             */
-            server.NotifyClientCertificate(clientCertificate);
-        }
 
         internal static void ProcessServerCertificate(TlsClientContext clientContext,
             CertificateStatus serverCertificateStatus, TlsKeyExchange keyExchange,
@@ -5068,13 +4825,7 @@ namespace Org.BouncyCastle.Tls
                         agreement = crypto.CreateDHDomain(new TlsDHConfig(supportedGroup, true)).CreateDH();
                     }
                 }
-                else if (NamedGroup.RefersToASpecificKem(supportedGroup))
-                {
-                    if (crypto.HasKemAgreement())
-                    {
-                        agreement = crypto.CreateKemDomain(new TlsKemConfig(supportedGroup, isServer: false)).CreateKem();
-                    }
-                }
+
 
                 if (null != agreement)
                 {
@@ -5122,8 +4873,7 @@ namespace Org.BouncyCastle.Tls
                         continue;
 
                     if ((NamedGroup.RefersToAnECDHCurve(group) && crypto.HasECDHAgreement()) ||
-                        (NamedGroup.RefersToASpecificFiniteField(group) && crypto.HasDHAgreement()) ||
-                        (NamedGroup.RefersToASpecificKem(group) && crypto.HasKemAgreement()))
+                        (NamedGroup.RefersToASpecificFiniteField(group) && crypto.HasDHAgreement()))
                     {
                         return clientShare;
                     }
@@ -5149,8 +4899,7 @@ namespace Org.BouncyCastle.Tls
                         continue;
 
                     if ((NamedGroup.RefersToAnECDHCurve(group) && crypto.HasECDHAgreement()) ||
-                        (NamedGroup.RefersToASpecificFiniteField(group) && crypto.HasDHAgreement()) ||
-                        (NamedGroup.RefersToASpecificKem(group) && crypto.HasKemAgreement()))
+                        (NamedGroup.RefersToASpecificFiniteField(group) && crypto.HasDHAgreement()))
                     {
                         return group;
                     }
@@ -5231,28 +4980,7 @@ namespace Org.BouncyCastle.Tls
                 clientExtensions);
         }
 
-        internal static TlsCredentials EstablishServerCredentials(TlsServer server)
-        {
-            return ValidateCredentials(server.GetCredentials());
-        }
 
-        internal static TlsCredentialedSigner Establish13ServerCredentials(TlsServer server)
-        {
-            return Validate13Credentials(server.GetCredentials());
-        }
-
-        internal static void EstablishServerSigAlgs(SecurityParameters securityParameters,
-            CertificateRequest certificateRequest)
-        {
-            securityParameters.m_clientCertTypes = certificateRequest.CertificateTypes;
-            securityParameters.m_serverSigAlgs = certificateRequest.SupportedSignatureAlgorithms;
-            securityParameters.m_serverSigAlgsCert = certificateRequest.SupportedSignatureAlgorithmsCert;
-
-            if (null == securityParameters.ServerSigAlgsCert)
-            {
-                securityParameters.m_serverSigAlgsCert = securityParameters.ServerSigAlgs;
-            }
-        }
 
         internal static TlsCredentials ValidateCredentials(TlsCredentials credentials)
         {
@@ -5377,16 +5105,7 @@ namespace Org.BouncyCastle.Tls
             client.NotifyServerVersion(negotiatedVersion);
         }
 
-        internal static void NegotiatedVersionDtlsServer(TlsServerContext serverContext)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-            ProtocolVersion negotiatedVersion = securityParameters.NegotiatedVersion;
 
-            if (!ProtocolVersion.IsSupportedDtlsVersionServer(negotiatedVersion))
-                throw new TlsFatalAlert(AlertDescription.internal_error);
-
-            NegotiatedVersion(securityParameters);
-        }
 
         internal static void NegotiatedVersionTlsClient(TlsClientContext clientContext, TlsClient client)
         {
@@ -5401,16 +5120,7 @@ namespace Org.BouncyCastle.Tls
             client.NotifyServerVersion(negotiatedVersion);
         }
 
-        internal static void NegotiatedVersionTlsServer(TlsServerContext serverContext)
-        {
-            SecurityParameters securityParameters = serverContext.SecurityParameters;
-            ProtocolVersion negotiatedVersion = securityParameters.NegotiatedVersion;
 
-            if (!ProtocolVersion.IsSupportedTlsVersionServer(negotiatedVersion))
-                throw new TlsFatalAlert(AlertDescription.internal_error);
-
-            NegotiatedVersion(securityParameters);
-        }
 
         internal static TlsSecret DeriveSecret(SecurityParameters securityParameters, TlsSecret secret, string label,
             byte[] transcriptHash)
@@ -5680,76 +5390,7 @@ namespace Org.BouncyCastle.Tls
             return result;
         }
 
-        internal static OfferedPsks.SelectedConfig SelectPreSharedKey(TlsServerContext serverContext, TlsServer server,
-            IDictionary<int, byte[]> clientHelloExtensions, HandshakeMessageInput clientHelloMessage,
-            TlsHandshakeHash handshakeHash, bool afterHelloRetryRequest)
-        {
-            bool handshakeHashUpdated = false;
 
-            OfferedPsks offeredPsks = TlsExtensionsUtilities.GetPreSharedKeyClientHello(clientHelloExtensions);
-            if (null != offeredPsks)
-            {
-                short[] pskKeyExchangeModes = TlsExtensionsUtilities.GetPskKeyExchangeModesExtension(
-                    clientHelloExtensions);
-                if (IsNullOrEmpty(pskKeyExchangeModes))
-                    throw new TlsFatalAlert(AlertDescription.missing_extension);
-
-                // TODO[tls13] Add support for psk_ke?
-                if (Arrays.Contains(pskKeyExchangeModes, PskKeyExchangeMode.psk_dhe_ke))
-                {
-                    // TODO[tls13] Prefer to get the exact index from the server?
-                    TlsPskExternal psk = server.GetExternalPsk(offeredPsks.Identities);
-                    if (null != psk)
-                    {
-                        int index = offeredPsks.GetIndexOfIdentity(new PskIdentity(psk.Identity, 0L));
-                        if (index >= 0)
-                        {
-                            byte[] binder = offeredPsks.Binders[index];
-
-                            TlsCrypto crypto = serverContext.Crypto;
-                            TlsSecret earlySecret = GetPskEarlySecret(crypto, psk);
-
-                            // TODO[tls13-psk] Handle resumption PSKs
-                            bool isExternalPsk = true;
-                            int pskCryptoHashAlgorithm = TlsCryptoUtilities.GetHashForPrf(psk.PrfAlgorithm);
-
-                            byte[] transcriptHash;
-                            {
-                                handshakeHashUpdated = true;
-                                int bindersSize = offeredPsks.BindersSize;
-                                clientHelloMessage.UpdateHashPrefix(handshakeHash, bindersSize);
-
-                                if (afterHelloRetryRequest)
-                                {
-                                    transcriptHash = handshakeHash.GetFinalHash(pskCryptoHashAlgorithm);
-                                }
-                                else
-                                {
-                                    TlsHash hash = crypto.CreateHash(pskCryptoHashAlgorithm);
-                                    handshakeHash.CopyBufferTo(new TlsHashSink(hash));
-                                    transcriptHash = hash.CalculateHash();
-                                }
-
-                                clientHelloMessage.UpdateHashSuffix(handshakeHash, bindersSize);
-                            }
-
-                            byte[] calculatedBinder = CalculatePskBinder(crypto, isExternalPsk, pskCryptoHashAlgorithm,
-                                earlySecret, transcriptHash);
-
-                            if (Arrays.FixedTimeEquals(calculatedBinder, binder))
-                                return new OfferedPsks.SelectedConfig(index, psk, pskKeyExchangeModes, earlySecret);
-                        }
-                    }
-                }
-            }
-
-            if (!handshakeHashUpdated)
-            {
-                clientHelloMessage.UpdateHash(handshakeHash);
-            }
-
-            return null;
-        }
 
         internal static TlsSecret GetPskEarlySecret(TlsCrypto crypto, TlsPsk psk)
         {

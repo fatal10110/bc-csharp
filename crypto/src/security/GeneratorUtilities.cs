@@ -1,26 +1,25 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Iana;
-using Org.BouncyCastle.Asn1.Kisa;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Nist;
-using Org.BouncyCastle.Asn1.Nsri;
-using Org.BouncyCastle.Asn1.Ntt;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Iana;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Kisa;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nsri;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ntt;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     public static class GeneratorUtilities
     {
@@ -68,13 +67,8 @@ namespace Org.BouncyCastle.Security
                 NistObjectIdentifiers.IdAes256Ofb,
                 NistObjectIdentifiers.IdAes256Wrap,
                 NistObjectIdentifiers.IdAes256WrapPad);
-            AddKgAlgorithm("BLOWFISH",
-                /*
-                 * TODO[api] Incorrect version of cryptlib_algorithm_blowfish_CBC
-                 * Remove at major version update and delete bad test data "pbes2.bf-cbc.key"
-                 */
-                "1.3.6.1.4.1.3029.1.2",
-                MiscObjectIdentifiers.cryptlib_algorithm_blowfish_CBC);
+
+
             AddKgAlgorithm("CAMELLIA",
                 "CAMELLIAWRAP");
             AddKgAlgorithm("ARIA");
@@ -120,8 +114,7 @@ namespace Org.BouncyCastle.Security
             AddKgAlgorithm("CAMELLIA256",
                 NttObjectIdentifiers.IdCamellia256Cbc,
                 NttObjectIdentifiers.IdCamellia256Wrap);
-            AddKgAlgorithm("CAST5",
-                MiscObjectIdentifiers.cast5CBC);
+
             AddKgAlgorithm("CAST6");
             AddKgAlgorithm("CHACHA");
             AddKgAlgorithm("CHACHA7539",
@@ -146,8 +139,7 @@ namespace Org.BouncyCastle.Security
                 CryptoProObjectIdentifiers.GostR28147Gcfb);
             AddKgAlgorithm("HC128");
             AddKgAlgorithm("HC256");
-            AddKgAlgorithm("IDEA",
-                MiscObjectIdentifiers.as_sys_sec_alg_ideaCBC);
+
             AddKgAlgorithm("NOEKEON");
             AddKgAlgorithm("RC2",
                 PkcsObjectIdentifiers.RC2Cbc,
@@ -214,22 +206,14 @@ namespace Org.BouncyCastle.Security
                 NistObjectIdentifiers.IdHMacWithSha3_384);
             AddHMacKeyGenerator("SHA3-512",
                 NistObjectIdentifiers.IdHMacWithSha3_512);
-            AddHMacKeyGenerator("RIPEMD128");
-            AddHMacKeyGenerator("RIPEMD160",
-                IanaObjectIdentifiers.HmacRipeMD160);
-            AddHMacKeyGenerator("TIGER",
-                IanaObjectIdentifiers.HmacTiger);
-            AddHMacKeyGenerator("GOST3411-2012-256",
-                RosstandartObjectIdentifiers.id_tc26_hmac_gost_3411_12_256);
-            AddHMacKeyGenerator("GOST3411-2012-512",
-                RosstandartObjectIdentifiers.id_tc26_hmac_gost_3411_12_512);
+
 
             //
             // key pair generators.
             //
             AddKpgAlgorithm("DH",
                 "DIFFIEHELLMAN");
-            AddKpgAlgorithm("DSA");
+
             AddKpgAlgorithm("EC",
                 X9ObjectIdentifiers.DHSinglePassStdDHSha1KdfScheme,
                 SecObjectIdentifiers.dhSinglePass_stdDH_sha224kdf_scheme,
@@ -251,11 +235,7 @@ namespace Org.BouncyCastle.Security
                 SecObjectIdentifiers.mqvSinglePass_sha384kdf_scheme,
                 SecObjectIdentifiers.mqvSinglePass_sha512kdf_scheme);
             AddKpgAlgorithm("ECDSA");
-            AddKpgAlgorithm("ECGOST3410",
-                "ECGOST-3410",
-                "GOST-3410-2001");
-            AddKpgAlgorithm("ECGOST3410-2012",
-                "GOST-3410-2012");
+
             AddKpgAlgorithm("Ed25519",
                 "Ed25519ctx",
                 "Ed25519ph",
@@ -263,16 +243,12 @@ namespace Org.BouncyCastle.Security
             AddKpgAlgorithm("Ed448",
                 "Ed448ph",
                 EdECObjectIdentifiers.id_Ed448);
-            AddKpgAlgorithm("ELGAMAL");
-            AddKpgAlgorithm("GOST3410",
-                "GOST-3410",
-                "GOST-3410-94");
-            AddKpgAlgorithm("ML-DSA");
-            AddKpgAlgorithm("ML-KEM");
+
+
             AddKpgAlgorithm("RSA",
                 PkcsObjectIdentifiers.RsaEncryption);
             AddKpgAlgorithm("RSASSA-PSS");
-            AddKpgAlgorithm("SLH-DSA");
+
             AddKpgAlgorithm("X25519",
                 EdECObjectIdentifiers.id_X25519);
             AddKpgAlgorithm("X448",
@@ -393,8 +369,7 @@ namespace Org.BouncyCastle.Security
             if (canonicalName == "DH")
                 return new DHKeyPairGenerator();
 
-            if (canonicalName == "DSA")
-                return new DsaKeyPairGenerator();
+
 
             // "EC", "ECDH", "ECDHC", "ECDSA", "ECGOST3410", "ECGOST3410-2012", "ECMQV"
             if (Platform.StartsWith(canonicalName, "EC"))
@@ -406,23 +381,16 @@ namespace Org.BouncyCastle.Security
             if (canonicalName == "Ed448")
                 return new Ed448KeyPairGenerator();
 
-            if (canonicalName == "ELGAMAL")
-                return new ElGamalKeyPairGenerator();
 
-            if (canonicalName == "GOST3410")
-                return new Gost3410KeyPairGenerator();
 
-            if (canonicalName == "ML-DSA")
-                return new MLDsaKeyPairGenerator();
 
-            if (canonicalName == "ML-KEM")
-                return new MLKemKeyPairGenerator();
+
+
 
             if (canonicalName == "RSA" || canonicalName == "RSASSA-PSS")
                 return new RsaKeyPairGenerator();
 
-            if (canonicalName == "SLH-DSA")
-                return new SlhDsaKeyPairGenerator();
+
 
             if (canonicalName == "X25519")
                 return new X25519KeyPairGenerator();

@@ -9,14 +9,14 @@ using System.Runtime.Intrinsics.X86;
 #endif
 
 #if NETCOREAPP3_0_OR_GREATER
-using Org.BouncyCastle.Crypto.Engines;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Engines;
 #endif
-using Org.BouncyCastle.Crypto.Modes.Gcm;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes.Gcm;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
 #pragma warning disable CS0618 // Type or member is obsolete
     /// <summary>

@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     internal class BcTlsCcmImpl
         : BcTlsAeadCipherImpl

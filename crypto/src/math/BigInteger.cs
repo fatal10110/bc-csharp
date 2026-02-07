@@ -11,11 +11,11 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math
 {
     [Serializable]
     public sealed class BigInteger

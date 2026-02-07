@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Math.EC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC
 {
     public interface ECLookupTable
     {

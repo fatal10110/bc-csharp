@@ -1,11 +1,11 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Crypto.Prng.Drbg
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng.Drbg
 {
 	/**
 	 * A SP800-90A CTR DRBG.

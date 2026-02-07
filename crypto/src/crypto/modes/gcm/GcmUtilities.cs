@@ -8,11 +8,11 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Math.Raw;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes.Gcm
 {
     internal static class GcmUtilities
     {

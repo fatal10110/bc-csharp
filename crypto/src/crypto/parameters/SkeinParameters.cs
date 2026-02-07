@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Crypto.Parameters
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters
 {
 
 	/// <summary>
@@ -26,9 +26,9 @@ namespace Org.BouncyCastle.Crypto.Parameters
 	/// <see cref="SkeinParameters.Builder.SetPersonalisation(byte[])">arbitrary</see> personalisation string.</li>
 	/// </ul>
 	/// </remarks>
-	/// <seealso cref="Org.BouncyCastle.Crypto.Digests.SkeinEngine"/>
-	/// <seealso cref="Org.BouncyCastle.Crypto.Digests.SkeinDigest"/>
-	/// <seealso cref="Org.BouncyCastle.Crypto.Macs.SkeinMac"/>
+	/// <seealso cref="TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests.SkeinEngine"/>
+	/// <seealso cref="TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests.SkeinDigest"/>
+	/// <seealso cref="TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs.SkeinMac"/>
     // TODO[api] Don't implement ICipherParameters
 	public class SkeinParameters
 		: ICipherParameters

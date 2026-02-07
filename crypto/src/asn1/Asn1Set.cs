@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     public abstract class Asn1Set
         : Asn1Object, IReadOnlyCollection<Asn1Encodable>

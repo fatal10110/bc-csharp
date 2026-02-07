@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement
 {
     /// <summary>Standard Diffie-Hellman groups from various IETF specifications.</summary>
     public class DHStandardGroups

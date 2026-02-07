@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Operators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators
 {
     public sealed class DefaultDigestResult
         : IBlockResult

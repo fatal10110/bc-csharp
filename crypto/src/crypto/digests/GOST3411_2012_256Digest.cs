@@ -1,7 +1,7 @@
 ﻿using System;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     public class Gost3411_2012_256Digest : Gost3411_2012Digest
     {

@@ -4,11 +4,11 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 #endif
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     public sealed class Blake3Digest
         : IDigest, IMemoable, IXof

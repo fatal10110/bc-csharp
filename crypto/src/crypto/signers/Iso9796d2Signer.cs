@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Signers
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers
 {
     /// <summary> ISO9796-2 - mechanism using a hash function with recovery (scheme 1)</summary>
     public class Iso9796d2Signer : ISignerWithRecovery

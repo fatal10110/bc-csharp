@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Agreement.Kdf
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement.Kdf
 {
     /// <summary>Generator for Concatenation Key Derivation Function defined in NIST SP 800-56A, Sect 5.8.1</summary>
     public sealed class ConcatenationKdfGenerator

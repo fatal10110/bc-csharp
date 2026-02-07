@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl
 {
     /// <summary>Base class for a TlsCrypto implementation that provides some needed methods from elsewhere in the impl
     /// package.</summary>
@@ -27,7 +27,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl
 
         public abstract bool HasHkdfAlgorithm(int cryptoHashAlgorithm);
 
-        public abstract bool HasKemAgreement();
+
 
         public abstract bool HasMacAlgorithm(int macAlgorithm);
 
@@ -62,7 +62,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl
 
         public abstract TlsECDomain CreateECDomain(TlsECConfig ecConfig);
 
-        public abstract TlsKemDomain CreateKemDomain(TlsKemConfig kemConfig);
+
 
         public virtual TlsSecret AdoptSecret(TlsSecret secret)
         {
@@ -87,9 +87,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl
 
         public abstract TlsSrp6Client CreateSrp6Client(TlsSrpConfig srpConfig);
 
-        public abstract TlsSrp6Server CreateSrp6Server(TlsSrpConfig srpConfig, BigInteger srpVerifier);
 
-        public abstract TlsSrp6VerifierGenerator CreateSrp6VerifierGenerator(TlsSrpConfig srpConfig);
 
         public abstract TlsSecret HkdfInit(int cryptoHashAlgorithm);
     }

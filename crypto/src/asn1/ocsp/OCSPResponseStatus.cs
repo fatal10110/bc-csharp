@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ocsp
 {
     public class OcspResponseStatus
         : DerEnumerated

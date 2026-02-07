@@ -2,20 +2,19 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.IsisMtt;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.X509.Extension;
-using Org.BouncyCastle.X509.Store;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Extension;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Store;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     /// <summary>
     /// Summary description for PkixCertPathValidatorUtilities.
@@ -514,32 +513,7 @@ namespace Org.BouncyCastle.Pkix
 
 			if (index - 1 == 0)
 			{
-				// use time when cert was issued, if available
-                Asn1GeneralizedTime dateOfCertgen = null;
-				try
-				{
-					byte[] extBytes = issuedCert.GetExtensionValue(IsisMttObjectIdentifiers.IdIsisMttATDateOfCertGen)
-						?.GetOctets();
-					if (extBytes != null)
-					{
-                        dateOfCertgen = Asn1GeneralizedTime.GetInstance(extBytes);
-                    }
-                }
-				catch (ArgumentException e)
-				{
-					throw new Exception("Date of cert gen extension could not be read.", e);
-				}
-				if (dateOfCertgen != null)
-				{
-					try
-					{
-						return dateOfCertgen.ToDateTime();
-					}
-					catch (ArgumentException e)
-					{
-						throw new Exception("Date from date of cert gen extension could not be parsed.", e);
-					}
-				}
+
 			}
 
 			return issuedCert.NotBefore;
@@ -788,7 +762,7 @@ namespace Org.BouncyCastle.Pkix
 			 * TODO[pkix] Implement CRLDP fallback?
 			 */
             //if (deltaCrls.Count < 1 &&
-            //    Platform.EqualsIgnoreCase("true", Platform.GetEnvironmentVariable("Org.BouncyCastle.X509.EnableCrlDP")))
+            //    Platform.EqualsIgnoreCase("true", Platform.GetEnvironmentVariable("TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.EnableCrlDP")))
             //{
             //    CrlDistPoint id = CrlDistPoint.GetInstance(idp);
             //    DistributionPoint[] dps = id.GetDistributionPoints();

@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Prng.Drbg
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng.Drbg
 {
 	/**
 	 * A SP800-90A HMAC DRBG.

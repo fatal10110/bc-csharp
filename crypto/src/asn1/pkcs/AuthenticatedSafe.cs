@@ -1,4 +1,4 @@
-namespace Org.BouncyCastle.Asn1.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs
 {
     public class AuthenticatedSafe
         : Asn1Encodable

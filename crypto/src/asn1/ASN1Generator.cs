@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     public abstract class Asn1Generator
         : IDisposable

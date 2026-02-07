@@ -1,6 +1,6 @@
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
      * It turns out that the number of standard ways the fields in a DN should be

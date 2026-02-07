@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     using Aes = System.Runtime.Intrinsics.X86.Aes;
     using Sse2 = System.Runtime.Intrinsics.X86.Sse2;

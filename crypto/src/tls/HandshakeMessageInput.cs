@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     // TODO Rewrite without MemoryStream
     public sealed class HandshakeMessageInput

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Org.BouncyCastle.Asn1.Nsri
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nsri
 {
     // TODO[api] Make static
     public sealed class NsriObjectIdentifiers

@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.X509.Qualified
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509.Qualified
 {
     /**
      * The Iso4217CurrencyCode object.

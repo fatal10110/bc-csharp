@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.Field
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Field
 {
     internal class GenericPolynomialExtensionField
         : IPolynomialExtensionField

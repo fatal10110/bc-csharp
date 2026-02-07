@@ -6,11 +6,11 @@ using System.Net.Sockets;
 using System.Threading;
 #endif
 
-using Org.BouncyCastle.Tls.Crypto;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Date;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Date;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     internal class DtlsRecordLayer
         : DatagramTransport

@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Signers
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers
 {
     public class PlainDsaEncoding
         : IDsaEncoding

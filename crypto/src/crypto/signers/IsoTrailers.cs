@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Org.BouncyCastle.Crypto.Signers
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Signers
 {
     public class IsoTrailers
     {

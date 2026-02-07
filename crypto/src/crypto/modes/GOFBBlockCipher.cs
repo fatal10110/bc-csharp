@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Crypto.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
 	/**
 	* implements the GOST 28147 OFB counter mode (GCTR).

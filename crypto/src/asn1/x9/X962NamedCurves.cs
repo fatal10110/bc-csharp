@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
-using Org.BouncyCastle.Math.EC.Multiplier;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Multiplier;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Asn1.X9
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9
 {
     /// <summary>Elliptic curve registry for the curves defined in X.962 EC-DSA.</summary>
     public static class X962NamedCurves

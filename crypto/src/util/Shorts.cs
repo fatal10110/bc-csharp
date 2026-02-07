@@ -3,7 +3,7 @@
 using System.Buffers.Binary;
 #endif
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     public static class Shorts
     {

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>(D)TLS DH key exchange.</summary>
     // TODO[api] Make sealed

@@ -1,9 +1,9 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     /// <summary>Credentialed class for generating signatures based on the use of primitives from the BC light-weight API.</summary>
     public class BcDefaultTlsCredentialedSigner
@@ -46,18 +46,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             {
                 return new BcTlsEd448Signer(crypto, ed448PrivateKey);
             }
-            else if (privateKey is MLDsaPrivateKeyParameters mlDsaPrivateKey)
-            {
-                if (signatureAndHashAlgorithm != null)
-                {
-                    int signatureScheme = SignatureScheme.From(signatureAndHashAlgorithm);
-                    TlsSigner signer = BcTlsMLDsaSigner.Create(crypto, mlDsaPrivateKey, signatureScheme);
-                    if (signer != null)
-                        return signer;
-                }
 
-                throw new ArgumentException("ML-DSA private key of wrong type for signature algorithm");
-            }
             else
             {
                 throw new ArgumentException("'privateKey' type not supported: " + privateKey.GetType().FullName);

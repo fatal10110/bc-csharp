@@ -1,4 +1,4 @@
-﻿namespace Org.BouncyCastle.Crypto
+﻿namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     /// <summary>
     /// Interface for a converter that produces a byte encoding for a char array.

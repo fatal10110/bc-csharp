@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Prng
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng
 {
     /**
      * An EntropySourceProvider where entropy generation is based on a SecureRandom output using SecureRandom.generateSeed().

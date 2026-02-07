@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Org.BouncyCastle.Math.Raw;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Math.EC.Custom.GM
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Custom.GM
 {
     internal class SM2P256V1FieldElement
         : AbstractFpFieldElement

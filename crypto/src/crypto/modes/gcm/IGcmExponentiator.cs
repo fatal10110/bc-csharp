@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes.Gcm
 {
     [Obsolete("Will be removed")]
     public interface IGcmExponentiator

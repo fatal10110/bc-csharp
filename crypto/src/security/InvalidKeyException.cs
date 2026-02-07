@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Security
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Security
 {
     [Serializable]
     public class InvalidKeyException

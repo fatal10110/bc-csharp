@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
 	/// <summary>An IAeadCipher based on an IBlockCipher.</summary>
 	public interface IAeadBlockCipher

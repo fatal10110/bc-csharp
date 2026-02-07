@@ -5,12 +5,12 @@ using System.IO;
 using System.Text;
 using System.Threading;
 
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X500.Style;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X500.Style;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
     * <pre>

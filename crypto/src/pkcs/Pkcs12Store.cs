@@ -2,25 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Misc;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Operators.Utilities;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.Utilities.Encoders;
-using Org.BouncyCastle.X509;
-using Org.BouncyCastle.X509.Extension;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Operators.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509.Extension;
 
-namespace Org.BouncyCastle.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs
 {
     public class Pkcs12Store
     {
-        public const string IgnoreUselessPasswordProperty = "Org.BouncyCastle.Pkcs12.IgnoreUselessPassword";
+        public const string IgnoreUselessPasswordProperty = "TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs12.IgnoreUselessPassword";
 
         private readonly Dictionary<string, AsymmetricKeyEntry> m_keys =
             new Dictionary<string, AsymmetricKeyEntry>(StringComparer.OrdinalIgnoreCase);
@@ -842,8 +841,7 @@ namespace Org.BouncyCastle.Pkcs
                     if (PkcsObjectIdentifiers.Pkcs9AtFriendlyName.Equals(oid))
                         continue;
 
-                    if (MiscObjectIdentifiers.id_oracle_pkcs12_trusted_key_usage.Equals(oid))
-                        continue;
+
 
                     bagAttributes.Add(new DerSequence(oid, new DerSet(certEntry[oid])));
                 }
@@ -854,24 +852,7 @@ namespace Org.BouncyCastle.Pkcs
                 // NB: We always set the FriendlyName based on 'certId'
                 bagAttributes.Add(CreateEntryFriendlyName(alias, certEntry));
 
-                // the Oracle PKCS12 parser looks for a trusted key usage for named certificates as well
-                if (enableOracleTrustedKeyUsage)
-                {
-                    Asn1Object eku = certEntry.Certificate.GetExtensionParsedValue(X509Extensions.ExtendedKeyUsage);
 
-                    DerSet attrValue;
-                    if (eku != null)
-                    {
-                        attrValue = new DerSet(ExtendedKeyUsage.GetInstance(eku).GetAllUsagesArray());
-                    }
-                    else
-                    {
-                        attrValue = new DerSet(KeyPurposeID.AnyExtendedKeyUsage);
-                    }
-
-                    bagAttributes.Add(
-                        new DerSequence(MiscObjectIdentifiers.id_oracle_pkcs12_trusted_key_usage, attrValue));
-                }
 
                 certBags.Add(new SafeBag(PkcsObjectIdentifiers.CertBag, certBag, DerSet.FromVector(bagAttributes)));
 

@@ -1,9 +1,9 @@
 using System;
 using System.Runtime.Serialization;
 
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
     [Serializable]
     public class PkixCertPathBuilderException

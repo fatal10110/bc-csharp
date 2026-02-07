@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Agreement.Srp
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement.Srp
 {
 	/**
 	 * Implements the client side SRP-6a protocol. Note that this class is stateful, and therefore NOT threadsafe.

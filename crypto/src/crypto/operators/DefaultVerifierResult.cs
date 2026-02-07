@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Operators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators
 {
     // TODO[api] sealed
     public class DefaultVerifierResult

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Base interface for a TLS verifier that works with signatures and either raw message digests, or entire
     /// messages.</summary>

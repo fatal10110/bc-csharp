@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl
 {
     /// <summary>Base interface for services supporting AEAD encryption/decryption.</summary>
     public interface TlsAeadCipherImpl

@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Asn1.Nist
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Nist
 {
     // TODO[api] Make static
     public sealed class NistObjectIdentifiers

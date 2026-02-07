@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
 
-namespace Org.BouncyCastle.Crypto.Modes
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes
 {
     /**
     * implements a Output-FeedBack (OFB) mode on top of a simple cipher.

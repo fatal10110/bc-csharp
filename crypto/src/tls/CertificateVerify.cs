@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     public sealed class CertificateVerify
     {

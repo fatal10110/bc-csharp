@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>A generic interface for key exchange implementations in (D)TLS.</summary>
     public interface TlsKeyExchange

@@ -1,11 +1,11 @@
 using System;
 
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Math.EC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC;
 
-namespace Org.BouncyCastle.Crypto.Agreement
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Agreement
 {
     // TODO[api] sealed
     public class ECMqvBasicAgreement

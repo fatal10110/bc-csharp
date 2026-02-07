@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Utilities.Encoders
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders
 {
 	/**
 	* Convert binary data to and from UrlBase64 encoding.  This is identical to

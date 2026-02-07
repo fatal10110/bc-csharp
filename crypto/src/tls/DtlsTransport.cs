@@ -2,7 +2,7 @@
 using System.IO;
 using System.Net.Sockets;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     [Flags]
     public enum DtlsRecordFlags

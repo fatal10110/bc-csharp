@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Digests
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Digests
 {
     public abstract class Gost3411_2012Digest
         : IDigest, IMemoable

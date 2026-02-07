@@ -3,9 +3,9 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1
 {
     /// <summary>GeneralizedTime ASN.1 type</summary>
     public class Asn1GeneralizedTime

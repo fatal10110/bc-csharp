@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     public class RsaPublicKeyStructure
         : Asn1Encodable

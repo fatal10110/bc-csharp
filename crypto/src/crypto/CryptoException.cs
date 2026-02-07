@@ -1,7 +1,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     [Serializable]
     public class CryptoException

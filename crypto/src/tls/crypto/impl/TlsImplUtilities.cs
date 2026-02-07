@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl
 {
     /// <summary>Useful utility methods.</summary>
     public abstract class TlsImplUtilities

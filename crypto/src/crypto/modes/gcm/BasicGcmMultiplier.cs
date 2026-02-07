@@ -3,7 +3,7 @@ using System;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-namespace Org.BouncyCastle.Crypto.Modes.Gcm
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes.Gcm
 {
     [Obsolete("Will be removed")]
     public class BasicGcmMultiplier

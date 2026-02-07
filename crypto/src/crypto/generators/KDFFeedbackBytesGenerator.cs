@@ -1,10 +1,10 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Macs;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Macs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Crypto.Generators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators
 {
     public sealed class KdfFeedbackBytesGenerator
         : IMacDerivationFunction

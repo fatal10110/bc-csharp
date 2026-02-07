@@ -1,22 +1,22 @@
 using System;
 
-using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.CryptoPro;
-using Org.BouncyCastle.Asn1.EdEC;
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Asn1.Pkcs;
-using Org.BouncyCastle.Asn1.Rosstandart;
-using Org.BouncyCastle.Asn1.Sec;
-using Org.BouncyCastle.Asn1.X509;
-using Org.BouncyCastle.Asn1.X9;
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Generators;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.CryptoPro;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.EdEC;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Pkcs;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Rosstandart;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Generators;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Pkcs
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkcs
 {
     public static class PrivateKeyInfoFactory
     {
@@ -211,39 +211,7 @@ namespace Org.BouncyCastle.Pkcs
                     ed25519Key.GeneratePublicKey().GetEncoded());
             }
 
-            if (privateKey is MLDsaPrivateKeyParameters mlDsaKey)
-            {
-                var algID = new AlgorithmIdentifier(mlDsaKey.Parameters.Oid);
 
-                var privateKeyAsn1 = GetMLDsaPrivateKeyAsn1(mlDsaKey);
-
-                // NOTE: The public key can be derived from the private key
-                byte[] publicKey = null;
-
-                return new PrivateKeyInfo(algID, privateKeyAsn1, attributes, publicKey);
-            }
-
-            if (privateKey is MLKemPrivateKeyParameters mlKemKey)
-            {
-                var algID = new AlgorithmIdentifier(mlKemKey.Parameters.Oid);
-
-                var privateKeyAsn1 = GetMLKemPrivateKeyAsn1(mlKemKey);
-
-                // NOTE: The private key already includes the public key
-                byte[] publicKey = null;
-
-                return new PrivateKeyInfo(algID, privateKeyAsn1, attributes, publicKey);
-            }
-
-            if (privateKey is SlhDsaPrivateKeyParameters slhDsaKey)
-            {
-                var algID = new AlgorithmIdentifier(slhDsaKey.Parameters.Oid);
-
-                // NOTE: The private key already includes the public key
-                DerBitString publicKey = null;
-
-                return PrivateKeyInfo.Create(algID, new DerOctetString(slhDsaKey.GetEncoded()), attributes, publicKey);
-            }
 
             throw new ArgumentException("Class provided is not convertible: " + Platform.GetTypeName(privateKey));
         }
@@ -284,32 +252,6 @@ namespace Org.BouncyCastle.Pkcs
             }
         }
 
-        private static Asn1Encodable GetMLDsaPrivateKeyAsn1(MLDsaPrivateKeyParameters key)
-        {
-            switch (key.PreferredFormat)
-            {
-            case MLDsaPrivateKeyParameters.Format.EncodingOnly:
-                return new DerOctetString(key.GetEncoded());
-            case MLDsaPrivateKeyParameters.Format.SeedOnly:
-                return new DerTaggedObject(false, 0, new DerOctetString(key.GetSeed()));
-            case MLDsaPrivateKeyParameters.Format.SeedAndEncoding:
-            default:
-                return new DerSequence(new DerOctetString(key.GetSeed()), new DerOctetString(key.GetEncoded()));
-            }
-        }
 
-        private static Asn1Encodable GetMLKemPrivateKeyAsn1(MLKemPrivateKeyParameters key)
-        {
-            switch (key.PreferredFormat)
-            {
-            case MLKemPrivateKeyParameters.Format.EncodingOnly:
-                return new DerOctetString(key.GetEncoded());
-            case MLKemPrivateKeyParameters.Format.SeedOnly:
-                return new DerTaggedObject(false, 0, new DerOctetString(key.GetSeed()));
-            case MLKemPrivateKeyParameters.Format.SeedAndEncoding:
-            default:
-                return new DerSequence(new DerOctetString(key.GetSeed()), new DerOctetString(key.GetEncoded()));
-            }
-        }
     }
 }

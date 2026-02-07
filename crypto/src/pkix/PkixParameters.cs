@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Utilities.Collections;
-using Org.BouncyCastle.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Collections;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
-namespace Org.BouncyCastle.Pkix
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Pkix
 {
 	/// <summary>
 	/// Summary description for PkixParameters.

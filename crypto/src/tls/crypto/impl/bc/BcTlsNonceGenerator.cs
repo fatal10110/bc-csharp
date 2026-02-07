@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Crypto.Prng;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Prng;
 
-namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
     internal sealed class BcTlsNonceGenerator
         : TlsNonceGenerator

@@ -1,8 +1,8 @@
 ﻿using System;
 
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Crypto.Operators
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Operators
 {
     public class GenericKey
     {

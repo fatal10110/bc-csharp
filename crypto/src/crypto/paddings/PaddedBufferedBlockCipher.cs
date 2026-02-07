@@ -1,12 +1,12 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Parameters;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Crypto.Paddings
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Paddings
 {
     /**
 	* A wrapper class that allows block ciphers to be used to process data in
@@ -20,10 +20,7 @@ namespace Org.BouncyCastle.Crypto.Paddings
     {
         private readonly IBlockCipherPadding m_padding;
 
-        public PaddedBufferedBlockCipher(IBlockCipher cipher, IBlockCipherPadding padding)
-            : this(EcbBlockCipher.GetBlockCipherMode(cipher), padding)
-        {
-        }
+
 
         /**
 		* Create a buffered block cipher with the desired padding.

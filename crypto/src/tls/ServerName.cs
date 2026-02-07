@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>RFC 6066 3. Server Name Indication</summary>
     /// <remarks>

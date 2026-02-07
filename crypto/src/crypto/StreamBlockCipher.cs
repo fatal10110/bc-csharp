@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Crypto.Modes;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Modes;
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
 	/**
 	 * a wrapper for block ciphers with a single byte block size, so that they

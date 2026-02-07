@@ -1,9 +1,9 @@
 using System;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.Sec
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Sec
 {
     /**
      * the elliptic curve private key object from SEC 1

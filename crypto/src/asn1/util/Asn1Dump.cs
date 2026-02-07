@@ -2,9 +2,9 @@ using System;
 using System.IO;
 using System.Text;
 
-using Org.BouncyCastle.Utilities.Encoders;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Encoders;
 
-namespace Org.BouncyCastle.Asn1.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Utilities
 {
     public static class Asn1Dump
     {

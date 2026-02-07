@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Org.BouncyCastle.Utilities.IO.Pem
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO.Pem
 {
 	public class PemObject
 		: PemObjectGenerator

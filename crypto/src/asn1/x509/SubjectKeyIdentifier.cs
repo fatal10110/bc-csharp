@@ -1,10 +1,10 @@
 using System;
 
-using Org.BouncyCastle.Asn1.Oiw;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Oiw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Asn1.X509
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509
 {
     /**
      * The SubjectKeyIdentifier object.

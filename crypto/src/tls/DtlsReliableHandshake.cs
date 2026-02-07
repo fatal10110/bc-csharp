@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Utilities.Date;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Date;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     internal class DtlsReliableHandshake
     {

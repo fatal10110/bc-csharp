@@ -3,7 +3,7 @@
 using System.Diagnostics.CodeAnalysis;
 #endif
 
-namespace Org.BouncyCastle.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto
 {
     internal static class Check
     {

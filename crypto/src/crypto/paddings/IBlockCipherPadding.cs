@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Crypto.Paddings
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto.Paddings
 {
     /// <summary>Block cipher padders are expected to conform to this interface.</summary>
     public interface IBlockCipherPadding

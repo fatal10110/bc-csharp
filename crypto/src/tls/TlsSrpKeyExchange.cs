@@ -1,12 +1,12 @@
 ﻿using System;
 using System.IO;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Tls.Crypto;
-using Org.BouncyCastle.Utilities;
-using Org.BouncyCastle.Utilities.IO;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.IO;
 
-namespace Org.BouncyCastle.Tls
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 {
     /// <summary>(D)TLS SRP key exchange (RFC 5054).</summary>
     // TODO[api] Make sealed
@@ -32,10 +32,9 @@ namespace Org.BouncyCastle.Tls
         protected byte[] m_srpSalt = null;
         protected TlsSrp6Client m_srpClient = null;
 
-        protected TlsSrpLoginParameters m_srpLoginParameters;
-        protected TlsCredentialedSigner m_serverCredentials = null;
-        protected TlsSrp6Server m_srpServer = null;
 
+
+        protected TlsCredentials m_serverCredentials = null;
         protected BigInteger m_srpPeerCredentials = null;
 
         public TlsSrpKeyExchange(int keyExchange, TlsSrpIdentity srpIdentity, TlsSrpConfigVerifier srpConfigVerifier)
@@ -45,11 +44,7 @@ namespace Org.BouncyCastle.Tls
             m_srpConfigVerifier = srpConfigVerifier;
         }
 
-        public TlsSrpKeyExchange(int keyExchange, TlsSrpLoginParameters srpLoginParameters)
-            : base(CheckKeyExchange(keyExchange))
-        {
-            m_srpLoginParameters = srpLoginParameters;
-        }
+
 
         public override void SkipServerCredentials()
         {
@@ -75,28 +70,7 @@ namespace Org.BouncyCastle.Tls
 
         public override bool RequiresServerKeyExchange => true;
 
-        public override byte[] GenerateServerKeyExchange()
-        {
-            TlsSrpConfig config = m_srpLoginParameters.Config;
 
-            m_srpServer = m_context.Crypto.CreateSrp6Server(config, m_srpLoginParameters.Verifier);
-
-            BigInteger B = m_srpServer.GenerateServerCredentials();
-
-            BigInteger[] ng = config.GetExplicitNG();
-            ServerSrpParams srpParams = new ServerSrpParams(ng[0], ng[1], m_srpLoginParameters.Salt, B);
-
-            DigestInputBuffer digestBuffer = new DigestInputBuffer();
-
-            srpParams.Encode(digestBuffer);
-
-            if (m_serverCredentials != null)
-            {
-                TlsUtilities.GenerateServerKeyExchangeSignature(m_context, m_serverCredentials, null, digestBuffer);
-            }
-
-            return digestBuffer.ToArray();
-        }
 
         public override void ProcessServerKeyExchange(Stream input)
         {
@@ -147,23 +121,11 @@ namespace Org.BouncyCastle.Tls
             m_context.SecurityParameters.m_srpIdentity = Arrays.Clone(identity);
         }
 
-        public override void ProcessClientKeyExchange(Stream input)
-        {
-            /*
-             * RFC 5054 2.5.4: The server MUST abort the handshake with an "illegal_parameter" alert if
-             * A % N = 0.
-             */
-            m_srpPeerCredentials = ValidatePublicValue(m_srpLoginParameters.Config.GetExplicitNG()[0],
-                TlsSrpUtilities.ReadSrpParameter(input));
 
-            m_context.SecurityParameters.m_srpIdentity = Arrays.Clone(m_srpLoginParameters.Identity);
-        }
 
         public override TlsSecret GeneratePreMasterSecret()
         {
-            BigInteger S = m_srpServer != null
-                ?   m_srpServer.CalculateSecret(m_srpPeerCredentials)
-                :   m_srpClient.CalculateSecret(m_srpPeerCredentials);
+            BigInteger S = m_srpClient.CalculateSecret(m_srpPeerCredentials);
 
             // TODO Check if this needs to be a fixed size
             return m_context.Crypto.CreateSecret(BigIntegers.AsUnsignedByteArray(S));

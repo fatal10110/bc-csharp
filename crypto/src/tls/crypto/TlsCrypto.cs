@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 
-using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
 
-namespace Org.BouncyCastle.Tls.Crypto
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls.Crypto
 {
     /// <summary>Service and object creation interface for the primitive types and services that are associated with
     /// cryptography in the API.</summary>
@@ -58,9 +58,7 @@ namespace Org.BouncyCastle.Tls.Crypto
         /// <returns>true if HKDF is supported with cryptoHashAlgorithm, false otherwise.</returns>
         bool HasHkdfAlgorithm(int cryptoHashAlgorithm);
 
-        /// <summary>Return true if this TlsCrypto can support KEM key agreement.</summary>
-        /// <returns>true if this instance can support KEM key agreement, false otherwise.</returns>
-        bool HasKemAgreement();
+
 
         /// <summary>Return true if this TlsCrypto can support the passed in MAC algorithm.</summary>
         /// <param name="macAlgorithm">the algorithm of interest.</param>
@@ -145,10 +143,7 @@ namespace Org.BouncyCastle.Tls.Crypto
         /// <returns>a TlsECDomain supporting the parameters in ecConfig.</returns>
         TlsECDomain CreateECDomain(TlsECConfig ecConfig);
 
-        /// <summary>Create a domain object supporting the domain parameters described in kemConfig.</summary>
-        /// <param name="kemConfig">the config describing the KEM parameters to use.</param>
-        /// <returns>a TlsKemDomain supporting the parameters in kemConfig.</returns>
-        TlsKemDomain CreateKemDomain(TlsKemConfig kemConfig);
+
 
         /// <summary>Adopt the passed in secret, creating a new copy of it.</summary>
         /// <param name="secret">the secret to make a copy of.</param>
@@ -198,16 +193,7 @@ namespace Org.BouncyCastle.Tls.Crypto
         /// <returns>an initialised SRP6 client object.</returns>
         TlsSrp6Client CreateSrp6Client(TlsSrpConfig srpConfig);
 
-        /// <summary>Create an SRP-6 server.</summary>
-        /// <param name="srpConfig">server config.</param>
-        /// <param name="srpVerifier">the SRP6 verifier value.</param>
-        /// <returns>an initialised SRP6 server object.</returns>
-        TlsSrp6Server CreateSrp6Server(TlsSrpConfig srpConfig, BigInteger srpVerifier);
 
-        /// <summary>Create an SRP-6 verifier generator.</summary>
-        /// <param name="srpConfig">generator config.</param>
-        /// <returns>an initialized SRP6 verifier generator.</returns>
-        TlsSrp6VerifierGenerator CreateSrp6VerifierGenerator(TlsSrpConfig srpConfig);
 
         /// <summary>Setup an initial "secret" for a chain of HKDF calls (RFC 5869), containing a string of HashLen
         /// zeroes.</summary>

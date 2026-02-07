@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 #endif
 using System.Text;
 
-using Org.BouncyCastle.Math;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math;
 
-namespace Org.BouncyCastle.Utilities
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities
 {
     /// <summary> General array utilities.</summary>
     public static class Arrays

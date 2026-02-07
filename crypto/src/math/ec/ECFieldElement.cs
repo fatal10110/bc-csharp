@@ -1,9 +1,9 @@
 using System;
 using System.Diagnostics;
 
-using Org.BouncyCastle.Utilities;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities;
 
-namespace Org.BouncyCastle.Math.EC
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC
 {
     public abstract class ECFieldElement
     {

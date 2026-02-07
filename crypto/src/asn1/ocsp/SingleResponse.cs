@@ -1,8 +1,8 @@
 using System;
 
-using Org.BouncyCastle.Asn1.X509;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509;
 
-namespace Org.BouncyCastle.Asn1.Ocsp
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.Ocsp
 {
     public class SingleResponse
         : Asn1Encodable

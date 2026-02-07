@@ -1,6 +1,6 @@
 using System;
 
-namespace Org.BouncyCastle.Utilities.Date
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Utilities.Date
 {
 	public static class DateTimeUtilities
 	{

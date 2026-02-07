@@ -7,9 +7,9 @@ using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 #endif
 
-using Org.BouncyCastle.Math.Raw;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.Raw;
 
-namespace Org.BouncyCastle.Math.EC.Custom.Sec
+namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Math.EC.Custom.Sec
 {
     internal static class SecT233Field
     {
