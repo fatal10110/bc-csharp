@@ -60,9 +60,9 @@ namespace Org.BouncyCastle.Tls
         internal byte[] m_peerVerifyData = null;
 
         /// <summary>Connection ID we use during communication to the peer.</summary>
-        internal byte[] m_connectionIDLocal;
+        internal byte[] m_connectionIDLocal = null;
         /// <summary>Connection ID our peer uses for communication to us.</summary>
-        internal byte[] m_connectionIDPeer;
+        internal byte[] m_connectionIDPeer = null;
 
         internal void Clear()
         {

@@ -5972,9 +5972,6 @@ namespace Org.BouncyCastle.Tls
         // TODO[api] Not needed once PreferLocalSupportedGroups() has been added to TlsServer
         internal static bool PreferLocalSupportedGroups(TlsServer tlsServer)
         {
-            if (tlsServer is AbstractTlsServer abstractTlsServer)
-                return abstractTlsServer.PreferLocalSupportedGroups();
-
             return false;
         }
     }

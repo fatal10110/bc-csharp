@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Org.BouncyCastle.Asn1.Anssi;
 using Org.BouncyCastle.Asn1.CryptoPro;
 using Org.BouncyCastle.Asn1.GM;
 using Org.BouncyCastle.Asn1.Nist;
@@ -29,10 +28,6 @@ namespace Org.BouncyCastle.Asn1.X9
             if (ecP == null)
             {
                 ecP = TeleTrusTNamedCurves.GetByName(name);
-            }
-            if (ecP == null)
-            {
-                ecP = AnssiNamedCurves.GetByName(name);
             }
             if (ecP == null)
             {
@@ -68,10 +63,6 @@ namespace Org.BouncyCastle.Asn1.X9
             }
             if (null == holder)
             {
-                holder = AnssiNamedCurves.GetByNameLazy(name);
-            }
-            if (null == holder)
-            {
                 holder = ECGost3410NamedCurves.GetByNameLazy(name);
             }
             if (null == holder)
@@ -97,10 +88,6 @@ namespace Org.BouncyCastle.Asn1.X9
             if (ecP == null)
             {
                 ecP = TeleTrusTNamedCurves.GetByOid(oid);
-            }
-            if (ecP == null)
-            {
-                ecP = AnssiNamedCurves.GetByOid(oid);
             }
             if (ecP == null)
             {
@@ -136,10 +123,6 @@ namespace Org.BouncyCastle.Asn1.X9
             }
             if (null == holder)
             {
-                holder = AnssiNamedCurves.GetByOidLazy(oid);
-            }
-            if (null == holder)
-            {
                 holder = ECGost3410NamedCurves.GetByOidLazy(oid);
             }
             if (null == holder)
@@ -165,10 +148,6 @@ namespace Org.BouncyCastle.Asn1.X9
             if (name == null)
             {
                 name = TeleTrusTNamedCurves.GetName(oid);
-            }
-            if (name == null)
-            {
-                name = AnssiNamedCurves.GetName(oid);
             }
             if (name == null)
             {
@@ -200,10 +179,6 @@ namespace Org.BouncyCastle.Asn1.X9
             }
             if (oid == null)
             {
-                oid = AnssiNamedCurves.GetOid(name);
-            }
-            if (oid == null)
-            {
                 oid = ECGost3410NamedCurves.GetOid(name);
             }
             if (oid == null)
@@ -223,7 +198,6 @@ namespace Org.BouncyCastle.Asn1.X9
                 result.AddRange(SecNamedCurves.Names);
                 result.AddRange(NistNamedCurves.Names);
                 result.AddRange(TeleTrusTNamedCurves.Names);
-                result.AddRange(AnssiNamedCurves.Names);
                 result.AddRange(ECGost3410NamedCurves.Names);
                 result.AddRange(GMNamedCurves.Names);
                 return result;
