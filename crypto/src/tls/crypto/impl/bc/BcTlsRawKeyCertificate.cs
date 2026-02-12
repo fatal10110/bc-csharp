@@ -23,8 +23,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         protected DHPublicKeyParameters m_pubKeyDH = null;
         protected ECPublicKeyParameters m_pubKeyEC = null;
         protected Ed25519PublicKeyParameters m_pubKeyEd25519 = null;
-        protected Ed448PublicKeyParameters m_pubKeyEd448 = null;
-        protected RsaKeyParameters m_pubKeyRsa = null;
 
         /// <exception cref="IOException"/>
         public BcTlsRawKeyCertificate(BcTlsCrypto crypto, byte[] encoding)
@@ -43,24 +41,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         /// <exception cref="IOException"/>
         public virtual TlsEncryptor CreateEncryptor(int tlsCertificateRole)
         {
-            ValidateKeyUsage(KeyUsage.KeyEncipherment);
-
-            switch (tlsCertificateRole)
-            {
-            case TlsCertificateRole.RsaEncryption:
-            {
-                this.m_pubKeyRsa = GetPubKeyRsa();
-                return new BcTlsRsaEncryptor(m_crypto, m_pubKeyRsa);
-            }
-            // TODO[gmssl]
-            //case TlsCertificateRole.Sm2Encryption:
-            //{
-            //    this.m_pubKeyEC = GetPubKeyEC();
-            //    return new BcTlsSM2Encryptor(m_crypto, m_pubKeyEC);
-            //}
-            }
-
-            throw new TlsFatalAlert(AlertDescription.internal_error);
+            throw new TlsFatalAlert(AlertDescription.internal_error,
+                "RSA key exchange is not supported in this stripped build.");
         }
 
         /// <exception cref="IOException"/>
@@ -69,7 +51,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             switch (signatureAlgorithm)
             {
             case SignatureAlgorithm.ed25519:
-            case SignatureAlgorithm.ed448:
             {
                 int signatureScheme = SignatureScheme.From(HashAlgorithm.Intrinsic, signatureAlgorithm);
                 Tls13Verifier tls13Verifier = CreateVerifier(signatureScheme);
@@ -81,9 +62,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
             switch (signatureAlgorithm)
             {
-            case SignatureAlgorithm.dsa:
-                return new BcTlsDsaVerifier(m_crypto, GetPubKeyDss());
-
             case SignatureAlgorithm.ecdsa:
                 return new BcTlsECDsaVerifier(m_crypto, GetPubKeyEC());
 
@@ -133,7 +111,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case SignatureScheme.ecdsa_secp256r1_sha256:
             case SignatureScheme.ecdsa_secp384r1_sha384:
             case SignatureScheme.ecdsa_secp521r1_sha512:
-            case SignatureScheme.ecdsa_sha1:
             {
                 int cryptoHashAlgorithm = SignatureScheme.GetCryptoHashAlgorithm(signatureScheme);
                 IDigest digest = m_crypto.CreateDigest(cryptoHashAlgorithm);
@@ -152,15 +129,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new BcTls13Verifier(verifier);
             }
 
-            case SignatureScheme.ed448:
-            {
-                Ed448Signer verifier = new Ed448Signer(TlsUtilities.EmptyBytes);
-                verifier.Init(false, GetPubKeyEd448());
-
-                return new BcTls13Verifier(verifier);
-            }
-
-            case SignatureScheme.rsa_pkcs1_sha1:
             case SignatureScheme.rsa_pkcs1_sha256:
             case SignatureScheme.rsa_pkcs1_sha384:
             case SignatureScheme.rsa_pkcs1_sha512:
@@ -219,43 +187,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             //    return new BcTls13Verifier(verifier);
             //}
 
-            case SignatureScheme.mldsa44:
-            case SignatureScheme.mldsa65:
-            case SignatureScheme.mldsa87:
-            {
-                var mlDsaAlgOid = PqcUtilities.GetMLDsaObjectidentifier(signatureScheme);
-                ValidateMLDsa(mlDsaAlgOid);
-
-                var publicKey = GetPubKeyMLDsa();
-
-                var verifier = SignerUtilities.InitSigner(mlDsaAlgOid, forSigning: false, publicKey, random: null);
-
-                return new BcTls13Verifier(verifier);
-            }
-
-            case SignatureScheme.slhdsa_sha2_128s:
-            case SignatureScheme.slhdsa_sha2_128f:
-            case SignatureScheme.slhdsa_sha2_192s:
-            case SignatureScheme.slhdsa_sha2_192f:
-            case SignatureScheme.slhdsa_sha2_256s:
-            case SignatureScheme.slhdsa_sha2_256f:
-            case SignatureScheme.slhdsa_shake_128s:
-            case SignatureScheme.slhdsa_shake_128f:
-            case SignatureScheme.slhdsa_shake_192s:
-            case SignatureScheme.slhdsa_shake_192f:
-            case SignatureScheme.slhdsa_shake_256s:
-            case SignatureScheme.slhdsa_shake_256f:
-            {
-                var slhDsaAlgOid = PqcUtilities.GetSlhDsaObjectidentifier(signatureScheme);
-                ValidateSlhDsa(slhDsaAlgOid);
-
-                var publicKey = GetPubKeySlhDsa();
-
-                var verifier = SignerUtilities.InitSigner(slhDsaAlgOid, forSigning: false, publicKey, random: null);
-
-                return new BcTls13Verifier(verifier);
-            }
-
             default:
                 throw new TlsFatalAlert(AlertDescription.internal_error);
             }
@@ -302,13 +233,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return SignatureAlgorithm.rsa;
 
             /*
-                * DSA public key; the certificate MUST allow the key to be used for signing with the
-                * hash algorithm that will be employed in the certificate verify message.
-                */
-            if (publicKey is DsaPublicKeyParameters)
-                return SignatureAlgorithm.dsa;
-
-            /*
              * ECDSA-capable public key; the certificate MUST allow the key to be used for signing
              * with the hash algorithm that will be employed in the certificate verify message; the
              * public key MUST use a curve and point format supported by the server.
@@ -332,19 +256,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             catch (InvalidCastException e)
             {
                 throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not DH", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        public virtual DsaPublicKeyParameters GetPubKeyDss()
-        {
-            try
-            {
-                return (DsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not DSS", e);
             }
         }
 
@@ -375,32 +286,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         }
 
         /// <exception cref="IOException"/>
-        public virtual Ed448PublicKeyParameters GetPubKeyEd448()
-        {
-            try
-            {
-                return (Ed448PublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not Ed448", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        public virtual MLDsaPublicKeyParameters GetPubKeyMLDsa()
-        {
-            try
-            {
-                return (MLDsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not ML-DSA", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
         public virtual RsaKeyParameters GetPubKeyRsa()
         {
             try
@@ -410,19 +295,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             catch (InvalidCastException e)
             {
                 throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not RSA", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        public virtual SlhDsaPublicKeyParameters GetPubKeySlhDsa()
-        {
-            try
-            {
-                return (SlhDsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not SLH-DSA", e);
             }
         }
 
@@ -479,12 +351,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return true;
         }
 
-        protected virtual bool SupportsMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
-            return PqcUtilities.SupportsMLDsa(pubKeyAlgID, mlDsaAlgOid);
-        }
-
         protected virtual bool SupportsRsa_Pkcs1()
         {
             AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
@@ -503,12 +369,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return RsaUtilities.SupportsPss_Rsae(pubKeyAlgID);
         }
 
-        protected virtual bool SupportsSlhDsa(DerObjectIdentifier slhDsaAlgOid)
-        {
-            AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
-            return PqcUtilities.SupportsSlhDsa(pubKeyAlgID, slhDsaAlgOid);
-        }
-
         /// <exception cref="IOException"/>
         protected virtual bool SupportsSignatureAlgorithm(short signatureAlgorithm, int keyUsage)
         {
@@ -523,9 +383,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return SupportsRsa_Pkcs1()
                     && publicKey is RsaKeyParameters;
 
-            case SignatureAlgorithm.dsa:
-                return publicKey is DsaPublicKeyParameters;
-
             case SignatureAlgorithm.ecdsa:
             case SignatureAlgorithm.ecdsa_brainpoolP256r1tls13_sha256:
             case SignatureAlgorithm.ecdsa_brainpoolP384r1tls13_sha384:
@@ -534,9 +391,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
             case SignatureAlgorithm.ed25519:
                 return publicKey is Ed25519PublicKeyParameters;
-
-            case SignatureAlgorithm.ed448:
-                return publicKey is Ed448PublicKeyParameters;
 
             case SignatureAlgorithm.rsa_pss_rsae_sha256:
             case SignatureAlgorithm.rsa_pss_rsae_sha384:
@@ -583,13 +437,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         }
 
         /// <exception cref="IOException"/>
-        protected virtual void ValidateMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            if (!SupportsMLDsa(mlDsaAlgOid))
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "No support for ML-DSA signature scheme");
-        }
-
-        /// <exception cref="IOException"/>
         protected virtual void ValidateRsa_Pkcs1()
         {
             if (!SupportsRsa_Pkcs1())
@@ -613,11 +460,5 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                     "No support for rsa_pss_rsae signature schemes");
         }
 
-        /// <exception cref="IOException"/>
-        protected virtual void ValidateSlhDsa(DerObjectIdentifier slhDsaAlgOid)
-        {
-            if (!SupportsSlhDsa(slhDsaAlgOid))
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "No support for SLH-DSA signature scheme");
-        }
     }
 }
