@@ -9,7 +9,6 @@ using Org.BouncyCastle.Asn1.Misc;
 using Org.BouncyCastle.Asn1.Utilities;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Operators;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Security.Certificates;
@@ -61,8 +60,6 @@ namespace Org.BouncyCastle.X509
         private readonly byte[] sigAlgParams;
         private readonly BasicConstraints basicConstraints;
         private readonly bool[] keyUsage;
-
-        private string m_sigAlgName = null;
 
         private AsymmetricKeyParameter publicKeyValue;
         private CachedEncoding cachedEncoding;
@@ -285,8 +282,7 @@ namespace Org.BouncyCastle.X509
 		/// A meaningful version of the Signature Algorithm. (e.g. SHA1WITHRSA)
 		/// </summary>
 		/// <returns>A string representing the signature algorithm.</returns>
-		public virtual string SigAlgName => Objects.EnsureSingletonInitialized(ref m_sigAlgName, SignatureAlgorithm,
-            X509SignatureUtilities.GetSignatureName);
+		public virtual string SigAlgName => c.SignatureAlgorithm.Algorithm.Id;
 
         /// <summary>
         /// Get the Signature Algorithms Object ID.
@@ -612,39 +608,16 @@ namespace Org.BouncyCastle.X509
 
         // TODO[api] Rename 'key' to 'publicKey'
         public virtual bool IsSignatureValid(AsymmetricKeyParameter key) =>
-            CheckSignatureValid(new Asn1VerifierFactory(c.SignatureAlgorithm, key));
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         public virtual bool IsSignatureValid(IVerifierFactoryProvider verifierProvider) =>
-            CheckSignatureValid(verifierProvider.CreateVerifierFactory(c.SignatureAlgorithm));
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         public virtual bool IsAlternativeSignatureValid(AsymmetricKeyParameter publicKey) =>
-            IsAlternativeSignatureValid(new Asn1VerifierFactoryProvider(publicKey));
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
-        public virtual bool IsAlternativeSignatureValid(IVerifierFactoryProvider verifierProvider)
-        {
-            var tbsCertificate = c.TbsCertificate;
-            var extensions = tbsCertificate.Extensions;
-
-            AltSignatureAlgorithm altSigAlg = AltSignatureAlgorithm.FromExtensions(extensions);
-            AltSignatureValue altSigValue = AltSignatureValue.FromExtensions(extensions);
-
-            var verifier = verifierProvider.CreateVerifierFactory(altSigAlg.Algorithm);
-
-            Asn1Sequence tbsSeq = Asn1Sequence.GetInstance(tbsCertificate.ToAsn1Object());
-            Asn1EncodableVector v = new Asn1EncodableVector();
-
-            for (int i = 0; i < tbsSeq.Count - 1; i++)
-            {
-                if (i != 2) // signature field - must be ver 3 so version always present
-                {
-                    v.Add(tbsSeq[i]);
-                }
-            }
-
-            v.Add(new DerTaggedObject(true, 3, extensions.ToAsn1ObjectTrimmed()));
-
-            return X509Utilities.VerifySignature(verifier, new DerSequence(v), altSigValue.Signature);
-        }
+        public virtual bool IsAlternativeSignatureValid(IVerifierFactoryProvider verifierProvider) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         /// <summary>
         /// Verify the certificate's signature using the nominated public key.
@@ -653,10 +626,8 @@ namespace Org.BouncyCastle.X509
         /// <returns>True if the signature is valid.</returns>
         /// <exception cref="Exception">If key submitted is not of the above nominated types.</exception>
         // TODO[api] Rename 'key' to 'publicKey'
-        public virtual void Verify(AsymmetricKeyParameter key)
-        {
-            CheckSignature(new Asn1VerifierFactory(c.SignatureAlgorithm, key));
-        }
+        public virtual void Verify(AsymmetricKeyParameter key) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         /// <summary>
         /// Verify the certificate's signature using a verifier created using the passed in verifier provider.
@@ -664,10 +635,8 @@ namespace Org.BouncyCastle.X509
         /// <param name="verifierProvider">An appropriate provider for verifying the certificate's signature.</param>
         /// <exception cref="Exception">If verifier provider is not appropriate or the certificate signature algorithm
         /// is invalid.</exception>
-        public virtual void Verify(IVerifierFactoryProvider verifierProvider)
-        {
-            CheckSignature(verifierProvider.CreateVerifierFactory(c.SignatureAlgorithm));
-        }
+        public virtual void Verify(IVerifierFactoryProvider verifierProvider) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         /// <summary>Verify the certificate's alternative signature using a verifier created using the passed in
         /// verifier provider.</summary>
@@ -675,27 +644,14 @@ namespace Org.BouncyCastle.X509
         /// signature.</param>
         /// <exception cref="Exception">If verifier provider is not appropriate or the certificate alternative signature
         /// algorithm is invalid.</exception>
-        public virtual void VerifyAltSignature(IVerifierFactoryProvider verifierProvider)
-        {
-            if (!IsAlternativeSignatureValid(verifierProvider))
-                throw new InvalidKeyException("Public key presented not for certificate alternative signature");
-        }
+        public virtual void VerifyAltSignature(IVerifierFactoryProvider verifierProvider) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
-        protected virtual void CheckSignature(IVerifierFactory verifier)
-        {
-            if (!CheckSignatureValid(verifier))
-                throw new InvalidKeyException("Public key presented not for certificate signature");
-        }
+        protected virtual void CheckSignature(IVerifierFactory verifier) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
-        protected virtual bool CheckSignatureValid(IVerifierFactory verifier)
-        {
-            var tbsCertificate = c.TbsCertificate;
-
-            if (!X509Utilities.AreEquivalentAlgorithms(c.SignatureAlgorithm, tbsCertificate.Signature))
-                throw new CertificateException("signature algorithm in TBS cert not same as outer cert");
-
-            return X509Utilities.VerifySignature(verifier, tbsCertificate, c.Signature);
-        }
+        protected virtual bool CheckSignatureValid(IVerifierFactory verifier) =>
+            throw new NotSupportedException("Signature validation is not available in this stripped build.");
 
         internal byte[] GetEncodedInternal() => GetCachedEncoding().GetEncoded();
 
