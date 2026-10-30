@@ -26,10 +26,10 @@ namespace Org.BouncyCastle.Turbo
     /// <item>id-ecPublicKey keys on the named curves P-256, P-384 and P-521, with a compressed or
     /// uncompressed point.</item>
     /// </list>
-    /// The size bounds are checked on the parsed integers before any key object is built, so no
-    /// small-factor test, Miller-Rabin test or modular exponentiation runs on an out-of-range key. Keys are
-    /// then built only through public constructors, so master's validation (even modulus, small factors,
-    /// Miller-Rabin, point on curve, point at infinity) still runs. Every failure, malformed input included,
+    /// The size bounds are checked on the parsed integers, and the EC parameters on their raw ASN.1 form,
+    /// before any key or curve object is built, so no small-factor test, primality test or modular
+    /// exponentiation runs on an out-of-range key. Keys are then built only through public constructors, so
+    /// master's validation (even modulus, small factors, point on curve, point at infinity) still runs. Every failure, malformed input included,
     /// surfaces as <see cref="ArgumentException"/> (exactly that type; a null argument gives
     /// <see cref="ArgumentNullException"/>).
     /// </remarks>
@@ -115,23 +115,23 @@ namespace Org.BouncyCastle.Turbo
             if (e.SignValue <= 0 || e.BitLength < 2 || e.BitLength > RsaMaxExponentBits)
                 throw new ArgumentException("RSA public exponent out of range");
 
-            // Public constructor: master's even/small-factor/Miller-Rabin checks run.
+            // Public constructor: master's even-modulus and small-factor checks run.
             return new RsaKeyParameters(false, n, e);
         }
 
         private static ECPublicKeyParameters CreateECKey(SubjectPublicKeyInfo keyInfo)
         {
-            // RFC 5480 §2.1.1: only the namedCurve form; specifiedCurve and implicitCurve are rejected
-            // before any curve is built.
+            // RFC 5480 §2.1.1: only the namedCurve form. The raw parameter is tested before any X9 parsing:
+            // X962Parameters/X9ECParameters would build the curve of a specifiedCurve (prime test on an
+            // attacker-chosen field) before IsNamedCurve could reject it. Missing, NULL (implicitCurve) and
+            // SEQUENCE (specifiedCurve) parameters are all rejected here.
             Asn1Encodable algParams = keyInfo.Algorithm.Parameters;
             if (algParams == null)
                 throw new ArgumentException("EC parameters missing");
 
-            X962Parameters x962 = X962Parameters.GetInstance(algParams);
-            if (!x962.IsNamedCurve)
+            if (!(algParams.ToAsn1Object() is DerObjectIdentifier curveOid))
                 throw new ArgumentException("EC parameters must be a named curve");
 
-            DerObjectIdentifier curveOid = x962.NamedCurve;
             if (!IsSupportedCurve(curveOid))
                 throw new ArgumentException("Unsupported EC curve: " + curveOid.Id);
 

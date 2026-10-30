@@ -9,9 +9,11 @@ since `BcTlsCertificate` derives from `BcTlsRawKeyCertificate`) through a new wh
 - `TurboKeyFactory.CreateKey(SubjectPublicKeyInfo)` (and a `byte[]` overload for a DER SPKI):
   - rsaEncryption and id-RSASSA-PSS only; modulus 2048–8192 bits and public exponent 2–64 bits (3 ≤ e < 2^64),
     checked on the parsed `RsaPublicKeyStructure` before `new RsaKeyParameters(false, n, e)`, so master's
-    even-modulus, small-factor and Miller-Rabin checks only ever run on in-range keys.
+    even-modulus and small-factor checks (and, until E7, Miller-Rabin) only ever run on in-range keys.
   - id-ecPublicKey only with namedCurve parameters P-256/P-384/P-521; explicit (specifiedCurve), implicitlyCA and
-    missing parameters are rejected before any curve table lookup. The point octet string must start with 0x02,
+    missing parameters are rejected on the raw ASN.1 parameter (it must be an OBJECT IDENTIFIER) before any
+    `X962Parameters`/`X9ECParameters` parsing, so a specifiedCurve never gets its field primality-tested or its
+    curve built (review round 1). The point octet string must start with 0x02,
     0x03 or 0x04 (infinity, hybrid and empty encodings rejected), then `Curve.DecodePoint` and
     `new ECPublicKeyParameters("EC", q, ECNamedDomainParameters)` run master's `ValidatePublicPoint`.
   - Every failure is exactly `ArgumentException` (other exception types are wrapped, inner exception kept); a null
@@ -62,7 +64,8 @@ since `BcTlsCertificate` derives from `BcTlsRawKeyCertificate`) through a new wh
 
 - `./tools/ci/check.sh`: OK (format, netstandard2.0 and net6.0 library builds); strip.sh not present yet.
 - `dotnet test --framework net6.0 --filter "FullyQualifiedName~TurboKeyFactoryTest|FullyQualifiedName~BcTlsCryptoE1Test"`:
-  61/61 pass. Before the call-site reroute the 4 routing rows (1024-bit RSA, 65-bit e, secp256k1, Ed25519) failed.
+  61/61 pass (round 1: the Miller-Rabin-dependent prime-modulus row was dropped because E7 turns peer-key
+  Miller-Rabin off; a specifiedCurve row with a composite 1100-bit field was added, which fails on the round-0 code). Before the call-site reroute the 4 routing rows (1024-bit RSA, 65-bit e, secp256k1, Ed25519) failed.
 - `--filter "FullyQualifiedName~Org.BouncyCastle.Tls.Tests"`: 57 failed / 128 passed vs 56 / 129 on strip-v2
   with the E5 call site reverted; the only new failure is `SM2Tls13Test.SM2SignerAndVerifier_BC_BC` (sm2sig_sm3
   verifier cut by E5).

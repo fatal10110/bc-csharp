@@ -121,14 +121,6 @@ namespace Org.BouncyCastle.Turbo.Tests
             AssertRejected(RsaSpki(PkcsObjectIdentifiers.RsaEncryption, n, E65537), "small");
         }
 
-        [Test]
-        public void RsaPrimeModulusRejected()
-        {
-            // A prime "modulus" passes the size and small-factor checks; master's Miller-Rabin rejects it.
-            BigInteger prime = BigInteger.ProbablePrime(2048, new Random(7));
-            AssertRejected(RsaSpki(PkcsObjectIdentifiers.RsaEncryption, prime, E65537), "composite");
-        }
-
         // ---- RSA: other OIDs that PublicKeyFactory accepts ----
 
         [Test]
@@ -197,6 +189,26 @@ namespace Org.BouncyCastle.Turbo.Tests
             var algID = new AlgorithmIdentifier(X9ObjectIdentifiers.IdECPublicKey, new X962Parameters(x9));
             var spki = new SubjectPublicKeyInfo(algID, NamedPoint(SecObjectIdentifiers.SecP256r1).GetEncoded(false));
             AssertRejected(spki, "named");
+        }
+
+        [Test]
+        public void ECExplicitParametersRejectedBeforeCurveConstruction()
+        {
+            // specifiedCurve with a composite 1100-bit "prime" field: rejected on the raw parameter, before
+            // X9ECParameters would build the curve (and run a primality test on the attacker-chosen q).
+            BigInteger q = BigInteger.One.ShiftLeft(1100).Subtract(BigInteger.One);
+            byte[] fe = new byte[(q.BitLength + 7) / 8];
+            var specifiedCurve = new DerSequence(
+                new DerInteger(1),
+                new X9FieldID(q).ToAsn1Object(),
+                new DerSequence(new DerOctetString(fe), new DerOctetString(fe)),
+                new DerOctetString(Arrays.Prepend(fe, 0x02)),
+                new DerInteger(q));
+            var algID = new AlgorithmIdentifier(X9ObjectIdentifiers.IdECPublicKey, specifiedCurve);
+            var spki = new SubjectPublicKeyInfo(algID, NamedPoint(SecObjectIdentifiers.SecP256r1).GetEncoded(false));
+            var ex = Assert.Throws<ArgumentException>(() => TurboKeyFactory.CreateKey(spki));
+            StringAssert.Contains("named curve", ex.Message);
+            Assert.IsNull(ex.InnerException);
         }
 
         [Test]
@@ -395,7 +407,7 @@ namespace Org.BouncyCastle.Turbo.Tests
         }
 
         // Deterministic odd composite of exactly 'bits' bits with no small prime factors, so master's
-        // RsaKeyParameters validation (even modulus, small factors, Miller-Rabin) accepts it.
+        // RsaKeyParameters validation accepts it whatever its Miller-Rabin setting (E7).
         private static BigInteger MakeModulus(int bits, int seed)
         {
             var random = new Random(seed);
