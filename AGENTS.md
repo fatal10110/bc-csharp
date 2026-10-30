@@ -24,16 +24,19 @@ branch of fatal10110/bc-csharp.
   turboHTTP `Runtime/Transport/BouncyCastle/`.
 - **No actions on bcgit/bc-csharp, ever** (no issues, PRs, comments). Upstream is only fetched
   read-only for bumps.
+- **Suspected vulnerability in upstream code:** do not file it publicly and do not contact bcgit or
+  bouncycastle.org (this overrides `SECURITY.md`); stop and tell the owner.
 
 ## Architecture
 
 - **Upstream tree** (`crypto/src`, `crypto/test`) stays in place; the strip is computed from it.
-- **Edge cuts** (`STRIP_PLAN_V2.md` §3, E1–E14) are small commits on `strip-v2`, one per E-number,
-  every hunk marked `// turbo-strip:`.
-- **Turbo-owned code** lives in `crypto/src/turbo/` (namespace `Org.BouncyCastle.Turbo`, MIT
+- **Edge cuts** (`STRIP_PLAN_V2.md` §3, E1–E14) are small commits on `strip-v2`, one per E-number or
+  per issue E-range (#14 E2–E4, #19 E9–E12), every hunk marked `// turbo-strip:`.
+- **Turbo-owned code** (planned, M2) lives in `crypto/src/turbo/` (namespace `Org.BouncyCastle.Turbo`, MIT
   header), e.g. `TurboKeyFactory`.
-- **Strip tooling** lives in `strip/`: `BASE`, `ROOTS_SHA`, `roots/`, `deny.txt`, `budget.txt`,
-  `unity-defines.txt`, `Closure.csproj`, `tool/`, `smoke/`, `strip.sh`. Output goes to `strip/out/`
+- **Strip tooling** lives in `strip/`. Present: `BASE`, `tool/` (closure prototype), `unity-probe/`,
+  `journal/`. Planned (M1/M3): `ROOTS_SHA`, `roots/`, `deny.txt`, `budget.txt`, `unity-defines.txt`,
+  `Closure.csproj`, `smoke/`, `strip.sh`. Output goes to `strip/out/`
   and is handed over to turboHTTP (#141 there).
 - **Agent and CI tooling** lives in `tools/` (`tools/ci/check.sh`, `tools/agent-tools/*`),
   `.github/` and `.claude/`.
@@ -49,8 +52,9 @@ branch of fatal10110/bc-csharp.
 
 ## Design Constraints
 
-- Server input is hostile: bound every server-controlled size before allocation or expensive math
-  (RSA 2048–8192 bits, exponent ≤ 64 bits, ASN.1 depth, PSS salt, chain length).
+- Server input is hostile: bound every server-controlled size before allocation or expensive math,
+  using the bounds the plan defines (RSA 2048–8192 bits, exponent ≤ 64 bits, ASN.1 depth via
+  upstream limits; PSS salt only if Appendix A is revived).
 - Decision A: BouncyCastle does no chain validation and no certificate-signature verification;
   turboHTTP validates chains with platform verifiers.
 - Constant-time discipline and `Arrays.ZeroMemory` for secrets, as upstream.
@@ -71,7 +75,8 @@ branch of fatal10110/bc-csharp.
 - Work queue: GitHub issues in fatal10110/bc-csharp — epic #3, milestones "Strip v2 — M1/M2/M3",
   project "BouncyCastle strip v2".
 - History: `strip/journal/`.
-- Consumer-side work: fatal10110/turboHTTP issues #33, #34, #36, #140–#143.
+- Consumer-side work: fatal10110/turboHTTP issues #4, #5, #8, #33, #34, #36, #46, #113, #140–#143
+  (plan §8).
 
 ## Required Workflow
 
@@ -108,15 +113,18 @@ re-review, and document deliberate deferrals with a follow-up issue.
 
 ## Local Gates And CI
 
-- `./tools/ci/check.sh` before every push: whitespace format of changed C# (only changed files,
-  upstream drift is left alone), then `strip/strip.sh --report` once it exists, else a
-  netstandard2.0 build of the library. `--full` adds actionlint, shellcheck, the Python tool tests
-  and the waves simulation. `--fix` formats.
+- `./tools/ci/check.sh` before every push: `dotnet format whitespace` on changed fork-owned C#
+  (`crypto/src/turbo`, `strip`, `tools`); for changed upstream C#, only added lines are checked
+  (trailing whitespace) — upstream files are never reformatted. Then `strip/strip.sh --report` once it
+  exists (#30 switches the gate to enforce mode), else the whole library for netstandard2.0 and
+  net6.0. `--full` adds actionlint, shellcheck, the Python tool tests and the waves simulation; run it
+  before opening a PR (waves lanes: when the lane note asks). `--fix` formats fork-owned C#.
 - CI (`.github/workflows/ci.yml`) runs `check.sh --full` on PRs to `strip-v2` and on pushes to it;
   the aggregate check is `ci`. CodeQL (`codeql.yml`) analyses fork-owned code only
   (`crypto/src/turbo`, `strip`, `tools`, `.github`).
 - Prerequisites: .NET SDK 8, Python 3, git; optional actionlint, shellcheck, node, Homebrew
-  OpenSSL 3.x (smoke interop).
+  OpenSSL 3.x (smoke interop). Scoped `dotnet test --framework net6.0` needs the .NET 6 runtime or
+  `DOTNET_ROLL_FORWARD=Major`.
 
 ## Agent Workflow
 
@@ -145,6 +153,9 @@ Rules for every agent:
   anything left becomes a follow-up issue before the PR is opened.
 - Every PR body follows `.github/pull_request_template.md` and records which local gates ran.
 - Lanes add their own journal file and do not edit `AGENTS.md`/`CLAUDE.md`.
+- Never write files, commits or PRs into turboHTTP. The handover comment on turboHTTP #141 is
+  posted by the owner or with the owner's approval.
+- Edge cuts wait for #10 (`strip.sh`), or keep the whole library compiling until it merges.
 - Never run waves during a bump (the owner rebases and force-pushes `strip-v2`).
 
 ## Repository Conventions
@@ -152,5 +163,6 @@ Rules for every agent:
 - Follow upstream `.editorconfig` (4 spaces, Allman braces); 120-column limit for new code.
 - Commit messages: short imperative summary (~50–70 chars), no conventional-commit prefix; body
   only when the why is not obvious.
-- Never create a non-fast-forward merge commit without explicit direction.
+- Never create a non-fast-forward merge commit without explicit direction (the bcstrip-waves
+  conflict/branch-update protocol is such direction).
 - Do not reformat upstream code you are not otherwise editing (rebase surface).

@@ -2,7 +2,7 @@
 """Print the part of a fatal10110/bc-csharp issue that a lane needs, cached across agents.
 
 Template-agnostic: whatever `## ` sections the body has (the strip-v2 issues use
-Scope / Acceptance / Context), this prints:
+opening scope bullets, ## Acceptance when present, ## Context), this prints:
 
   issue_slice.py <n>              title, state, milestone, labels, the body, the newest
                                   comments, the referenced issues (#N: state + title) and

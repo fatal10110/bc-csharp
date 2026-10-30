@@ -43,6 +43,28 @@ agent tools, two specialist review rubrics, and `AGENTS.md` / `CLAUDE.md` in tur
 
 - Branch ruleset on `strip-v2` requiring the `ci` check is a repository-settings change for the owner.
 
+## Review fixes (same session)
+
+Two independent reviews of the first commit found, among others:
+
+- **Blocker:** the format step ran `dotnet format` on whole changed files, so any edge cut in one of
+  the 370+ upstream files with tab/whitespace drift failed CI, and `--fix` would reformat the whole
+  file. Now only fork-owned C# (`crypto/src/turbo`, `strip`, `tools`) is formatted; for upstream C#
+  only added lines are checked for trailing whitespace.
+- **Major:** the gate built only netstandard2.0 (non-Span paths); it now builds netstandard2.0 and
+  net6.0 until `strip.sh` exists.
+- **Major:** the old rule against filing upstream vulnerabilities publicly was lost; restored as
+  "stop and tell the owner" (never bcgit, overrides `SECURITY.md`).
+- Minor: a missing diff base now fails; `--report` vs enforce noted (#30 switches the gate); edge
+  cuts wait for #10; "one commit per E-number or per issue E-range"; issues without
+  `## Acceptance` use their opening bullets plus the plan text; prompts no longer claim CI runs
+  `crypto/test`; parents track sub-issues (nothing to tick); bootstrap follow-ups go under #3;
+  turboHTTP writes defined (no files/commits/PRs; #141 handover comment via the owner);
+  `DOTNET_ROLL_FORWARD=Major` for net6.0 tests on a .NET 8-only machine; rubric bounds tied to the
+  plan; planned files marked as planned.
+- The waves simulation now asserts every lane prompt and the merger prompt stay on `strip-v2`
+  (mutation-tested: a merger regression to `main` fails it).
+
 ## How verified
 
 - `tools/ci/check.sh` and `tools/ci/check.sh --full` locally.

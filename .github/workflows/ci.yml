@@ -2,7 +2,8 @@ name: CI
 
 on:
   # Branch pushes are covered by pull_request (PRs target strip-v2); strip-v2 pushes still run
-  # so a bump (rebase onto new upstream + force-push) gets a full gate.
+  # so a bump (rebase onto new upstream + force-push) gets the build and lint steps. On a push the
+  # format step diffs origin/strip-v2...HEAD, which is empty: formatting is checked on PRs.
   push:
     branches: [strip-v2]
   pull_request:
@@ -37,6 +38,7 @@ jobs:
         with:
           path: ~/.nuget/packages
           key: nuget-${{ hashFiles('crypto/src/BouncyCastle.Crypto.csproj', 'strip/**/*.csproj') }}
+          restore-keys: nuget-
 
       - name: Install actionlint and ripgrep
         run: |
@@ -49,7 +51,8 @@ jobs:
           CHECK_BASE: origin/strip-v2
         run: tools/ci/check.sh --full
 
-  # The branch ruleset requires this single check; it passes only when every job above does.
+  # A strip-v2 ruleset should require this single check (owner setting, not yet configured).
+  # It passes only when every job above does.
   ci:
     if: always()
     needs: [lint]

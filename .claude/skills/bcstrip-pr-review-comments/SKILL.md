@@ -81,6 +81,9 @@ Commit messages name the behavior fixed; push (never force-push a PR branch).
 
 ### 4a. Track out-of-scope and latent findings
 
+A suspected vulnerability in upstream code is never filed publicly or reported to bcgit: stop and
+tell the owner.
+
 Dedupe with `tools/agent-tools/issue_search.py <terms>`; amend a matching issue or file one with
 the template from bcstrip-issue "Follow-up issues" (milestone, parent sub-issue, project). Link
 back to the thread.

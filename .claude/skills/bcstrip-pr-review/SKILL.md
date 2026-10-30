@@ -36,7 +36,8 @@ gh api repos/fatal10110/bc-csharp/pulls/<N>/comments --paginate
 - Existing threads: do not repost what is raised or resolved. On a re-review, first look at what
   earlier reviews never questioned, then the diff since the last reviewed head.
 - Linked issues: for each, `tools/agent-tools/issue_slice.py <X>`; copy its **Acceptance** items
-  into your checklist before reading the diff. Read the plan section its Context names.
+  into your checklist before reading the diff (no `## Acceptance` → its opening bullets plus the plan
+  text for its E-cut or step are the contract). Read the plan section its Context names.
 - Check out the head without touching the author's branch:
 
   ```bash
@@ -57,7 +58,7 @@ gh api repos/fatal10110/bc-csharp/pulls/<N>/comments --paginate
 
 A new turbo-owned type, a cut in a churny upstream factory, an edit outside the plan's file list,
 or a new tool dependency needs a reason in the issue or PR. Any action against bcgit/bc-csharp or
-any write into turboHTTP is a `[blocker]`.
+any file, commit or PR written into turboHTTP is a `[blocker]`.
 
 ## 4. Review the diff
 
@@ -71,8 +72,9 @@ any write into turboHTTP is a `[blocker]`.
   extension methods handled.
 - **Define sets / language** — C# 9, no `unsafe`, APIs on netstandard2.1 and net471; `#if`
   guards consistent across the captured sets.
-- **Rebase surface** — `git log --oneline <old-base>..<BASE> -- <file> | wc -l` for touched
-  upstream files; markers present; one E-number per commit.
+- **Rebase surface** — `git log --oneline 5200dfdf..$(cat strip/BASE) -- <file> | wc -l` (5200dfdf =
+  the previous strip's base; later, the previous `strip/BASE`) for touched upstream files; markers
+  present; one E-number or issue E-range per commit.
 - **Tests** — a deterministic smoke/KAT/tool test that fails on the old code, in the hostile
   direction for security changes.
 - **Journal** — the PR adds its `strip/journal/` file.

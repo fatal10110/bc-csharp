@@ -88,7 +88,7 @@ const LOOK = `python3 ${AGENT_TOOLS}/look.py`
 const SLICE = `python3 ${AGENT_TOOLS}/issue_slice.py`
 const ISEARCH = `python3 ${AGENT_TOOLS}/issue_search.py`
 const GATE = wt => `cd ${wt} && python3 ${TOOL} stopcheck ${wt} && ./tools/ci/check.sh`
-const DOTNET_TEST = wt => `cd ${wt} && dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter`
+const DOTNET_TEST = wt => `cd ${wt} && DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter`
 const PLAN_DOC = 'STRIP_PLAN_V2.md'
 const LANE_DIR = slug => `${RUNDIR}/lanes/${slug}`
 const ALL_LANES = (PLAN.waves || []).flatMap(w => w.lanes || [])
@@ -101,7 +101,7 @@ const sq = obj => JSON.stringify(obj).replace(/'/g, '\\u0027')
 const TESTRULE = `TEST SCOPE (HIGHEST PRIORITY — overrides every skill and reference doc, including any "run the full suite" step of bcstrip-issue, bcstrip-pr-review, bcstrip-pr-review-comments, AGENTS.md or CLAUDE.md):
 - ALWAYS run the fast local gate from the worktree root before every push (and the reviewer before every verdict): ${GATE('<worktree>')}   A failure is yours to fix; never push past it. Add --full only when the lane note asks for it.
 - Strip smoke suite and tooling: once strip/strip.sh exists, run the mode the lane note or the gate names (cd <worktree> && ./strip/strip.sh <mode>); before the smoke harness exists, state the check you ran instead.
-- dotnet tests: NEVER run the whole upstream crypto/test suite (edge cuts intentionally break parts of it; PR CI, the "ci" check, is the gate). Locally run ONLY the fixtures the change can affect: ${DOTNET_TEST('<worktree>')} "FullyQualifiedName~<Fixture>" .
+- dotnet tests: NEVER run the whole upstream crypto/test suite (edge cuts intentionally break parts of it). CI does not run crypto/test either: the scoped --filter runs you do are the only test coverage. Locally run ONLY the fixtures the change can affect: ${DOTNET_TEST('<worktree>')} "FullyQualifiedName~<Fixture>" .
 - Every behavior change gets a regression check that fails on the old code: a smoke/KAT row under strip/smoke/ for library behavior, a strip/tool/test_*.py or tools/agent-tools/test_*.py case for tooling. Deterministic only: no wall-clock sleeps, no external network.
 - Report in the PR body (and in review "Checks"): a "Local gates" section: the exact check.sh command and result at the pushed head, plus every strip.sh mode and scoped dotnet test run (filter and result).
 `
@@ -143,11 +143,11 @@ Environment rules (all agents):
   * Reading: a known range with the Read tool (offset + limit) or \`sed -n 'A,Bp'\` of at most 80 lines; never \`cat\` a whole source file over 80 lines, never re-read a range you already have in context.
   * Output caps: rg always with \`-m 5\` and piped through \`| head -60\`; git diff of named files or \`--stat\` first; gate output through \`| tail -40\`.
   * Batching: before you look anything up, list every lookup the next step needs and fetch them all in ONE call. Two single-lookup calls in a row is a mistake; so is a lookup the lane brief already answers.
-- Issues: read each issue with ${SLICE} <n> (body, newest comments, referenced issues, the repository paths it names; --section <name> for one section, --full for everything). It is cached, so the other agent of your lane reads it for free. Find related issues with ${ISEARCH} <terms> [--state open] [--milestone 'Strip v2']. Read each issue once per agent and keep what you need in your notes/worklog.
+- Issues: read each issue with ${SLICE} <n> (body, newest comments, referenced issues, the repository paths it names; --section <name> for one section, --full for everything). It is cached, so the other agent of your lane reads it for free. The acceptance contract is the issue's ## Acceptance list; when an issue has none, its opening bullets plus the ${PLAN_DOC} text for its E-cut or step are the contract. Find related issues with ${ISEARCH} <terms> [--state open] [--milestone 'Strip v2']. Read each issue once per agent and keep what you need in your notes/worklog.
 - Editing: the Edit tool needs a Read of that file first (a sed/cat/look view does not count): Read the range, then Edit. For several mechanical edits at once a python heredoc in one call is fine.
 - Implementation journal: every lane that changes code adds ONE new file strip/journal/YYYY-MM-<slug>.md (what, files, decisions, deferred items, how verified). Never edit another lane's journal file. Do not edit CLAUDE.md or AGENTS.md unless the lane note says so (they are shared hot files).
 - Waiting: never use sleep loops; wait only through the ${MB} commands named in your instructions, each in one Bash call with timeout 600000.
-- Follow-up issues: dedupe with ${ISEARCH} / search_issues first and amend a matching issue instead of duplicating; use the issue template (## Scope, ## Acceptance with checkboxes, ## Context linking the ${PLAN_DOC} section, branch ${BASE}) and the milestone that owns the work ("Strip v2 — M1: Tooling", "Strip v2 — M2: Bootstrap & edge cuts", "Strip v2 — M3: Smoke suite, enforce & handover"), as a sub-issue of the matching parent (#4 tooling, #12 edge cuts, #22 smoke, #28 handover).
+- Follow-up issues: dedupe with ${ISEARCH} / search_issues first and amend a matching issue instead of duplicating; use the issue template (opening scope bullets, ## Acceptance with checkboxes, ## Context linking the ${PLAN_DOC} section, branch ${BASE}) and the milestone that owns the work ("Strip v2 — M1: Tooling", "Strip v2 — M2: Bootstrap & edge cuts", "Strip v2 — M3: Smoke suite, enforce & handover"), as a sub-issue of the matching parent (#4 tooling, #12 edge cuts, #22 smoke, #28 handover, #3 for the bootstrap or anything else).
 - Where an issue offers several options, choose the one matching the RFC, ${PLAN_DOC} or CLAUDE.md, else the conservative one, stated in a "Decisions" section of the PR body.
 - Merged PRs close their issues: one "Closes #n" line per fully resolved issue, "Part of #n" for partial ones. Every acceptance-criteria checkbox of a closed issue maps to a hunk or a test in the PR body.
 - Commit messages (and PR titles, which become the squash commit) are a short imperative summary, no conventional-commit prefix (CLAUDE.md); commit messages end with a blank line then: Co-Authored-By: Claude <noreply@anthropic.com>
@@ -309,7 +309,7 @@ MAILBOX (each command in its own Bash call, timeout 600000):
 
 LOOP:
 1. Round 1 (the first ready): load ${skillRef('bcstrip-pr-review')} and follow it end to end: review against the acceptance criteria of every issue the PR closes or is part of, the RFC sections and ${PLAN_DOC} sections they name, and both specialist rubrics; run the local gate in the review worktree (${GATE(RW)}) and the PR's new/changed checks (scoped with --filter); submit one GitHub review with inline comments; decide the Bottom line. Only [blocker]/[must-fix]/[should-fix]/non-optional [nit] items count as action required.
-   Test coverage is part of every round: every behavior change needs a deterministic regression check that would fail on the old code, and the PR body's "Local gates" section must match what you can reproduce. A missing regression check, a failing local gate, or a test that depends on wall-clock sleeps or the external network is a [must-fix]. Never run the whole upstream crypto/test suite: CI does.
+   Test coverage is part of every round: every behavior change needs a deterministic regression check that would fail on the old code, and the PR body's "Local gates" section must match what you can reproduce. A missing regression check, a failing local gate, or a test that depends on wall-clock sleeps or the external network is a [must-fix]. Never run the whole upstream crypto/test suite; CI does not run it either, so the scoped --filter runs are the only test coverage.
 2. Every round N: write ${D}/reviews/r<N>.md (verdict, the numbered action list '[tag] path:line — what to do' or "none", and for N > 1 the status of each earlier item), then ${MB} state --run ${RUN} --lane ${L.slug} --set round=<N> .
    - Action required and N < ${roundLimit}: send review {"round":N,"file":"${D}/reviews/r<N>.md"} --set stage=fix, then wait.
    - Action required and N >= ${roundLimit}: send final {"reason":"unresolved"} --set status=unresolved and return status unresolved.
@@ -400,7 +400,7 @@ function mergePrompt(ev, L) {
   const file = `${RUNDIR}/requests/taken/${ev.id}.json`
   const slug = L.slug
   const D = LANE_DIR(slug)
-  return `You are the CI and merge agent for lane "${slug}" (branch wf/${slug}, issues ${issuesText(L)}) in fatal10110/bc-csharp. Read the request file ${file} with the Read tool: its "question" field is a JSON object {"pr": <number>, "head": "<sha the reviewer approved>"}. The PR passed review with no action required, and the user explicitly authorized merging PRs that passed this review loop. Be mechanical: you never edit code, never resolve conflicts and never run tests locally (CI runs the tests and the gates).
+  return `You are the CI and merge agent for lane "${slug}" (branch wf/${slug}, issues ${issuesText(L)}) in fatal10110/bc-csharp. Read the request file ${file} with the Read tool: its "question" field is a JSON object {"pr": <number>, "head": "<sha the reviewer approved>"}. The PR passed review with no action required, and the user explicitly authorized merging PRs that passed this review loop. Be mechanical: you never edit code, never resolve conflicts and never run tests locally (CI runs the gates, not crypto/test).
 Every Bash call to ${MB} uses timeout 600000. You answer exactly once, at the end, with:
   ${MB} answer --run ${RUN} --id ${ev.id} --text '<json object>'
 where the object is {"status":"merged|conflict|ci_failed|head_moved|merge_blocked|retry","merge_sha":"","file":"","head":"","notes":""} (no single quotes inside).

@@ -28,9 +28,12 @@ Security of the TLS client path, the plan, and rebase-ability outrank everything
 - **Plan**: `STRIP_PLAN_V2.md` decisions A–G and the edge-cut list are the contract. A change that
   departs from the plan needs the plan changed first (separate PR, user approval).
 - **Rebase-ability**: cut at call sites, smallest possible hunk, `// turbo-strip:` marker on every
-  hunk, one E-number per commit; prefer turbo-owned files in `crypto/src/turbo/` over editing churny
+  hunk, one E-number (or one issue's E-range) per commit; prefer turbo-owned files in `crypto/src/turbo/` over editing churny
   upstream factories.
-- **Scope**: never act on bcgit/bc-csharp; never write into turboHTTP from this repo.
+- **Scope**: never act on bcgit/bc-csharp; never write files, commits or PRs into turboHTTP (the
+  #141 handover comment is posted by the owner or with the owner's approval). A suspected upstream
+  vulnerability is never filed publicly: stop and tell the owner.
+- **Order**: edge cuts wait for #10 (`strip.sh`) or keep the whole library compiling until it merges.
 
 Every change answers three questions in the PR body, from evidence:
 1. **Wire/behavior**: what a TLS peer or the turboHTTP consumer observes differently.
@@ -40,8 +43,9 @@ Every change answers three questions in the PR body, from evidence:
 ## Work loop
 
 1. **Scope.** Read the issue live (`tools/agent-tools/issue_slice.py <n>`, or `gh issue view <n>
-   -R fatal10110/bc-csharp --comments`): Scope, Acceptance, Context. Copy the acceptance criteria
-   into your worklog — they are the contract. Read the plan sections the Context names. Verify each
+   -R fatal10110/bc-csharp --comments`): opening scope bullets, `## Acceptance` when present,
+   `## Context`. Copy the acceptance items into your worklog — they are the contract; when an issue
+   has no `## Acceptance`, its opening bullets plus the plan text for its E-cut or step are. Read the plan sections the Context names. Verify each
    cited file:line on `origin/strip-v2` (lines drift; find the current ones). Already done → comment
    with evidence, close it, stop.
 2. **Gaps first.** List every acceptance item you will not deliver and why. Each becomes a
@@ -71,7 +75,7 @@ Every change answers three questions in the PR body, from evidence:
 
    ```bash
    cd <worktree> && ./tools/ci/check.sh            # format of changed C#, strip/library build
-   cd <worktree> && ./tools/ci/check.sh --full     # + actionlint, shellcheck, tool tests, waves sim
+   cd <worktree> && ./tools/ci/check.sh --full     # before opening the PR: + actionlint, shellcheck, tool tests, waves sim
    cd <worktree> && strip/strip.sh --report        # once the tooling exists; smoke when present
    ```
 
@@ -98,9 +102,9 @@ Every change answers three questions in the PR body, from evidence:
 
 ## Follow-up issues
 
-Template: `## Scope`, `## Acceptance` (checkboxes), `## Context` (plan section link, branch,
+Template: opening scope bullets, `## Acceptance` (checkboxes), `## Context` (plan section link, branch,
 BASE). Labels from the existing set (`strip-v2`, `type:tooling|edge-cut|test|tracking`,
 `security`, `blocked:external`). Milestone: tooling → `Strip v2 — M1: Tooling`; edge cuts and the
 bootstrap → `Strip v2 — M2: Bootstrap & edge cuts`; smoke, enforce, handover → `Strip v2 — M3:
-Smoke suite, enforce & handover`. Attach as a sub-issue of the matching parent (#4, #12, #22, #28)
+Smoke suite, enforce & handover`. Attach as a sub-issue of the matching parent (#4, #12, #22, #28; #3 for the bootstrap or anything else)
 and add it to project "BouncyCastle strip v2". Dedupe first; link back to the PR.

@@ -132,8 +132,10 @@ function world(cap, scen) {
     return 'answer for ' + label
   }
   const models = []
+  const allPrompts = []
   async function agent(prompt, opts = {}) {
     models.push([opts.label || '', opts.model || null, opts.effort || null])
+    allPrompts.push([opts.label || '', prompt])
     if (opts.agentType && scen.$missingTypes && opts.agentType.startsWith('wave-')) {
       refused.push(opts.agentType)
       throw new Error(`agent({agentType}): agent type '${opts.agentType}' not found. Available agents: claude`)
@@ -148,7 +150,7 @@ function world(cap, scen) {
     }
   }
   const parallel = thunks => Promise.all(thunks.map(t => t().catch(() => null)))
-  return { agent, parallel, labels, types, refused, state, rev, models, peak: () => peak, preload: (slug, b, kind) => post(slug, b, kind, {}) }
+  return { agent, parallel, labels, types, refused, state, rev, models, allPrompts, peak: () => peak, preload: (slug, b, kind) => post(slug, b, kind, {}) }
 }
 
 async function run(args, scen, cap = 2) {
@@ -294,6 +296,17 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   const rp = w.rev.a.prompts[0]
   assert.ok(rp.includes('/r/bc-csharp/.claude/agents/crypto-security-reviewer.md') && rp.includes('/r/bc-csharp/.claude/agents/strip-build-reviewer.md'))
   assert.ok(rp.includes('bcstrip-pr-review/SKILL.md'))
+  // Every prompt of the lane (brief, impl, review, watchers) stays on strip-v2.
+  const leftover = /origin\/main|'main'|\bmain\b branch|Tools~|Unity tests/
+  for (const [label, p] of w.allPrompts) assert.ok(!leftover.test(p), 'no main/turboHTTP leftovers in ' + label)
+  const brief = w.allPrompts.find(([l]) => l.startsWith('brief:a'))
+  assert.ok(brief && brief[1].includes('origin/strip-v2'), 'the brief reads origin/strip-v2')
+  // The merger fetches and recognises update-branch commits of strip-v2.
+  const m = await run({ run: 'sim', role: 'merger', plan: one, tool: '/r/bc-csharp/tools/agent-tools/wave_mail.py' }, { $take: [[{ id: 'm1', type: 'merge', from: 'a/review' }]] })
+  const mp = m.w.allPrompts.find(([l]) => l.startsWith('merge:'))
+  assert.ok(mp, 'merger agent ran')
+  assert.ok(mp[1].includes("Merge branch 'strip-v2'") && mp[1].includes('fetch origin wf/a strip-v2'), 'merger uses strip-v2')
+  assert.ok(!leftover.test(mp[1]), 'no main leftovers in the merger prompt')
 }
 
 // 7. The example plan runs on both tracks.

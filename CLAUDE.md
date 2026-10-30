@@ -6,7 +6,7 @@ Start with `AGENTS.md` for the shared repository guidance used across coding age
 
 ## Project Overview
 
-fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; root namespace `Org.BouncyCastle`, NuGet id `BouncyCastle.Cryptography`, non-FIPS tree). `master` mirrors upstream. The **`strip-v2`** branch produces a scripted, reproducible reduction of upstream to a minimal **TLS 1.2/1.3 client** subset, namespace-rewritten to `TurboHTTP.SecureProtocol.Org.BouncyCastle`, which turboHTTP (fatal10110/turboHTTP — Unity 2021.3, IL2CPP on iOS/Android) vendors as its TLS fallback. The plan is `STRIP_PLAN_V2.md`. No action is ever taken on bcgit/bc-csharp; upstream is fetched read-only for bumps.
+fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; root namespace `Org.BouncyCastle`, NuGet id `BouncyCastle.Cryptography`, non-FIPS tree). `master` mirrors upstream. The **`strip-v2`** branch produces a scripted, reproducible reduction of upstream to a minimal **TLS 1.2/1.3 client** subset, namespace-rewritten to `TurboHTTP.SecureProtocol.Org.BouncyCastle`, which turboHTTP (fatal10110/turboHTTP — Unity 2021.3, IL2CPP on iOS/Android) vendors as its TLS fallback. The plan is `STRIP_PLAN_V2.md`. No action is ever taken on bcgit/bc-csharp; upstream is fetched read-only for bumps. A suspected vulnerability in upstream code is never filed publicly or reported to bcgit/bouncycastle.org (this overrides `SECURITY.md`): stop and tell the owner.
 
 ## Architecture
 
@@ -16,9 +16,9 @@ fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; roo
 - Source grouped by domain under `crypto/src/` (`tls/`, `crypto/`, `math/`, `asn1/`, `x509/`, `security/`, `util/`, `pqc/` …).
 
 **strip-v2 additions:**
-- `crypto/src/turbo/` — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header), e.g. `TurboKeyFactory`.
-- Edge cuts E1–E14 — minimal commits on `strip-v2`, one per E-number, every hunk marked `// turbo-strip:`.
-- `strip/` — `BASE` (pinned upstream SHA), `ROOTS_SHA`, `roots/` (consumer copies, `RootStubs.cs`, `roots-extra.cs` API contract), `deny.txt`, `budget.txt`, `unity-defines.txt`, `Closure.csproj`, `tool/` (closure/deny tooling), `smoke/`, `strip.sh`, `journal/`. Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
+- `crypto/src/turbo/` (planned, M2) — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header), e.g. `TurboKeyFactory`.
+- Edge cuts E1–E14 — minimal commits on `strip-v2`, one per E-number or per issue E-range (#14 E2–E4, #19 E9–E12), every hunk marked `// turbo-strip:`.
+- `strip/` — present: `BASE` (pinned upstream SHA), `tool/` (closure prototype), `unity-probe/`, `journal/`; planned (M1/M3): `ROOTS_SHA`, `roots/` (consumer copies, `RootStubs.cs`, `roots-extra.cs` API contract), `deny.txt`, `budget.txt`, `unity-defines.txt`, `Closure.csproj`, `tool/` (closure/deny tooling), `smoke/`, `strip.sh`. Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
 - `tools/ci/check.sh` (local gate), `tools/agent-tools/` (agent tools), `.github/` (CI, CodeQL, PR template), `.claude/` (skills, agents).
 
 **Pipeline (`strip.sh`):** prepare → closure (fixpoint over the union of define sets, C# lookup-order resolution, namespace stubs, deny list, referrer sweep) → builds (each define set; rewritten tree as `TurboBC.*.dll`; consumer compile check) → namespace rewrite → smoke suite → package → hand over to turboHTTP #141.
@@ -33,12 +33,15 @@ Recorded in `STRIP_PLAN_V2.md` §2; confirmed/overridden in turboHTTP #141.
 - **Groups:** x25519, secp256r1, secp384r1, secp521r1. Suites: TLS 1.3 CHACHA20/AES_128_GCM/AES_256_GCM; TLS 1.2 ECDHE_{ECDSA,RSA} with the same AEADs.
 - **Key limits (TurboKeyFactory + E7):** RSA 2048–8192 bits, public exponent ≤ 64 bits, Miller-Rabin off for peer keys; EC only on named P-256/384/521; explicit EC parameters rejected.
 - **Deny subsystems, not helpers;** cut at call sites; turbo-owned files over churny factories.
+
+Repository conventions (not plan decisions):
+
 - **Integration:** PRs target `strip-v2`, squash-merged; a bump rebases `strip-v2` onto new upstream (owner force-push).
 
 ## Development Status
 
 - **Plan:** COMPLETE — `STRIP_PLAN_V2.md` rev 6.3, review cycle closed.
-- **Agent workflow and CI:** COMPLETE — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
+- **Agent workflow and CI:** COMPLETE pending the first green CI run on GitHub and a `strip-v2` ruleset requiring `ci` (owner) — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
 - **M1 Tooling (#4–#10):** NOT STARTED. `strip/tool/` holds the closure prototype only.
 - **M2 Bootstrap & edge cuts (#11–#21):** NOT STARTED.
 - **M3 Smoke suite, enforce & handover (#22–#31):** NOT STARTED; #29 waits on turboHTTP #141 (Unity define sets, decision record).
@@ -68,13 +71,13 @@ Order of work (`STRIP_PLAN_V2.md` §6):
 
 ```bash
 dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0
-dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter "FullyQualifiedName~<Fixture>"
+DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter "FullyQualifiedName~<Fixture>"   # roll-forward when only the .NET 8 runtime is installed
 ```
 
 ## Conventions
 
 **Upstream code (inherited):**
-- Multi-TFM guards: Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
+- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate does both until `strip.sh` exists): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
 - Constant-time discipline: no branch, table index or early exit on secrets; `Arrays.FixedTimeEquals`; wipe with `Arrays.ZeroMemory`.
 - `crypto/src/pqc/` tracks reference C; it is denied in the strip anyway.
 - Style: `.editorconfig` (4 spaces, Allman), 120 columns for new code, always brace control statements (except single-line `return`/`throw` without `else`), expression-bodied members when they fit on two lines. Do not reformat upstream code you are not otherwise editing.
@@ -84,16 +87,17 @@ dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --fi
 - Upstream API-stability rules (`[Obsolete]`, `// TODO[api]`) do not apply: cuts remove API on purpose. Keep every cut minimal and marked `// turbo-strip:`.
 - Output code is C# 9, no `unsafe`, APIs available on netstandard2.1 and net471.
 - Turbo-owned files: `crypto/src/turbo/`, namespace `Org.BouncyCastle.Turbo`, MIT header.
-- Commit messages: short imperative summary (~50–70 chars), no conventional-commit prefix. Never create a non-fast-forward merge commit without explicit direction.
+- Commit messages: short imperative summary (~50–70 chars), no conventional-commit prefix; squash-merged PR titles follow the same style. Never create a non-fast-forward merge commit without explicit direction (the bcstrip-waves conflict/branch-update protocol is such direction).
 
 ## Tooling, Gates And Agent Workflow
 
 `AGENTS.md` ("Local Gates And CI", "Agent Workflow") is the source of truth. In short:
 
-- Run `./tools/ci/check.sh` before every push (`--full` before a PR). It formats-checks changed C# only and builds the strip (`strip/strip.sh --report` once present, else the library for netstandard2.0).
+- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and builds the strip (`strip/strip.sh --report` once present, else the library for netstandard2.0 and net6.0).
 - CI runs `check.sh --full` on PRs to `strip-v2`; aggregate check `ci`; CodeQL on fork-owned code.
 - Work comes from GitHub issues #3–#31 (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2"). Use the skills `bcstrip-issue` (one issue), `bcstrip-pr-review`, `bcstrip-pr-review-comments`, and `bcstrip-waves` (multi-PR fan-out with the `wave-*` agent types in `.claude/agents/`).
-- Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`.
+- Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`. Edge cuts wait for #10 (`strip.sh`) or keep the whole library compiling.
+- Never write files, commits or PRs into turboHTTP; the handover comment on turboHTTP #141 is posted by the owner or with the owner's approval.
 
 ## Post-Implementation Review
 
@@ -104,7 +108,7 @@ After completing each implementation step (edge cut, turbo-owned type, tooling c
 
 Both reviews must pass before proceeding. When a review identifies issues that require code changes, fix them and run both reviews again. Repeat until all issues are resolved or explicitly deferred with a follow-up issue.
 
-After reviews pass, **update the implementation journal** (`strip/journal/`), then update this file's Development Status section.
+After reviews pass, **update the implementation journal** (`strip/journal/`), then update this file's Development Status section — unless you are in a bcstrip-waves lane or a parallel single-issue PR; then the status update lands in a separate PR.
 
 ## Implementation Journal
 

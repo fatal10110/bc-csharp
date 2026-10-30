@@ -16,7 +16,7 @@ Closes #<!-- n; one line per fully resolved issue, "Part of #n" otherwise -->
 
 ## Local gates
 - `./tools/ci/check.sh` at <!-- sha -->:
-- `strip/strip.sh` mode run: <!-- --report | enforce | smoke | n/a (tooling not yet present) -->
+- `strip/strip.sh` mode run: <!-- --report | enforce (no flag) | n/a (strip.sh not yet present) -->
 
 ## Specialist rubrics
 Crypto security: <!-- clean | findings fixed -->; Strip build: <!-- clean | findings fixed -->

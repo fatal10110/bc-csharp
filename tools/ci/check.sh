@@ -29,28 +29,51 @@ fail() { echo "FAIL: $*"; status=1; }
 
 base="${CHECK_BASE:-origin/strip-v2}"
 
-step "format (dotnet format whitespace, changed C# vs $base)"
-# Only changed files: upstream sources carry whitespace drift we must not reformat (rebase surface).
-changed=()  # bash 3.2 (macOS) has no mapfile
-while IFS= read -r f; do [ -f "$f" ] && changed+=("$f"); done < <(
-  { git diff --name-only --diff-filter=ACMR "$base"...HEAD -- '*.cs' 2>/dev/null
+if ! git rev-parse -q --verify "$base^{commit}" >/dev/null; then
+  echo "FAIL: diff base $base missing (git fetch origin strip-v2)"; exit 1
+fi
+
+# Fork-owned C# is formatted whole; upstream C# is never reformatted (370+ upstream files carry
+# tab/whitespace drift, and reformatting them would enlarge the rebase surface). For upstream files
+# only the added lines are checked, for trailing whitespace.
+owned=(); upstream=()  # bash 3.2 (macOS) has no mapfile
+while IFS= read -r f; do
+  [ -f "$f" ] || continue
+  case "$f" in crypto/src/turbo/*|strip/*|tools/*) owned+=("$f") ;; *) upstream+=("$f") ;; esac
+done < <(
+  { git diff --name-only --diff-filter=ACMR "$base"...HEAD -- '*.cs'
     git diff --name-only --diff-filter=ACMR HEAD -- '*.cs'
     git ls-files --others --exclude-standard -- '*.cs'; } | sort -u)
-if [ "${#changed[@]}" -eq 0 ]; then
-  echo "no changed C# files"
+
+step "format: fork-owned C# (dotnet format whitespace)"
+if [ "${#owned[@]}" -eq 0 ]; then
+  echo "no changed fork-owned C# files"
 else
-  fmt=(dotnet format whitespace --folder -v q --include "${changed[@]}")
+  fmt=(dotnet format whitespace --folder -v q --include "${owned[@]}")
   if [ "$fix" = 1 ]; then "${fmt[@]}" || fail "format"
   else "${fmt[@]}" --verify-no-changes || fail "format (run: tools/ci/check.sh --fix)"; fi
 fi
 
+step "format: added lines in upstream C# (trailing whitespace)"
+if [ "${#upstream[@]}" -eq 0 ]; then
+  echo "no changed upstream C# files"
+else
+  bad=$({ git diff -U0 "$base"...HEAD -- "${upstream[@]}"; git diff -U0 HEAD -- "${upstream[@]}"; } \
+        | grep -nE '^\+[^+].*[[:space:]]$')
+  if [ -n "$bad" ]; then echo "$bad"; fail "trailing whitespace on added upstream lines (fix by hand; never reformat upstream files)"; fi
+fi
+
+# Until #30 switches it to enforce mode, the gate runs strip.sh --report, which logs (does not
+# fail on) deny hits. Before strip.sh exists, the whole library must keep compiling.
 if [ -x strip/strip.sh ]; then
   step "strip (strip/strip.sh --report)"
   strip/strip.sh --report || fail "strip.sh --report"
 else
-  step "library build (netstandard2.0; strip/strip.sh not present yet)"
-  dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0 -c Release -nologo -v q -clp:ErrorsOnly \
-    || fail "library build"
+  for tfm in netstandard2.0 net6.0; do
+    step "library build ($tfm; strip/strip.sh not present yet)"
+    dotnet build crypto/src/BouncyCastle.Crypto.csproj -f "$tfm" -c Release -nologo -v q -clp:ErrorsOnly \
+      || fail "library build ($tfm)"
+  done
 fi
 
 if [ "$full" = 1 ]; then

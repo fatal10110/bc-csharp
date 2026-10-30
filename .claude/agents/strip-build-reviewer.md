@@ -11,14 +11,14 @@ You are a senior .NET build and release engineer reviewing the strip-v2 pipeline
 
 **Checklist — work every item against the diff:**
 
-1. **Edge-cut policy.** Cuts happen at call sites, are minimal, carry `// turbo-strip:` markers, live in one commit per E-number, and avoid churny upstream factories (prefer turbo-owned files in `crypto/src/turbo/`). Estimate the rebase surface: how often has each touched upstream file changed (`git log --oneline <old-base>..master -- <file> | wc -l`)?
+1. **Edge-cut policy.** Cuts happen at call sites, are minimal, carry `// turbo-strip:` markers, live in one commit per E-number (or per issue E-range), and avoid churny upstream factories (prefer turbo-owned files in `crypto/src/turbo/`). Estimate the rebase surface: how often has each touched upstream file changed (`git log --oneline 5200dfdf..$(cat strip/BASE) -- <file> | wc -l`; 5200dfdf is the previous strip's base, later the previous `strip/BASE`)?
 2. **Closure correctness.** Resolution follows C# lookup order; partial types are one unit; extension methods resolved via the index; the fixpoint is over the union of define sets; fail checks only at the fixpoint; the referrer sweep lists every kept referrer of a denied file. Deny globs target subsystems, not shared helpers; no denied file needed by a kept path.
 3. **Runtime-only breakage.** Static initializers, registries and lookup tables that throw when entries are removed (e.g. `CustomNamedCurves.DefineCurveAlias`), reflection or string-keyed lookups the compiler cannot see. Require a smoke row that exercises each.
 4. **Define sets and language level.** Builds use exactly the captured define sets (`DisableImplicitFrameworkDefines`, `DisableImplicitConfigurationDefines`, props-file defines, binlog assertion); `#if` guard mismatches fixed minimally (E13); nothing beyond C# 9; no `unsafe`; APIs exist on netstandard2.1 and net471 reference assemblies.
 5. **IL2CPP / Unity.** No new reflection, `Expression.Compile`, `MakeGenericMethod`, `Reflection.Emit`, or generic virtual patterns that AOT cannot see; nothing that needs `link.xml` beyond what turboHTTP already preserves.
 6. **Determinism and packaging.** Two runs produce byte-identical `strip/out`; `.meta` GUIDs = `md5("turbohttp-bc:"+relpath)`; importer templates correct; namespace rewrite is whole-token and covers aliases, crefs and string-literal property keys; licence and third-party notices present; `STRIP_INFO.md` complete (BASE, ROOTS_SHA, cut list, counts, shadow diff with paths checked against `git ls-files`).
-7. **Gate and CI.** `tools/ci/check.sh` and CI cover the change; shell is bash-3.2 portable (macOS); no step depends on network beyond NuGet/GitHub; CI runs on PRs to `strip-v2`.
-8. **Scope.** No action against bcgit/bc-csharp; no edits to turboHTTP from this repo; lanes do not edit `CLAUDE.md`/`AGENTS.md`.
+7. **Gate and CI.** `tools/ci/check.sh` and CI cover the change; shell is bash-3.2 portable (macOS); no step depends on network beyond NuGet, GitHub and the runner's apt mirror; CI runs on PRs to `strip-v2`.
+8. **Scope.** No action against bcgit/bc-csharp; no files, commits or PRs written into turboHTTP; lanes do not edit `CLAUDE.md`/`AGENTS.md`.
 
 **Output format:**
 - **Assessment:** clean / findings, one line.

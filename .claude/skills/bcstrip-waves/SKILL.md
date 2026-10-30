@@ -100,7 +100,7 @@ called by absolute path):
 
 - `look.py <spec>...` — ranges, C# declarations by name (`cs:PATH:Type.Member`, doc comments and
   attributes included, bodies by brace matching), bounded rg; many lookups in one call.
-- `issue_slice.py <n>` — an issue's body (any `##` template; here Scope / Acceptance / Context),
+- `issue_slice.py <n>` — an issue's body (any `##` template; here opening scope bullets, `## Acceptance` when present, `## Context`),
   newest comments, referenced issues and the repository paths it names; cached under
   `.waves/.cache` so both lane agents fetch it once.
 - `issue_search.py <terms>` / `pr_search.py <terms>` — search cached issues / closed PRs (cache
@@ -121,8 +121,9 @@ called by absolute path):
 - The strip smoke suite runs through `strip/strip.sh` once it exists: agents run the mode the lane
   note or the gate names. Before the smoke harness exists, they state the check they ran instead.
 - Never the whole upstream `crypto/test` suite (edge cuts intentionally break parts of it); only
-  `dotnet test ... --filter "FullyQualifiedName~<Fixture>"` runs of the affected fixtures. PR CI
-  (the aggregate `ci` check) is the gate.
+  `dotnet test ... --filter "FullyQualifiedName~<Fixture>"` runs of the affected fixtures. CI does
+  not run `crypto/test`: those scoped runs are the only test coverage; the aggregate `ci` check runs
+  the gate.
 - Every behavior change carries a deterministic regression check that fails on the old code: a
   smoke/KAT row under `strip/smoke/`, or a `strip/tool/test_*.py` / `tools/agent-tools/test_*.py`
   case for tooling.
@@ -155,7 +156,10 @@ scope. Rules:
 - **Lane** = one PR. Combine issues that touch the same function or file for the same reason, or
   would conflict with each other (e.g. E2–E4 in the TLS client defaults). Keep a lane to one
   reviewable change; an edge cut stays one E-number (or one issue's E-range) so the `strip-v2`
-  series keeps one commit per cut.
+  series keeps one commit per cut or issue E-range.
+- **Edge cuts wait for #10** (`strip.sh`): until it merges, the gate builds the whole library, and a
+  cut that removes a member used outside the closure fails CI. Put edge-cut lanes in a wave after
+  the lane that delivers #10, or make the cut keep the full library compiling.
 - **Wave** = lanes that can start together. A dependency on another lane goes to an earlier wave,
   or to the same wave on the **same track** (it then waits for that lane to merge).
 - **Track**: lanes that share a hot file (`hot` group) in the same wave go on one track; the
@@ -292,9 +296,8 @@ When all workflows have returned:
 
 - Report per lane: status, PR, merge SHA, rounds, follow-ups filed. Report every lane that did not
   merge, with the reason and what is left (open PR, worktree kept).
-- Check that each "Closes" issue is closed, that the parent issues' (#4, #12, #22, #28) checklists
-  are ticked for merged lanes (tick them), and that no `wf-<slug>` worktree remains for a merged
-  lane.
+- Check that each "Closes" issue is closed (the parents #4, #12, #22, #28 track them as GitHub
+  sub-issues; there is nothing to tick), and that no `wf-<slug>` worktree remains for a merged lane.
 - If the strip status changed, update CLAUDE.md and AGENTS.md in one follow-up commit/PR (lanes
   never edit them).
 
