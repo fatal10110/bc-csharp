@@ -17,8 +17,8 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  # Same as tools/ci/check.sh --full: whitespace format of changed C#, the library/strip build,
-  # actionlint, shellcheck, the Python tool tests and the waves orchestration simulation.
+  # Same as tools/ci/check.sh --full: whitespace format of changed C#, the strip.sh enforce run
+  # (closure, builds, fast smoke rows), actionlint, shellcheck, the Python tool tests and the waves orchestration simulation.
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30

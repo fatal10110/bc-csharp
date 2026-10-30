@@ -21,15 +21,22 @@ CSC = (
 
 
 class UnityDefinesTest(unittest.TestCase):
-    def test_provisional_file_has_the_three_plan_sets(self):
+    def test_file_has_the_captured_unity_sets(self):
+        # #29/#30: the Unity 2021.3 Android IL2CPP player sets replace the provisional [min]/[partial]/[sdk].
         sets = d.load_unity_defines(os.path.join(STRIP, "unity-defines.txt"))
-        self.assertEqual(list(sets), ["min", "partial", "sdk"])
-        self.assertEqual(sets["min"], ["NETSTANDARD", "NETSTANDARD2_1"])
-        self.assertEqual(sets["partial"], sets["min"] + ["NETSTANDARD2_1_OR_GREATER"])
-        self.assertTrue(set(sets["partial"]) < set(sets["sdk"]))
-        self.assertIn("NETSTANDARD1_0_OR_GREATER", sets["sdk"])
+        self.assertEqual(list(sets), ["netstandard21", "netframework"])
+        self.assertEqual((len(sets["netstandard21"]), len(sets["netframework"])), (104, 101))
+        ns21, netfx = set(sets["netstandard21"]), set(sets["netframework"])
+        self.assertEqual(ns21 - netfx, {"NETSTANDARD", "NETSTANDARD2_1", "NET_STANDARD", "NET_STANDARD_2_0", "NET_STANDARD_2_1"})
+        self.assertEqual(netfx - ns21, {"NET_4_6", "NET_UNITY_4_8"})
+        self.assertIn("UNITY_2021_3_45", ns21)
         for name, symbols in sets.items():
             self.assertFalse(set(symbols) & set(d.LEAK_SUSPECTS), name)
+            # No *_OR_GREATER, NETFRAMEWORK or NETCOREAPP: both sets take BC's legacy (non-Span) paths.
+            self.assertEqual([s for s in symbols if s.endswith("_OR_GREATER")], [], name)
+            self.assertFalse({"NETFRAMEWORK", "NETCOREAPP"} & set(symbols), name)
+        self.assertEqual(d.tfm_for_set("netstandard21"), "netstandard2.1")
+        self.assertEqual(d.tfm_for_set("netframework"), "net471")
 
     def test_real_sections_need_no_code_change(self):
         sets = d.parse_unity_defines("# from #141\n[netstandard21]\nNETSTANDARD;NETSTANDARD2_1;UNITY_2021_3\n\n[netframework]\nNET_4_6;NET471\n")

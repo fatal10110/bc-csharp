@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 # Local quality gate for strip-v2. CI runs the same steps (.github/workflows/ci.yml).
 #
-#   tools/ci/check.sh            fast: whitespace format of changed C#, library/strip build
+#   tools/ci/check.sh            fast: whitespace format of changed C#, strip.sh enforce run
 #   tools/ci/check.sh --full     also actionlint, shellcheck, Python tool tests, waves simulation
 #   tools/ci/check.sh --fix      apply whitespace formatting instead of verifying it
 #
-# Build step: once strip/strip.sh exists it runs `strip/strip.sh --report` (the strip is the
-# product; upstream code outside the closure may legitimately stop compiling after edge cuts).
-# Until then it builds the whole library for netstandard2.0.
+# Build step: `strip/strip.sh` in enforce mode (#30): deny hits, the budget, unresolved references,
+# compile errors of the stripped builds and a failing smoke suite (fast rows) fail the gate. The
+# strip is the product; upstream code outside the closure may legitimately stop compiling after
+# edge cuts, so the whole library is not built.
 #
 # Needs: python3, dotnet 8 SDK, git. Optional (--full): actionlint, shellcheck, node.
 # CHECK_BASE (default origin/strip-v2) is what "changed C#" is diffed against.
@@ -63,18 +64,12 @@ else
   if [ -n "$bad" ]; then echo "$bad"; fail "trailing whitespace on added upstream lines (fix by hand; never reformat upstream files)"; fi
 fi
 
-# Until #30 switches it to enforce mode, the gate runs strip.sh --report, which logs (does not
-# fail on) deny hits and compile errors of the stripped builds. So until then the whole library
-# must also keep compiling: that is the gate's only compile-regression check.
+step "strip (strip/strip.sh, enforce)"
 if [ -x strip/strip.sh ]; then
-  step "strip (strip/strip.sh --report)"
-  strip/strip.sh --report || fail "strip.sh --report"
+  strip/strip.sh || fail "strip.sh (enforce)"
+else
+  fail "strip/strip.sh missing or not executable"
 fi
-for tfm in netstandard2.0 net6.0; do
-  step "library build ($tfm; until #30 enforces strip.sh)"
-  dotnet build crypto/src/BouncyCastle.Crypto.csproj -f "$tfm" -c Release -nologo -v q -clp:ErrorsOnly \
-    || fail "library build ($tfm)"
-done
 
 if [ "$full" = 1 ]; then
   step "workflow lint (actionlint)"

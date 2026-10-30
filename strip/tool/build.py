@@ -15,8 +15,8 @@ build  (after the rewrite) builds, per define set, in <work>/build/<stage>-<set>
            and, as a separate assembly referencing it, the rewritten roots (the unmodified
            consumer files, RootStubs.cs, roots-extra.cs; <work>/rewritten/roots)
                                                                       -> TurboBC.Consumer.<x>.dll
-       <x> is ns21 for [netstandard21], netfx for [netframework], else the set name (provisional
-       sets). The consumer build is skipped when its TurboBC.<x>.dll did not build. Built
+       <x> is ns21 for [netstandard21], netfx for [netframework], else the set name (any
+       other set). The consumer build is skipped when its TurboBC.<x>.dll did not build. Built
        TurboBC.<x>.dll files are copied to <work>/dll/ for the smoke hook; every compile error goes
        to <work>/build_report.json.
 
@@ -52,7 +52,7 @@ REWRITTEN_LIB = os.path.join("rewritten", "lib")
 REWRITTEN_ROOTS = os.path.join("rewritten", "roots")
 DLL_DIR = "dll"
 BUILD_REPORT = "build_report.json"
-# The real sets of turboHTTP#141 (#29) get the plan's DLL names; provisional sets keep their own.
+# The real sets of turboHTTP#141 (#29) get the plan's DLL names; any other set keeps its own.
 DLL_SUFFIX = {"netstandard21": "ns21", defines_mod.NETFRAMEWORK_SET: "netfx"}
 _SET_NAME = re.compile(r"^[A-Za-z0-9_]+$")
 SHOWN_ERRORS = 10  # per build on the console; build_report.json has all

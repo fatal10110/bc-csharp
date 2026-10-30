@@ -107,7 +107,7 @@ def parse_budget(text, origin="budget.txt"):
 
 
 def load_budget(path=BUDGET_FILE):
-    """The cap, or None while the file does not exist (#30 sets the value)."""
+    """The cap, or None when the file does not exist (#30 set strip/budget.txt)."""
     if not os.path.isfile(path):
         return None
     with open(path, encoding="utf-8") as f:
