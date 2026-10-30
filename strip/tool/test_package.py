@@ -135,6 +135,18 @@ class PackageTest(unittest.TestCase):
         self.assertIn("--- Lib/crypto/digests/Blake2b_X86.cs (lines 3-10) ---", notices)
         self.assertIn("// Copyright(c) 2018-2021 Clinton Ingram", notices)
         self.assertNotIn("tls/Tls.cs", notices, "the BC header is not a third-party notice")
+        self.assertNotIn("Turbo-owned files", notices, "no turbo file in the fixture")
+        turbo = self.lib / "turbo" / "TurboX.cs"
+        turbo.parent.mkdir()
+        turbo.write_text("// Copyright (c) 2026 fatal10110 and contributors. Licensed under the MIT License.\n"
+                         "namespace X { class TurboX { } }\n", encoding="utf-8")
+        self.assertEqual(self.run_tool(out).returncode, 0)
+        notices = (out / "THIRD-PARTY-NOTICES.txt").read_text(encoding="utf-8")
+        mit, _, review = notices.partition("Other licence headers in the packaged files (review by hand)")
+        self.assertIn("Turbo-owned files (MIT License)\n" + "=" * 72 + "\n\nLib/turbo/TurboX.cs\n", mit)
+        self.assertIn("Permission is hereby granted, free of charge", mit)
+        self.assertNotIn("turbo/TurboX.cs", review, "the turbo header is not reviewed by hand")
+        turbo.unlink()
         (self.lib / "crypto/digests/Blake2b_X86.cs").unlink()
         self.assertEqual(self.run_tool(out).returncode, 0)
         notices = (out / "THIRD-PARTY-NOTICES.txt").read_text(encoding="utf-8")

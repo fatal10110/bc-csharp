@@ -199,6 +199,11 @@ namespace TurboSmoke
             SubjectPublicKeyInfo.GetInstance(ECSpki(SecObjectIdentifiers.SecP256k1,
                 Point(SecObjectIdentifiers.SecP256k1).GetEncoded(false))), Sha256WithRsa);
 
+        /// <summary>A P-256 leaf whose signatureAlgorithm is <paramref name="signatureOid"/> (E8 SigAlgName rows).</summary>
+        public static byte[] P256CertificateSignedWith(string signatureOid) => SmokeHostileCertificates.Certificate(
+            SubjectPublicKeyInfo.GetInstance(ECSpki(SecObjectIdentifiers.SecP256r1, P256Point())),
+            new AlgorithmIdentifier(new DerObjectIdentifier(signatureOid)));
+
         private static SmokeKeyCase RsaAccepted(string id, DerObjectIdentifier oid, int bits) =>
             new SmokeKeyCase(id, null, () => RsaSpki(oid, OddModulus(bits), E65537))
             {

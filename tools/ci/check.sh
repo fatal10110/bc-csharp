@@ -2,7 +2,8 @@
 # Local quality gate for strip-v2. CI runs the same steps (.github/workflows/ci.yml).
 #
 #   tools/ci/check.sh            fast: whitespace format of changed C#, strip.sh enforce run
-#   tools/ci/check.sh --full     also actionlint, shellcheck, Python tool tests, waves simulation
+#   tools/ci/check.sh --full     also actionlint, shellcheck, turbo NUnit tests, Python tool tests,
+#                                waves simulation
 #   tools/ci/check.sh --fix      apply whitespace formatting instead of verifying it
 #
 # Build step: `strip/strip.sh` in enforce mode (#30): deny hits, the budget, unresolved references,
@@ -78,6 +79,11 @@ if [ "$full" = 1 ]; then
   if command -v shellcheck >/dev/null; then
     git ls-files -z '*.sh' | xargs -0 shellcheck || fail "shellcheck"
   else echo "skip: shellcheck not installed"; fi
+  step "turbo NUnit tests (Org.BouncyCastle.Turbo.Tests)"
+  # Per-cut regression tests for E1-E14 and TurboKeyFactory; strip/upstream-tests.txt leaves them out.
+  # No bc-test-data needed. Roll-forward: net6.0 test host on the dotnet 8 runtime.
+  DOTNET_ROLL_FORWARD=Major dotnet test --nologo -v q --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj \
+    --filter "FullyQualifiedName~Org.BouncyCastle.Turbo" || fail "turbo NUnit tests"
   step "python tool tests"
   for d in tools/agent-tools strip/tool; do
     if compgen -G "$d/test_*.py" >/dev/null; then

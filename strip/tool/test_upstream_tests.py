@@ -1,8 +1,7 @@
 import subprocess
 import sys
 import tempfile
-import unittest
-from unittest import mock
+import unittest.mock
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("upstream_tests.py")
@@ -264,7 +263,7 @@ class ErrorPathTest(unittest.TestCase):
                 seen.append(results_dir)
                 return 0
 
-            with mock.patch.object(ut, "update_base", fake_update_base):
+            with unittest.mock.patch.object(ut, "update_base", fake_update_base):
                 code = ut.main(["--root", str(root), "--results-dir", "rel", "--update-base"])
             self.assertEqual(code, 0)
             self.assertTrue(seen[0].is_absolute(), seen[0])

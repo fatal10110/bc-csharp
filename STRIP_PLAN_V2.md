@@ -101,7 +101,10 @@ not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA a
 them in the closure. Known offenders: `crypto/util/Pack.cs:6-8`, `util/io/Streams.cs`, `Poly1305.cs`,
 `ChaCha7539Engine.cs`, `tls/TlsStream.cs`, `util/io/{Filter,Pushback}Stream.cs`, `util/io/Base{Input,Output}Stream.cs`,
 `crypto/io/{Cipher,Digest,Mac,Signer}Stream.cs`, `crypto/io/{Digest,Mac,Signer}Sink.cs`, and the denied
-`math/ec/rfc7748/X448Field.cs` (17 in total). |
+`math/ec/rfc7748/X448Field.cs` (17 in total). **Outcome:** the captured Unity 2021.3 sets define no `*_OR_GREATER`
+symbol, so none of these mismatches is exposed and E13 has no edits. The 11 guard edits made for the provisional
+sets (#51) were reverted to keep them off the rebase surface; a later capture that defines `*_OR_GREATER` brings
+them back through this rule. |
 | E14 | `crypto/modes/GCMBlockCipher.cs` (file name upper-case) `CreateGcmMultiplier` (`:49-54`); `tls/crypto/impl/bc/BcTlsCrypto.cs` `CreateAesEngine` (`:678`) | `CreateGcmMultiplier` always returns `new BasicGcmMultiplier()`. This is one internal line and avoids the `[Obsolete]` constructor. `CreateAesEngine` returns `AesUtilities.IsHardwareAccelerated ? AesUtilities.CreateEngine() : new AesLightEngine()`. |
 
 **`deny.txt`.** Paths are relative to `crypto/src`, matched case-insensitively against files *added by the closure*.
@@ -168,16 +171,12 @@ strip/
                         #   strip.sh runs `dotnet restore` before the --no-restore loop;
                         #   defines are passed via a generated .props file assigning <DefineConstants> (which also
                         #   replaces the SDK's TRACE). `-p:DefineConstants=a;b` fails with MSB1006 because of the semicolons.
-  tool/                 # Python 3: index.py, closure.py (emits namespace stubs every iteration; reproduced CLEAN at
-                        #   934 files / 27 iterations), deny.py. Still to do (§5 step 2):
-                        #   - C#-lookup-order resolution and the extension-method index;
-                        #   - one build per define set;
-                        #   - stubs written outside crypto/src;
-                        #   - the referrer sweep;
-                        #   - deny.py reading strip/deny.txt (drop the allow4/deny4 names).
-                        #   roots/, Closure.csproj, deny.txt and strip.sh are not written yet.
+  tool/                 # Python 3, one module per stage, each with test_*.py: index.py, closure.py (lookup order,
+                        #   extension index, union fixpoint, namespace stubs), defines.py, deny.py (deny.txt, sweep,
+                        #   budget), build.py, rewrite.py, package.py (.meta, LICENSE.md, THIRD-PARTY-NOTICES.txt,
+                        #   STRIP_INFO.md), refresh_roots.py, upstream_tests.py
   smoke/                # net8 harness (§5 step 5)
-  notices/  strip.sh
+  strip.sh
 ```
 
 **Prerequisites:**

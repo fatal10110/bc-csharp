@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-// turbo-strip: E13 also for NETSTANDARD2_1_OR_GREATER (the Span code uses [MethodImpl])
-#if NETSTANDARD1_0_OR_GREATER || NETCOREAPP1_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETSTANDARD1_0_OR_GREATER || NETCOREAPP1_0_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif
 #if NETCOREAPP3_0_OR_GREATER
