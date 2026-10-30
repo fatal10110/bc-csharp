@@ -102,6 +102,34 @@ namespace TurboSmoke
             return rows;
         }
 
+        /// <summary>Picks the rows to run: those whose id contains one of the filters (all rows without a
+        /// filter), minus the slow rows unless <paramref name="slow"/> is set; a slow row left out goes to
+        /// <paramref name="skipped"/>.</summary>
+        internal static List<SmokeRow> Select(IEnumerable<SmokeRow> rows, IList<string> filters, bool slow,
+            List<string> skipped)
+        {
+            var selected = new List<SmokeRow>();
+            foreach (SmokeRow row in rows)
+            {
+                bool matches = filters.Count == 0;
+                foreach (string f in filters)
+                {
+                    matches = matches || row.Id.Contains(f, StringComparison.OrdinalIgnoreCase);
+                }
+                if (!matches)
+                {
+                    continue;
+                }
+                if (row.Slow && !slow)
+                {
+                    skipped.Add(row.Id);
+                    continue;
+                }
+                selected.Add(row);
+            }
+            return selected;
+        }
+
         /// <summary>Runs one row on its own thread: whatever it throws fails the row only; a row past its
         /// timeout is abandoned (background thread) and failed.</summary>
         internal static SmokeResult Run(SmokeRow row)

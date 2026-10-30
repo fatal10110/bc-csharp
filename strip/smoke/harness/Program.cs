@@ -85,18 +85,13 @@ namespace TurboSmoke
             List<SmokeRow> rows = SmokeRunner.Register(groups, outcomes);
             int ran = 0;
             var skipped = new List<string>();
-            foreach (SmokeRow row in rows)
+            List<SmokeRow> selected = SmokeRunner.Select(rows, filters, slow, skipped);
+            foreach (string id in skipped)
             {
-                if (filters.Count > 0 && !filters.Exists(f => row.Id.Contains(f, StringComparison.OrdinalIgnoreCase)))
-                {
-                    continue;
-                }
-                if (row.Slow && !slow)
-                {
-                    skipped.Add(row.Id);
-                    Console.WriteLine("SKIP " + row.Id + " (slow row; needs --slow)");
-                    continue;
-                }
+                Console.WriteLine("SKIP " + id + " (slow row; needs --slow)");
+            }
+            foreach (SmokeRow row in selected)
+            {
                 SmokeResult r = SmokeRunner.Run(row);
                 outcomes.Add(r);
                 ran++;

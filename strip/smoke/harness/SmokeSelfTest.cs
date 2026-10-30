@@ -7,7 +7,8 @@ namespace TurboSmoke
     /// <summary>
     /// Checks the runner itself (run.sh calls --self-test before the rows): a failing row, an exception, a
     /// static initializer that throws (the E6 failure mode: CustomNamedCurves.DefineCurveAlias), a hanging row
-    /// and a group whose registration throws each fail alone, and the rows after them still run.
+    /// and a group whose registration throws each fail alone, and the rows after them still run; slow rows
+    /// (#27) are selected only with --slow and listed as skipped otherwise.
     /// </summary>
     internal static class SmokeSelfTest
     {
@@ -44,8 +45,44 @@ namespace TurboSmoke
                     && r.Detail.Contains((string)expected[i][2], StringComparison.Ordinal);
             }
             ok = ok && results[6].Detail.Contains("static init broke", StringComparison.Ordinal);
+            ok = ok && SelectsSlowRowsOnlyWithSlow();
             Console.WriteLine(ok ? "self-test: OK" : "self-test: FAILED (runner isolation broken)");
             return ok;
+        }
+
+        // Slow rows (#27) run only with --slow and are listed as skipped otherwise; the filter still applies.
+        private static bool SelectsSlowRowsOnlyWithSlow()
+        {
+            var failures = new List<SmokeResult>();
+            List<SmokeRow> rows = SmokeRunner.Register(new SmokeRowGroup[] { new SlowGroup() }, failures);
+            var none = new List<string>();
+            var skippedFast = new List<string>();
+            string fast = Ids(SmokeRunner.Select(rows, none, false, skippedFast));
+            var skippedSlow = new List<string>();
+            string all = Ids(SmokeRunner.Select(rows, none, true, skippedSlow));
+            var skippedFiltered = new List<string>();
+            string filtered = Ids(SmokeRunner.Select(rows, new List<string> { "LONG" }, false, skippedFiltered));
+            bool ok = failures.Count == 0
+                && fast == "pace/quick" && string.Join(" ", skippedFast) == "pace/long"
+                && all == "pace/quick pace/long" && skippedSlow.Count == 0
+                && filtered == "" && string.Join(" ", skippedFiltered) == "pace/long";
+            Console.WriteLine((ok ? "PASS" : "FAIL") + " self-test/slow-selection (without --slow: [" + fast
+                + "] skipped [" + string.Join(" ", skippedFast) + "]; with --slow: [" + all + "])");
+            return ok;
+        }
+
+        private static string Ids(List<SmokeRow> rows) => string.Join(" ", rows.ConvertAll(r => r.Id));
+
+        private sealed class SlowGroup : SmokeRowGroup
+        {
+            public override string Name => "pace";
+            public override int Order => 0;
+
+            public override void AddRows(SmokeRows rows)
+            {
+                rows.Add("quick", () => { });
+                rows.AddSlow("long", () => { });
+            }
         }
 
         private sealed class BrokenGroup : SmokeRowGroup

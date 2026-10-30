@@ -20,8 +20,9 @@
 #
 # Smoke hook contract (#23): strip/smoke/run.sh --work <work> --results <file> [--slow] <TurboBC dll>...
 # runs only when every 3c build is clean; exit 0 = pass. --smoke-slow adds --slow (slow rows such as
-# the 30 s handshake-timeout row, #27; the enforce run of #30 uses it, the local gate does not). The results file, when written, goes into
-# STRIP_INFO.md (package.py --smoke); otherwise STRIP_INFO.md says "Not run.".
+# the 30 s handshake-timeout row, #27; the enforce run of #30 uses it, the local gate does not).
+# The results file, when written, goes into STRIP_INFO.md (package.py --smoke); otherwise STRIP_INFO.md
+# says "Not run.".
 
 set -uo pipefail
 

@@ -31,6 +31,11 @@ does not pass it; the enforce run (#30) should.
 - `strip/smoke/harness/SmokeRowGroup.cs`: `SmokeRow.Slow`, `SmokeRows.AddSlow`.
 - `strip/smoke/harness/Program.cs`: `--slow`; skipped slow rows printed and appended to the results
   text; "no row ran" names the skipped count.
+- `strip/smoke/harness/SmokeRunner.cs`: `Select(rows, filters, slow, skipped)`, the row selection
+  (filter, then slow rows only with `--slow`) that `Program` calls.
+- `strip/smoke/harness/SmokeSelfTest.cs`: `self-test/slow-selection` registers a group with one
+  normal and one `AddSlow` row and checks `Select` without `--slow` (slow row skipped and listed),
+  with `--slow` (both rows) and with a filter (review round 1).
 - `strip/smoke/run.sh`: `--slow`, passed to every harness run (not to `--self-test`).
 - `strip/strip.sh`: `--smoke-slow`, passes `--slow` to the smoke hook; usage and hook contract.
 - `strip/tool/test_smoke_run_sh.py`, `strip/tool/test_strip_sh.py`: the option is off by default and
@@ -55,5 +60,7 @@ does not pass it; the enforce run (#30) should.
 - `strip/smoke/run.sh --filter timeout --slow ... TurboBC.min.dll`: 3/3 passed (2536 ms, 1514 ms,
   30051 ms).
 - Mutation: with `HandshakeTimeoutMillis = 0` the 2 s trickle row fails ("timed out after 20000 ms").
+- Mutation: `Select` with `if (row.Slow)` (always skip) or `if (row.Slow && slow)` (inverted) makes
+  `TurboSmoke --self-test` fail (exit 1).
 - `python3 -m unittest discover -s strip/tool -p 'test_*.py'`; shellcheck on `run.sh`, `strip.sh`.
 - `./tools/ci/check.sh` (see the PR's "Local gates").
