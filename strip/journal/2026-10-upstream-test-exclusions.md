@@ -30,7 +30,7 @@ excluded by the test project's `examples` glob).
   - `no_trx_error` now points at the exclusion list when crypto/test fails to compile.
 - `strip/upstream-base-results.txt`: regenerated with `--update-base`. The 505 test lines are
   unchanged; the header gained `exclude-sha256` (the empty-list digest).
-- `strip/tool/test_upstream_exclusions.py` (new, 18 tests) and `strip/tool/test_upstream_tests.py`
+- `strip/tool/test_upstream_exclusions.py` (new, 16 tests) and `strip/tool/test_upstream_tests.py`
   (signature updates; `RepoFilesTest` parses the committed list and passes it to `load_base`).
 
 ## Decisions
