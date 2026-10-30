@@ -124,14 +124,16 @@ class ResolverTest(unittest.TestCase):
 
 @unittest.skipUnless(os.path.isdir(SRC), "crypto/src not present")
 class RealTreeTest(unittest.TestCase):
-    def test_x509certificate_binds_x509utilities_in_its_own_namespace(self):
-        # X509Certificate.cs is in Org.BouncyCastle.X509 and also `using Org.BouncyCastle.Crypto.Operators;`,
+    def test_x509crl_binds_x509utilities_in_its_own_namespace(self):
+        # X509Crl.cs is in Org.BouncyCastle.X509 and also `using Org.BouncyCastle.Crypto.Operators;`,
         # which declares another X509Utilities (Asn1Signature.cs). The innermost namespace wins.
+        # (X509Certificate.cs lost both after E8, #18.)
         index = build_index(SRC)
         r = c.Resolver(index, SRC, repo=REPO)
-        path = os.path.join(SRC, "x509", "X509Certificate.cs")
+        path = os.path.join(SRC, "x509", "X509Crl.cs")
         with open(path, encoding="utf-8-sig") as f:
             lines = f.read().splitlines()
+        self.assertIn("using Org.BouncyCastle.Crypto.Operators;", lines)
         uses = [no for no, line in enumerate(lines, 1) if re.search(r"\bX509Utilities\.", line)]
         self.assertTrue(uses)
         for no in uses:
