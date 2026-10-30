@@ -1,0 +1,74 @@
+# Upstream tests over the kept surface (strip/upstream-tests.txt) that a strip-v2 cut breaks on
+# purpose. Read by strip/tool/upstream_tests.py: a test that passed at BASE and fails now is a
+# regression unless it is listed here.
+#
+# Format: '<tag> <full test name>', one test per line, the name exactly as the tool reports it.
+# Tag: the E-number of the cut (STRIP_PLAN_V2.md section 3) and, when one applies, the plan decision
+# (section 2) joined by '/': E1/B, E/E5, A/E8. Edge-cut PRs add their lines here, grouped by cut,
+# with a comment naming the reason.
+
+# E1 (#13) BcTlsCrypto restricted to the strip algorithm set; decision B (no TLS 1.2 CBC): the
+# pre-TLS 1.2 versions only have CBC suites ("No selectable cipher suite"); the DTLS invalid-record
+# test uses ECDHE_PSK AES_128_CBC.
+E1/B Org.BouncyCastle.Tls.Tests.DtlsInvalidRecordTest.BlockCipherInvalidRecordsDiscarded
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_BadCertVerifySignature
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_BadClientCertificate
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_BadDowngrade
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_GoodDefault
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_GoodNoCertReq
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.DTLS10_GoodOptionalCertReqDeclined
+E1/B Org.BouncyCastle.Tls.Tests.DtlsTestCase.FallbackNone
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.FallbackNone
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_BadCertVerifySignature
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_BadClientCertificate
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_BadDowngrade
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_GoodDefault
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_GoodNoCertReq
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.SSL30_GoodOptionalCertReqDeclined
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_BadCertVerifySignature
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_BadClientCertificate
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_BadDowngrade
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_GoodDefault
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_GoodNoCertReq
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS10_GoodOptionalCertReqDeclined
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_BadCertVerifySignature
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_BadClientCertificate
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_BadDowngrade
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_GoodDefault
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_GoodNoCertReq
+E1/B Org.BouncyCastle.Tls.Tests.TlsTestCase.TLS11_GoodOptionalCertReqDeclined
+
+# E1 (#13); decision C (no ML-KEM / hybrid key exchange).
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolHybridTest.TestCurveSM2MLKEM768
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolHybridTest.TestSecP256r1MLKEM768
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolHybridTest.TestSecP384r1MLKEM1024
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolHybridTest.TestX25519MLKEM768
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolKemTest.TestMLKEM1024
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolKemTest.TestMLKEM512
+E1/C Org.BouncyCastle.Tls.Tests.TlsProtocolKemTest.TestMLKEM768
+
+# E1 (#13); decision E (no Ed25519/Ed448): the raw-key mock peers sign with Ed25519.
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestBothSidesUseRawKey
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestClientSendsExtensionButServerDoesNotSupportIt
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestClientSendsServerCertExtensionButServerHasNoCommonTypes
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestExtensionsAreOmittedIfSpecifiedButOnlyContainX509
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientIsAnonymous
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientUsesX509
+E1/E Org.BouncyCastle.Tls.Tests.DtlsRawKeysProtocolTest.TestServerUsesX509AndClientUsesRawKey
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestBothSidesUseRawKey
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestBothSidesUseRawKey_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestClientSendsExtensionButServerDoesNotSupportIt
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestClientSendsExtensionButServerDoesNotSupportIt_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestClientSendsServerCertExtensionButServerHasNoCommonTypes
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestClientSendsServerCertExtensionButServerHasNoCommonTypes_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestExtensionsAreOmittedIfSpecifiedButOnlyContainX509
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestExtensionsAreOmittedIfSpecifiedButOnlyContainX509_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientIsAnonymous
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientIsAnonymous_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientUsesX509
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesRawKeyAndClientUsesX509_13
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesX509AndClientUsesRawKey
+E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesX509AndClientUsesRawKey_13
+
+# E1 (#13), no plan decision: SRP is outside the strip set (CreateSrp6VerifierGenerator throws).
+E1 Org.BouncyCastle.Tls.Tests.TlsSrpProtocolTest.TestClientServer

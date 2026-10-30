@@ -41,3 +41,6 @@ project.lock.json
 # Python bytecode (tool tests)
 __pycache__/
 *.pyc
+
+# upstream_tests.py results (TRX, logs, report)
+/strip/upstream-results/
