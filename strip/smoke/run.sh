@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 # Strip smoke suite (STRIP_PLAN_V2.md section 5 step 5, issues #23-#27): strip.sh's step 5 hook, also run by hand.
 #
-#   strip/smoke/run.sh --work <work> --results <file> [--base-dll <dll>] [--filter <text>]... <TurboBC.x.dll>...
+#   strip/smoke/run.sh --work <work> --results <file> [--base-dll <dll>] [--filter <text>]... [--slow]
+#                      <TurboBC.x.dll>...
 #
 # 1 upstream: a full build of strip/BASE (BouncyCastle.Cryptography, net6.0) for the test servers and tooling,
 #   in <work>/smoke/base/; built from a temporary git worktree of BASE (removed again) and reused while
 #   <work>/smoke/base/BASE names the same commit. --base-dll skips this.
 # 2 self-test: the runner's row isolation (TurboSmoke --self-test), once.
 # 3 per DLL: strip/smoke/TurboSmoke.csproj built against that TurboBC.<x>.dll (client side) and the BASE build
-#   (server side) in <work>/smoke/build/<x>/, then run: every row group under strip/smoke/rows/.
+#   (server side) in <work>/smoke/build/<x>/, then run: every row group under strip/smoke/rows/. Slow rows
+#   (tens of seconds per DLL, e.g. the 30 s trickle-server timeout row, #27) run only with --slow (strip.sh
+#   --smoke-slow, the enforce run of #30); without it they are listed as SKIP in the results.
 # The results file gets one block per DLL (summary line + one PASS/FAIL line per row, no timings): strip.sh
 # packages it into STRIP_INFO.md.
 #
@@ -18,7 +21,8 @@
 set -uo pipefail
 
 usage() {
-  echo "usage: strip/smoke/run.sh --work <dir> --results <file> [--base-dll <dll>] [--filter <text>]... <TurboBC.x.dll>..."
+  echo "usage: strip/smoke/run.sh --work <dir> --results <file> [--base-dll <dll>] [--filter <text>]... [--slow]"
+  echo "                          <TurboBC.x.dll>..."
 }
 die_usage() { echo "run.sh: $*" >&2; usage >&2; exit 2; }
 fatal() { echo "run.sh: error: $*" >&2; exit 3; }
@@ -28,10 +32,12 @@ work=""
 results=""
 base_dll=""
 filters=()
+slow=()
 dlls=()
 while [ $# -gt 0 ]; do
   case $1 in
     -h|--help) usage; exit 0 ;;
+    --slow) slow=(--slow) ;;
     --work|--results|--base-dll|--filter)
       if [ $# -lt 2 ] || [ -z "$2" ]; then die_usage "$1 needs a value"; fi
       case $1 in
@@ -127,7 +133,7 @@ for dll in "${dlls[@]}"; do
     fi
   fi
   dotnet "$out/bin/TurboSmoke.dll" --label "$label" --dll "$dll" --work "$sw/run/$label" --results "$part" \
-    ${filters[@]+"${filters[@]}"}
+    ${filters[@]+"${filters[@]}"} ${slow[@]+"${slow[@]}"}
   rc=$?
   if [ "$rc" != 0 ]; then
     status=1

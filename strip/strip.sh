@@ -18,16 +18,18 @@
 # --report logs those (REPORT lines) and goes on to package. Usage errors exit 2; a missing
 # prerequisite, a tool error or a restore/build failure without compile errors exits 3 in both modes.
 #
-# Smoke hook contract (#23): strip/smoke/run.sh --work <work> --results <file> <TurboBC dll>...
-# runs only when every 3c build is clean; exit 0 = pass. The results file, when written, goes into
-# STRIP_INFO.md (package.py --smoke); otherwise STRIP_INFO.md says "Not run.".
+# Smoke hook contract (#23): strip/smoke/run.sh --work <work> --results <file> [--slow] <TurboBC dll>...
+# runs only when every 3c build is clean; exit 0 = pass. --smoke-slow adds --slow (slow rows such as
+# the 30 s handshake-timeout row, #27; the enforce run of #30 uses it, the local gate does not).
+# The results file, when written, goes into STRIP_INFO.md (package.py --smoke); otherwise STRIP_INFO.md
+# says "Not run.".
 
 set -uo pipefail
 
 usage() {
   cat <<'EOF'
 usage: strip/strip.sh [--report] [--refresh-roots --turbohttp <path>] [--set <name>]...
-                      [--work <dir>] [--out <dir>] [--old-base <sha>]
+                      [--work <dir>] [--out <dir>] [--old-base <sha>] [--smoke-slow]
 
   --report            log fail checks (deny hits, budget, unresolved and compile errors) instead of
                       failing; still packages
@@ -37,6 +39,8 @@ usage: strip/strip.sh [--report] [--refresh-roots --turbohttp <path>] [--set <na
   --work <dir>        work directory (default strip/work)
   --out <dir>         package directory (default strip/out)
   --old-base <sha>    previous BASE on a bump: STRIP_INFO.md's shadow diff is OLDBASE..BASE
+  --smoke-slow        also run the slow smoke rows (run.sh --slow: the 30 s handshake-timeout row,
+                      about 30 s per define set); the enforce run uses it, the local gate does not
 EOF
 }
 
@@ -46,6 +50,7 @@ abspath() { case $1 in /*) printf '%s\n' "$1" ;; *) printf '%s\n' "$PWD/$1" ;; e
 
 report=0
 refresh=0
+smoke_slow=()
 turbohttp=""
 old_base=""
 work=""
@@ -56,6 +61,7 @@ while [ $# -gt 0 ]; do
     -h|--help) usage; exit 0 ;;
     --report) report=1 ;;
     --refresh-roots) refresh=1 ;;
+    --smoke-slow) smoke_slow=(--slow) ;;
     --turbohttp|--set|--work|--out|--old-base)
       if [ $# -lt 2 ] || [ -z "$2" ]; then die_usage "$1 needs a value"; fi
       case $1 in
@@ -179,7 +185,8 @@ else
   esac
   results=$work/smoke-results.md
   rm -f "$results"
-  if strip/smoke/run.sh --work "$work" --results "$results" "$work"/dll/TurboBC.*.dll; then
+  if strip/smoke/run.sh --work "$work" --results "$results" ${smoke_slow[@]+"${smoke_slow[@]}"} \
+      "$work"/dll/TurboBC.*.dll; then
     echo "smoke passed"
   else
     check_failed "smoke suite failed"
