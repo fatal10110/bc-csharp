@@ -343,9 +343,12 @@ namespace TurboSmoke
             var buffer = new byte[1024];
             try
             {
-                while (stream.Read(buffer, 0, buffer.Length) > 0)
+                int read;
+                do
                 {
+                    read = stream.Read(buffer, 0, buffer.Length);
                 }
+                while (read > 0);
             }
             catch (IOException)
             {
@@ -415,7 +418,7 @@ namespace TurboSmoke
 
         private static byte[] Concat(params byte[][] parts)
         {
-            var output = new MemoryStream();
+            using var output = new MemoryStream();
             foreach (byte[] part in parts)
             {
                 output.Write(part, 0, part.Length);
