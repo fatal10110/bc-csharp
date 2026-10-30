@@ -23,7 +23,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [csharp, python, actions]
+        include:
+          # Paths per language: the Python extractor fails on a listed path that does not exist
+          # (crypto/src/turbo appears with the edge cuts).
+          - language: csharp
+            paths: '["crypto/src/turbo", "strip"]'
+          - language: python
+            paths: '["strip", "tools"]'
+          - language: actions
+            paths: '[".github"]'
     steps:
       - uses: actions/checkout@v4
         with:
@@ -37,11 +45,7 @@ jobs:
           build-mode: none
           queries: security-and-quality
           config: |
-            paths:
-              - crypto/src/turbo
-              - strip
-              - tools
-              - .github
+            paths: ${{ matrix.paths }}
 
       - uses: github/codeql-action/analyze@v3
         with:
