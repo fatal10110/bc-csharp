@@ -1,5 +1,6 @@
 ﻿using System;
-#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER
+// turbo-strip: E13 also for NETSTANDARD2_1_OR_GREATER (the Span/ValueTask overrides need these usings)
+#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Threading;
 using System.Threading.Tasks;
 #endif
