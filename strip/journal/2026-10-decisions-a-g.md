@@ -18,3 +18,15 @@
 ## How verified
 - `./tools/ci/check.sh` (enforce).
 - The Unity capture and validation are in the #59 PR body.
+
+## Guidance restructure (owner request)
+- `CLAUDE.md` is now the single, static rules file, modelled on turboHTTP's. It covers workspace,
+  precedence, non-negotiables, engineering rules, verification, tools, issue workflow, skills and
+  scoped guides. It holds no development status.
+- `AGENTS.md` is a pointer to `CLAUDE.md`.
+- Everything else moved to scoped guides in `strip/docs/agents/`:
+  - `architecture.md`: layout, pipeline, decisions, risks.
+  - `testing.md`: smoke, fixtures, upstream diff, `bc-test-data`, Unity probe.
+  - `tooling.md`: gate, CI, prerequisites, agent tools, bumps.
+  - `project-status.md`: the only file that changes as work progresses.
+- The skills and the strip-build reviewer now point to the new places.

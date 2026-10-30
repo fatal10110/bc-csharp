@@ -173,8 +173,8 @@ scope. Rules:
   session's uncommitted work, or are trackers. Put them in `exclusions` and list them for the user.
 - A lane may be audit-only (close already-done issues, file follow-ups): say so in `note`; the
   implementation agent returns `no_change` with no PR.
-- CLAUDE.md and AGENTS.md are shared: lanes do not edit them unless the note says so (then give
-  those lanes a `claude-md` hot group).
+- CLAUDE.md, AGENTS.md and `strip/docs/agents/` are shared: lanes do not edit them unless the note
+  says so (then give those lanes a `claude-md` hot group).
 
 Plan file (`bc-csharp-worktrees/.waves/<run>/plan.json`). Shape, also in `plan.example.json`:
 
@@ -298,8 +298,8 @@ When all workflows have returned:
   merge, with the reason and what is left (open PR, worktree kept).
 - Check that each "Closes" issue is closed (the parents #4, #12, #22, #28 track them as GitHub
   sub-issues; there is nothing to tick), and that no `wf-<slug>` worktree remains for a merged lane.
-- If the strip status changed, update CLAUDE.md and AGENTS.md in one follow-up commit/PR (lanes
-  never edit them).
+- If the strip status changed, update `strip/docs/agents/project-status.md` in one follow-up PR
+  (lanes never edit it).
 
 ## Editing waves.js
 

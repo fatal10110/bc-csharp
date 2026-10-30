@@ -13,8 +13,8 @@ description: >
 
 # bc-csharp strip-v2 issue implementation
 
-Repository rules live in `AGENTS.md` and `CLAUDE.md`; nothing here repeats them — read the
-sections your change touches. A bcstrip-waves prompt overrides this file on test scope, worktree
+Repository rules live in `CLAUDE.md` (scoped guides in `strip/docs/agents/`); nothing here repeats
+them — read the sections and guides your change touches. A bcstrip-waves prompt overrides this file on test scope, worktree
 commands and GitHub tooling.
 
 ## Authority
@@ -86,8 +86,8 @@ Every change answers three questions in the PR body, from evidence:
    both and work their checklists). Fix findings, re-run the gates, record deliberate deferrals with
    a follow-up issue.
 9. **Journal.** Add `strip/journal/YYYY-MM-<issue-slug>.md` (what, files, decisions, deferred
-   items, how verified). Update `CLAUDE.md`/`AGENTS.md` only when status or conventions change and
-   you are not in a bcstrip-waves lane.
+   items, how verified). Update `strip/docs/agents/project-status.md` when status changes and
+   `CLAUDE.md` only when a rule changes, and neither in a bcstrip-waves lane.
 10. **Deliver.**
     - Audit `git diff origin/strip-v2...`: only in-scope files; every acceptance item maps to a hunk
       or a check.
