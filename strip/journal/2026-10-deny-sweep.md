@@ -45,10 +45,11 @@
 ## Findings (for #11, #20)
 
 - Unpatched BASE `7c9c8d5a` crypto/src + `turbo/` seed: 933 files, 164 denied (plan rev-5: 931/164),
-  769 kept; [min] sweep complete in 8 builds: 41 (denied file, kept referrer) edges, all in E1 (BcTlsCrypto),
+  769 kept; [min] sweep complete in 8 builds: 41 denied files with kept referrers (43 edges), all in E1 (BcTlsCrypto),
   E5 (BcTlsRawKeyCertificate), E6 (CustomNamedCurves, ECNamedCurveTable), E8 (X509Certificate),
   E9 (X509ExtensionUtil), E10 (ECKeyPairGenerator), E11 (DigestUtilities), E12 (MacUtilities).
-- strip-v2 head (E1, E5 merged): 903 files, 153 denied, 750 kept, 30 edges, [min] complete in 1 build.
+- strip-v2 head (E1, E5 merged): 903 files, 153 denied, 750 kept, 30 denied files with kept referrers,
+  [min] complete in 1 build.
 - [partial] and [sdk] stay incomplete until E13 (#20): their pre-existing declaration-level errors stop
   every build before bodies. The same effect hides body-level errors in the closure loop itself: with the
   E13 files dropped, [sdk] shows `Span<T>.CopyFrom` extension calls (rfc8032, GCMBlockCipher) whose
