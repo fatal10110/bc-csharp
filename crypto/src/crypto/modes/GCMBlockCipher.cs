@@ -48,10 +48,8 @@ namespace Org.BouncyCastle.Crypto.Modes
 
         internal static IGcmMultiplier CreateGcmMultiplier()
         {
-            if (BasicGcmMultiplier.IsHardwareAccelerated)
-                return new BasicGcmMultiplier();
-
-            return new Tables4kGcmMultiplier();
+            // turbo-strip: E14 always BasicGcmMultiplier (constant-time GHASH), never the Tables4k lookup tables
+            return new BasicGcmMultiplier();
         }
 
         private const int BlockSize = 16;
