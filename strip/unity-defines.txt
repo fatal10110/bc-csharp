@@ -1,0 +1,21 @@
+# Define sets for the closure builds (STRIP_PLAN_V2.md §4; read by strip/tool/defines.py).
+#
+# Format: one [set] header per define set, then exactly one DefineConstants line (';'-separated).
+# The set [netframework] builds against the net471 reference assemblies; every other set builds
+# against netstandard2.1. Each build gets exactly these symbols: no DEBUG/RELEASE/STRIP/TRACE and no
+# SDK framework defines (the closure asserts set(csc /define:) == the set).
+#
+# PROVISIONAL. turboHTTP#141 (#29) replaces this file with the captured Unity 2021.3 sets
+# [netstandard21] and [netframework]; no code change is needed. Until then:
+#   [min]     the no-Span floor (pure legacy paths)
+#   [partial] [min] + NETSTANDARD2_1_OR_GREATER (Span paths, no NETSTANDARD1_x/2_0 *_OR_GREATER: the E13 case)
+#   [sdk]     the full SDK netstandard2.1 implicit set (TRACE excluded)
+
+[min]
+NETSTANDARD;NETSTANDARD2_1
+
+[partial]
+NETSTANDARD;NETSTANDARD2_1;NETSTANDARD2_1_OR_GREATER
+
+[sdk]
+NETSTANDARD;NETSTANDARD2_1;NETSTANDARD1_0_OR_GREATER;NETSTANDARD1_1_OR_GREATER;NETSTANDARD1_2_OR_GREATER;NETSTANDARD1_3_OR_GREATER;NETSTANDARD1_4_OR_GREATER;NETSTANDARD1_5_OR_GREATER;NETSTANDARD1_6_OR_GREATER;NETSTANDARD2_0_OR_GREATER;NETSTANDARD2_1_OR_GREATER

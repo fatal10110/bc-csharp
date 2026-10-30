@@ -67,7 +67,8 @@ Order of work (`STRIP_PLAN_V2.md` §6):
 
 - The strip's gate is the **smoke suite** (`strip/smoke/`, #22–#27): curve lookup, primitive KATs per DLL, OpenSSL 3 interop, exact ClientHello assertions, hostile inputs, timeout.
 - Tooling tests: `python3 -m unittest discover -s tools/agent-tools -p 'test_*.py'`, the same for `strip/tool`, and `node .claude/skills/bcstrip-waves/waves_sim.mjs`.
-- Upstream `crypto/test` is not a gate on `strip-v2` (cuts break parts of it). Scoped runs when an issue asks:
+- Upstream `crypto/test` is not a gate on `strip-v2` (cuts break parts of it). Scoped runs when an issue asks, or for validation.
+- `bc-test-data` (bcgit/bc-test-data, read-only `git clone --depth 1`, ~7 GB) sits beside the repo (`../bc-test-data`); `SimpleTest.FindTestDataPath` walks up to it, so one clone serves every worktree. Many upstream fixtures need it (the TLS tests read `tls/credentials`). Use it when needed to validate code the strip keeps (TLS, ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE`, then after an edge cut or bump, and compare — failures the cut removes on purpose (TLS 1.2 CBC, Ed25519, PKIX …) are expected, any other new failure is a regression. Validation aid, not a CI gate (#35 scripts the diff).
 
 ```bash
 dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0
