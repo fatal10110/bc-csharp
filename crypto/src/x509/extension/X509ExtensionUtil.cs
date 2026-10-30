@@ -13,8 +13,10 @@ namespace Org.BouncyCastle.X509.Extension
     // TODO[api] Make static
     public class X509ExtensionUtilities
     {
+        // turbo-strip: E9 SubjectPublicKeyInfoFactory is denied; key identifiers only from an SPKI or certificate
         internal static Asn1OctetString CalculateKeyIdentifier(AsymmetricKeyParameter publicKey) =>
-            CalculateKeyIdentifier(SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(publicKey));
+            throw new NotSupportedException(
+                "Key identifier from AsymmetricKeyParameter not supported; use the SubjectPublicKeyInfo overload");
 
         internal static Asn1OctetString CalculateKeyIdentifier(SubjectPublicKeyInfo spki) =>
             new DerOctetString(CalculateSha1(spki));

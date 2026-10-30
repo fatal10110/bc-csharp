@@ -2,7 +2,7 @@
 
 using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+// turbo-strip: E12 (Security using dropped: MacUtilities only)
 
 namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
@@ -28,7 +28,13 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         public void Update(ReadOnlySpan<byte> input) => m_hmac.BlockUpdate(input);
 #endif
 
-        public byte[] CalculateMac() => MacUtilities.DoFinal(m_hmac);
+        // turbo-strip: E12 MacUtilities.DoFinal inlined (keeps MacUtilities and its Gost28147Mac out of the closure)
+        public byte[] CalculateMac()
+        {
+            byte[] mac = new byte[m_hmac.GetMacSize()];
+            m_hmac.DoFinal(mac, 0);
+            return mac;
+        }
 
         public void CalculateMac(byte[] output, int outOff) => m_hmac.DoFinal(output, outOff);
 
