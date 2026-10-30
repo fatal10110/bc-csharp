@@ -64,17 +64,17 @@ else
 fi
 
 # Until #30 switches it to enforce mode, the gate runs strip.sh --report, which logs (does not
-# fail on) deny hits. Before strip.sh exists, the whole library must keep compiling.
+# fail on) deny hits and compile errors of the stripped builds. So until then the whole library
+# must also keep compiling: that is the gate's only compile-regression check.
 if [ -x strip/strip.sh ]; then
   step "strip (strip/strip.sh --report)"
   strip/strip.sh --report || fail "strip.sh --report"
-else
-  for tfm in netstandard2.0 net6.0; do
-    step "library build ($tfm; strip/strip.sh not present yet)"
-    dotnet build crypto/src/BouncyCastle.Crypto.csproj -f "$tfm" -c Release -nologo -v q -clp:ErrorsOnly \
-      || fail "library build ($tfm)"
-  done
 fi
+for tfm in netstandard2.0 net6.0; do
+  step "library build ($tfm; until #30 enforces strip.sh)"
+  dotnet build crypto/src/BouncyCastle.Crypto.csproj -f "$tfm" -c Release -nologo -v q -clp:ErrorsOnly \
+    || fail "library build ($tfm)"
+done
 
 if [ "$full" = 1 ]; then
   step "workflow lint (actionlint)"
