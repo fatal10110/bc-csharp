@@ -75,6 +75,26 @@ namespace TurboSmoke
         private static readonly string[] EcCertificates = { "p256", "p384", "p521" };
         private static readonly string[] AllCertificates = { "rsa2048", "p256", "p384", "p521" };
 
+        // Every signature_algorithms entry the client advertises (ClientHelloRows pins the list): row name, OpenSSL
+        // -sigalgs name, version flag, certificate. rsa_pkcs1_* only in TLS 1.2 (RFC 8446 4.4.3 forbids it in a
+        // TLS 1.3 CertificateVerify); rsa_pss_pss_* needs an id-RSASSA-PSS key, rsa_pss_rsae_* an rsaEncryption key
+        // (RFC 8446 4.2.3); ecdsa_* in TLS 1.3 is bound to the certificate's curve.
+        private static readonly string[][] SignatureSchemes =
+        {
+            new[] { "ecdsa-secp256r1-sha256", "ecdsa_secp256r1_sha256", "-tls1_3", "p256" },
+            new[] { "ecdsa-secp384r1-sha384", "ecdsa_secp384r1_sha384", "-tls1_3", "p384" },
+            new[] { "ecdsa-secp521r1-sha512", "ecdsa_secp521r1_sha512", "-tls1_3", "p521" },
+            new[] { "rsa-pss-pss-sha256", "rsa_pss_pss_sha256", "-tls1_3", "rsapss2048" },
+            new[] { "rsa-pss-pss-sha384", "rsa_pss_pss_sha384", "-tls1_3", "rsapss2048" },
+            new[] { "rsa-pss-pss-sha512", "rsa_pss_pss_sha512", "-tls1_3", "rsapss2048" },
+            new[] { "rsa-pss-rsae-sha256", "rsa_pss_rsae_sha256", "-tls1_3", "rsa2048" },
+            new[] { "rsa-pss-rsae-sha384", "rsa_pss_rsae_sha384", "-tls1_3", "rsa2048" },
+            new[] { "rsa-pss-rsae-sha512", "rsa_pss_rsae_sha512", "-tls1_3", "rsa2048" },
+            new[] { "rsa-pkcs1-sha256", "rsa_pkcs1_sha256", "-tls1_2", "rsa2048" },
+            new[] { "rsa-pkcs1-sha384", "rsa_pkcs1_sha384", "-tls1_2", "rsa2048" },
+            new[] { "rsa-pkcs1-sha512", "rsa_pkcs1_sha512", "-tls1_2", "rsa2048" },
+        };
+
         // After AllCertificates: static initializers run in textual order.
         private static readonly Dictionary<string, Lazy<OpenSslCertificate>> s_certificates = NewCertificates();
 
@@ -86,6 +106,10 @@ namespace TurboSmoke
             AddMatrix(rows, "tls13", "-tls1_3", "-ciphersuites", Tls13Suites, AllCertificates);
             AddMatrix(rows, "tls12", "-tls1_2", "-cipher", Tls12EcdsaSuites, EcCertificates);
             AddMatrix(rows, "tls12", "-tls1_2", "-cipher", Tls12RsaSuites, new[] { "rsa2048" });
+            foreach (string[] scheme in SignatureSchemes)
+            {
+                AddSignatureScheme(rows, scheme[0], scheme[1], scheme[2], scheme[3]);
+            }
 
             AddReject(rows, "reject-rsa-kx", "AES128-GCM-SHA256:AES256-GCM-SHA384");
             AddReject(rows, "reject-dhe",
@@ -94,7 +118,8 @@ namespace TurboSmoke
                 + "ECDHE-RSA-AES256-SHA384");
         }
 
-        /// <summary>The OpenSSL-generated certificate of this run ("rsa2048", "p256", "p384", "p521").</summary>
+        /// <summary>The OpenSSL-generated certificate of this run ("rsa2048", "rsapss2048", "p256", "p384",
+        /// "p521").</summary>
         public static OpenSslCertificate Certificate(string name) => s_certificates[name].Value;
 
         /// <summary>Connects a SmokeTlsClient (ALPN h2, pinned to <paramref name="cert"/>) to the server, sends one
@@ -168,6 +193,36 @@ namespace TurboSmoke
             }
         }
 
+        /// <summary>Advertised = processable for one signature scheme: the server may sign only with
+        /// <paramref name="openSslName"/> (s_server -sigalgs restricts the schemes it signs with), x25519, the first
+        /// suite of the version, so a completed handshake proves the client verified that scheme.</summary>
+        private static void AddSignatureScheme(SmokeRows rows, string name, string openSslName, string versionFlag,
+            string certName)
+        {
+            bool tls13 = versionFlag == "-tls1_3";
+            Suite suite = tls13 ? Tls13Suites[0] : Tls12RsaSuites[0];
+            string rowName = "sigalg-" + name;
+            rows.Add(rowName, () =>
+            {
+                OpenSslCertificate cert = Certificate(certName);
+                var flags = new List<string>(cert.Flags)
+                {
+                    versionFlag, tls13 ? "-ciphersuites" : "-cipher", suite.OpenSslName, "-groups", "X25519",
+                    "-sigalgs", openSslName, "-alpn", "h2", "-rev",
+                };
+                using (OpenSslServer server = OpenSslServer.Start("interop-" + rowName, flags.ToArray()))
+                {
+                    SmokeTlsClient client = Exchange(server, cert);
+                    SmokeAssert.Equal(tls13 ? "1.3" : "1.2", client.NegotiatedVersion, "version");
+                    SmokeAssert.Equal("0x" + suite.WireValue.ToString("X4"), client.NegotiatedCipherSuite,
+                        "cipher suite");
+                    string report = server.WaitForExit();
+                    SmokeAssert.True(report.Contains("Ciphersuite: " + suite.OpenSslName + "\n"),
+                        "OpenSSL's view of the session; " + server.Describe());
+                }
+            }, RowTimeoutMillis);
+        }
+
         private static void AddReject(SmokeRows rows, string name, string cipherList)
         {
             rows.Add(name, () =>
@@ -213,7 +268,7 @@ namespace TurboSmoke
         private static Dictionary<string, Lazy<OpenSslCertificate>> NewCertificates()
         {
             var certificates = new Dictionary<string, Lazy<OpenSslCertificate>>();
-            foreach (string name in AllCertificates)
+            foreach (string name in new[] { "rsa2048", "rsapss2048", "p256", "p384", "p521" })
             {
                 string kind = name;
                 certificates.Add(kind, new Lazy<OpenSslCertificate>(() => OpenSslCertificate.Create(kind)));

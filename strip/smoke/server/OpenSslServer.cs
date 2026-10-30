@@ -315,7 +315,8 @@ namespace TurboSmoke
         /// <summary>The s_server flags presenting this certificate.</summary>
         public string[] Flags => new[] { "-cert", CertificatePath, "-key", KeyPath };
 
-        /// <summary>"rsa2048" or "p256" / "p384" / "p521".</summary>
+        /// <summary>"rsa2048", "rsapss2048" (an id-RSASSA-PSS key without parameter restrictions) or "p256" /
+        /// "p384" / "p521".</summary>
         public static OpenSslCertificate Create(string name)
         {
             string newKey;
@@ -325,6 +326,10 @@ namespace TurboSmoke
             case "rsa2048":
                 newKey = "rsa:2048";
                 keyOptions = Array.Empty<string>();
+                break;
+            case "rsapss2048":
+                newKey = "rsa-pss";
+                keyOptions = new[] { "-pkeyopt", "rsa_keygen_bits:2048" };
                 break;
             case "p256":
                 newKey = "ec";
