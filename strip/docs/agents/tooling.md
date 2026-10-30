@@ -19,8 +19,13 @@ Load when working on the local gate, CI, prerequisites, agent tools or a bump.
 - `.github/workflows/ci.yml` runs `check.sh --full` on PRs to `strip-v2` and on pushes to it. The
   aggregate required check is `ci`.
 - `.github/workflows/codeql.yml` analyses fork-owned code only (`crypto/src/turbo`, `strip`, `tools`,
-  `.github`).
+  `.github`). It ignores `strip/roots/`, the mirrored turboHTTP code that must stay byte-identical.
 - PRs are squash-merged; one commit per PR keeps the edge-cut series rebase-able.
+- **A PR merges only with 0 unresolved review threads, CodeQL alerts included** (#70).
+  - Every thread gets a reply and is resolved.
+  - A CodeQL thread can be closed only by a code fix, or by dismissing the alert with a written
+    reason (`won't fix` / `false positive` / `used in tests`).
+  - `tools/agent-tools/wave_mail.py threads --pr N` lists the open threads, with the CodeQL alert numbers.
 
 ## Prerequisites
 
@@ -38,7 +43,7 @@ Load when working on the local gate, CI, prerequisites, agent tools or a bump.
 | `look.py <spec>...` | ranges, C# declarations by name (`cs:PATH:Type.Member`), bounded rg; many lookups in one call |
 | `issue_slice.py <n>` | an issue's body, newest comments, referenced issues and paths (cached) |
 | `issue_search.py`, `pr_search.py` | search cached issues and closed PRs (dedupe follow-ups) |
-| `wave_mail.py` | bcstrip-waves coordination: plans, mailboxes, worktrees, `status`, `pr-state`, `ci-wait`, `stop` |
+| `wave_mail.py` | bcstrip-waves coordination: plans, mailboxes, worktrees, `status`, `pr-state` (with `unresolved_threads`), `threads`, `ci-wait`, `stop` |
 
 ## Bumps (plan §6)
 
