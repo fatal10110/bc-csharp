@@ -23,8 +23,8 @@ Edge cut E8 (STRIP_PLAN_V2.md §3 E8, decision A) in `crypto/src/x509/X509Certif
   `Org.BouncyCastle.Crypto.Operators` and `Org.BouncyCastle.Security` dropped (no longer used), `Org.BouncyCastle.Turbo`
   added. Private helpers `GetPublicKeyForDisplay` and `VerificationNotSupported` at the end of the class.
 - `crypto/src/turbo/TurboSignatureNames.cs` — new turbo-owned internal static OID->name map (MIT header).
-- `crypto/test/src/turbo/X509CertificateE8Test.cs` — 18 NUnit regression checks (all but the accepted-key,
-  RSA/ECDSA name and accepted-key ToString rows fail on the pre-cut code).
+- `crypto/test/src/turbo/X509CertificateE8Test.cs` — 18 NUnit regression checks; on the pre-cut code only the
+  accepted-key, RSA/ECDSA name, unknown-OID and accepted-key ToString rows pass.
 - `strip/upstream-expected-failures.txt` — `E8/A Org.BouncyCastle.Tests.CertTest.TestFunction`, the one
   kept-surface upstream test E8 breaks on purpose.
 
