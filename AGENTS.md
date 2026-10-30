@@ -33,12 +33,14 @@ branch of fatal10110/bc-csharp.
 - **Upstream tree** (`crypto/src`, `crypto/test`) stays in place; the strip is computed from it.
 - **Edge cuts** (`STRIP_PLAN_V2.md` §3, E1–E14) are small commits on `strip-v2`, one per E-number or
   per issue E-range (#14 E2–E4, #19 E9–E12), every hunk marked `// turbo-strip:`.
-- **Turbo-owned code** (planned, M2) lives in `crypto/src/turbo/` (namespace `Org.BouncyCastle.Turbo`, MIT
-  header), e.g. `TurboKeyFactory`.
-- **Strip tooling** lives in `strip/`. Present: `BASE`, `tool/` (closure prototype), `unity-probe/`,
-  `journal/`. Planned (M1/M3): `ROOTS_SHA`, `roots/`, `deny.txt`, `budget.txt`, `unity-defines.txt`,
-  `Closure.csproj`, `smoke/`, `strip.sh`. Output goes to `strip/out/`
-  and is handed over to turboHTTP (#141 there).
+- **Turbo-owned code** lives in `crypto/src/turbo/` (namespace `Org.BouncyCastle.Turbo`, MIT header):
+  `TurboKeyFactory` (E5); its NUnit fixtures sit in `crypto/test/src/turbo/`.
+- **Strip tooling** lives in `strip/`: `BASE`, `ROOTS_SHA`, `roots/`, `deny.txt`,
+  `unity-defines.txt` (provisional `[min]`/`[partial]`/`[sdk]` sets until #29), `Closure.csproj`,
+  `tool/` (closure, deny/sweep, build, rewrite, package, refresh-roots, upstream-test diff),
+  `smoke/` (harness and row groups), `strip.sh`, `unity-probe/`, `journal/`, and the upstream-test
+  diff files `upstream-*.txt`. Still to come (#30): `budget.txt`. Output goes to `strip/out/` and is
+  handed over to turboHTTP (#141 there).
 - **Agent and CI tooling** lives in `tools/` (`tools/ci/check.sh`, `tools/agent-tools/*`),
   `.github/` and `.claude/`.
 
@@ -117,22 +119,26 @@ re-review, and document deliberate deferrals with a follow-up issue.
   serves the main checkout and every worktree. Use it when needed to validate code the strip keeps (TLS,
   ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE` first, then after an edge cut
   or a bump, and compare. New failures the cut removes on purpose (TLS 1.2 CBC suites, Ed25519, PKIX,
-  ...) are expected; any other new failure is a regression. It is a validation aid, not a CI gate (#35
-  scripts the diff).
+  ...) are expected; any other new failure is a regression. It is a validation aid, not a CI gate.
+- `python3 strip/tool/upstream_tests.py` scripts that comparison: it runs the kept-surface filter
+  (`strip/upstream-tests.txt`) and diffs against the committed BASE results
+  (`strip/upstream-base-results.txt`). Every intended break is listed with its E-number in
+  `strip/upstream-expected-failures.txt`. Exit 1 means a regression. Run it after every edge cut and
+  every bump (`--update-base` after a bump or a filter edit).
 
 ## Local Gates And CI
 
 - `./tools/ci/check.sh` before every push: `dotnet format whitespace` on changed fork-owned C#
   (`crypto/src/turbo`, `strip`, `tools`); for changed upstream C#, only added lines are checked
-  (trailing whitespace) — upstream files are never reformatted. Then `strip/strip.sh --report` once it
-  exists (#30 switches the gate to enforce mode), else the whole library for netstandard2.0 and
-  net6.0. `--full` adds actionlint, shellcheck, the Python tool tests and the waves simulation; run it
+  (trailing whitespace) — upstream files are never reformatted. Then `strip/strip.sh --report`
+  (closure, stripped and rewritten builds, smoke suite; #30 switches it to enforce mode) and,
+  until #30, the whole library for netstandard2.0 and net6.0. `--full` adds actionlint, shellcheck, the Python tool tests and the waves simulation; run it
   before opening a PR (waves lanes: when the lane note asks). `--fix` formats fork-owned C#.
 - CI (`.github/workflows/ci.yml`) runs `check.sh --full` on PRs to `strip-v2` and on pushes to it;
   the aggregate check is `ci`. CodeQL (`codeql.yml`) analyses fork-owned code only
   (`crypto/src/turbo`, `strip`, `tools`, `.github`).
-- Prerequisites: .NET SDK 8, Python 3, git; optional actionlint, shellcheck, node, Homebrew
-  OpenSSL 3.x (smoke interop). Scoped `dotnet test --framework net6.0` needs the .NET 6 runtime or
+- Prerequisites: .NET SDK 8, Python 3, git, OpenSSL 3.x (smoke interop; system or Homebrew);
+  optional actionlint, shellcheck, node. Scoped `dotnet test --framework net6.0` needs the .NET 6 runtime or
   `DOTNET_ROLL_FORWARD=Major`, and for most fixtures a `bc-test-data` checkout beside the repo
   (`git clone --depth 1 https://github.com/bcgit/bc-test-data.git`, about 7 GB).
 
@@ -166,7 +172,8 @@ Rules for every agent:
 - Lanes add their own journal file and do not edit `AGENTS.md`/`CLAUDE.md`.
 - Never write files, commits or PRs into turboHTTP. The handover comment on turboHTTP #141 is
   posted by the owner or with the owner's approval.
-- Edge cuts wait for #10 (`strip.sh`), or keep the whole library compiling until it merges.
+- Edge cuts keep the whole library compiling until #30 switches the gate to enforce mode (the gate
+  still builds it beside `strip.sh --report`).
 - Never run waves during a bump (the owner rebases and force-pushes `strip-v2`).
 
 ## Repository Conventions
