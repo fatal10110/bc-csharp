@@ -400,12 +400,14 @@ namespace Org.BouncyCastle.Security
             case DigestAlgorithm.BLAKE2S_224: return new Blake2sDigest(224);
             case DigestAlgorithm.BLAKE2S_256: return new Blake2sDigest(256);
             case DigestAlgorithm.BLAKE3_256: return new Blake3Digest(256);
-            case DigestAlgorithm.DSTU7564_256: return new Dstu7564Digest(256);
-            case DigestAlgorithm.DSTU7564_384: return new Dstu7564Digest(384);
-            case DigestAlgorithm.DSTU7564_512: return new Dstu7564Digest(512);
-            case DigestAlgorithm.GOST3411: return new Gost3411Digest();
-            case DigestAlgorithm.GOST3411_2012_256: return new Gost3411_2012_256Digest();
-            case DigestAlgorithm.GOST3411_2012_512: return new Gost3411_2012_512Digest();
+            // turbo-strip: E11 DSTU7564/GOST3411/GOST3411-2012 digests denied; GetDigest reports them not recognised
+            case DigestAlgorithm.DSTU7564_256:
+            case DigestAlgorithm.DSTU7564_384:
+            case DigestAlgorithm.DSTU7564_512:
+            case DigestAlgorithm.GOST3411:
+            case DigestAlgorithm.GOST3411_2012_256:
+            case DigestAlgorithm.GOST3411_2012_512:
+                return null;
             case DigestAlgorithm.KECCAK_224: return new KeccakDigest(224);
             case DigestAlgorithm.KECCAK_256: return new KeccakDigest(256);
             case DigestAlgorithm.KECCAK_288: return new KeccakDigest(288);
