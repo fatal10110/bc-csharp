@@ -110,7 +110,15 @@ re-review, and document deliberate deferrals with a follow-up issue.
 - Tooling tests: `tools/agent-tools/test_*.py`, `strip/tool/test_*.py`, and
   `.claude/skills/bcstrip-waves/waves_sim.mjs`.
 - Upstream `crypto/test` is **not** a gate on `strip-v2`: edge cuts intentionally break parts of it.
-  Scoped `dotnet test --filter` runs are allowed when an issue asks for them.
+  Scoped `dotnet test --filter` runs are allowed when an issue asks for them, and for validation (below).
+- `bc-test-data` (bcgit/bc-test-data, cloned read-only) holds the bulk vectors and credentials that many
+  upstream tests load (e.g. the TLS tests read `tls/credentials`). `SimpleTest.FindTestDataPath` walks up
+  from the working directory to a `bc-test-data` folder, so one clone beside the repo (`../bc-test-data`)
+  serves the main checkout and every worktree. Use it when needed to validate code the strip keeps (TLS,
+  ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE` first, then after an edge cut
+  or a bump, and compare. New failures the cut removes on purpose (TLS 1.2 CBC suites, Ed25519, PKIX,
+  ...) are expected; any other new failure is a regression. It is a validation aid, not a CI gate (#35
+  scripts the diff).
 
 ## Local Gates And CI
 
@@ -125,7 +133,8 @@ re-review, and document deliberate deferrals with a follow-up issue.
   (`crypto/src/turbo`, `strip`, `tools`, `.github`).
 - Prerequisites: .NET SDK 8, Python 3, git; optional actionlint, shellcheck, node, Homebrew
   OpenSSL 3.x (smoke interop). Scoped `dotnet test --framework net6.0` needs the .NET 6 runtime or
-  `DOTNET_ROLL_FORWARD=Major`.
+  `DOTNET_ROLL_FORWARD=Major`, and for most fixtures a `bc-test-data` checkout beside the repo
+  (`git clone --depth 1 https://github.com/bcgit/bc-test-data.git`, about 7 GB).
 
 ## Agent Workflow
 
