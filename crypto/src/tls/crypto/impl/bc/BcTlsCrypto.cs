@@ -147,7 +147,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override TlsDHDomain CreateDHDomain(TlsDHConfig dhConfig)
         {
-            return new BcTlsDHDomain(this, dhConfig);
+            // turbo-strip: E1 no finite-field DH (HasDHAgreement is false)
+            throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
         public override TlsECDomain CreateECDomain(TlsECConfig ecConfig)
@@ -156,8 +157,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             {
             case NamedGroup.x25519:
                 return new BcX25519Domain(this);
-            case NamedGroup.x448:
-                return new BcX448Domain(this);
+            // turbo-strip: E1 x448 removed (HasNamedGroup is false for it)
             default:
                 return new BcTlsECDomain(this, ecConfig);
             }
@@ -165,7 +165,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override TlsKemDomain CreateKemDomain(TlsKemConfig kemConfig)
         {
-            return new BcTlsMLKemDomain(this, kemConfig);
+            // turbo-strip: E1 no KEM groups (decision C; HasKemAgreement is false)
+            throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
         public override TlsNonceGenerator CreateNonceGenerator(byte[] additionalSeedMaterial)
@@ -244,7 +245,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case CryptoHashAlgorithm.sha384:
             case CryptoHashAlgorithm.sha512:
             case CryptoHashAlgorithm.sm3:
-            case CryptoHashAlgorithm.gostr3411_2012_256:
+            // turbo-strip: E1 gostr3411_2012_256 removed
                 return true;
 
             default:
@@ -256,18 +257,15 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         {
             switch (cryptoSignatureAlgorithm)
             {
+            // turbo-strip: E1 rsa, ecdsa and rsa_pss_* only (dsa, ed25519, ed448, sm2 removed)
             case CryptoSignatureAlgorithm.rsa:
-            case CryptoSignatureAlgorithm.dsa:
             case CryptoSignatureAlgorithm.ecdsa:
             case CryptoSignatureAlgorithm.rsa_pss_rsae_sha256:
             case CryptoSignatureAlgorithm.rsa_pss_rsae_sha384:
             case CryptoSignatureAlgorithm.rsa_pss_rsae_sha512:
-            case CryptoSignatureAlgorithm.ed25519:
-            case CryptoSignatureAlgorithm.ed448:
             case CryptoSignatureAlgorithm.rsa_pss_pss_sha256:
             case CryptoSignatureAlgorithm.rsa_pss_pss_sha384:
             case CryptoSignatureAlgorithm.rsa_pss_pss_sha512:
-            case CryptoSignatureAlgorithm.sm2: // RFC 8998
                 return true;
 
             // TODO[RFC 9189]
@@ -281,7 +279,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override bool HasDHAgreement()
         {
-            return true;
+            // turbo-strip: E1 no finite-field DH
+            return false;
         }
 
         public override bool HasECDHAgreement()
@@ -293,36 +292,12 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         {
             switch (encryptionAlgorithm)
             {
-            case EncryptionAlgorithm.AES_128_CBC:
-            case EncryptionAlgorithm.AES_128_CCM:
-            case EncryptionAlgorithm.AES_128_CCM_8:
+            // turbo-strip: E1 AEADs AES-GCM and ChaCha20-Poly1305 only (decision B: no CBC; no CCM, ARIA,
+            // CAMELLIA, 3DES, NULL, NULL_HMAC_*, SEED, SM4)
             case EncryptionAlgorithm.AES_128_GCM:
-            case EncryptionAlgorithm.AES_256_CBC:
-            case EncryptionAlgorithm.AES_256_CCM:
-            case EncryptionAlgorithm.AES_256_CCM_8:
             case EncryptionAlgorithm.AES_256_GCM:
-            case EncryptionAlgorithm.ARIA_128_CBC:
-            case EncryptionAlgorithm.ARIA_128_GCM:
-            case EncryptionAlgorithm.ARIA_256_CBC:
-            case EncryptionAlgorithm.ARIA_256_GCM:
-            case EncryptionAlgorithm.CAMELLIA_128_CBC:
-            case EncryptionAlgorithm.CAMELLIA_128_GCM:
-            case EncryptionAlgorithm.CAMELLIA_256_CBC:
-            case EncryptionAlgorithm.CAMELLIA_256_GCM:
             case EncryptionAlgorithm.CHACHA20_POLY1305:
-            case EncryptionAlgorithm.cls_3DES_EDE_CBC:
-            case EncryptionAlgorithm.NULL:
-            case EncryptionAlgorithm.SEED_CBC:
-            case EncryptionAlgorithm.SM4_CBC:
-            case EncryptionAlgorithm.SM4_CCM:
-            case EncryptionAlgorithm.SM4_GCM:
                 return true;
-
-            case EncryptionAlgorithm.NULL_HMAC_SHA256:
-                return HasMacAlgorithm(MacAlgorithm.hmac_sha256);
-
-            case EncryptionAlgorithm.NULL_HMAC_SHA384:
-                return HasMacAlgorithm(MacAlgorithm.hmac_sha384);
 
             case EncryptionAlgorithm.cls_28147_CNT_IMIT:
             case EncryptionAlgorithm.DES_CBC:
@@ -355,7 +330,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override bool HasKemAgreement()
         {
-            return true;
+            // turbo-strip: E1 no KEM groups (decision C)
+            return false;
         }
 
         public override bool HasMacAlgorithm(int macAlgorithm)
@@ -376,34 +352,39 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override bool HasNamedGroup(int namedGroup)
         {
-            return NamedGroup.RefersToASpecificCurve(namedGroup)
-                || NamedGroup.RefersToASpecificFiniteField(namedGroup)
-                || NamedGroup.RefersToASpecificKem(namedGroup);
+            // turbo-strip: E1 x25519, secp256r1, secp384r1, secp521r1 only (no ffdhe, no KEM/hybrids: decision C)
+            switch (namedGroup)
+            {
+            case NamedGroup.x25519:
+            case NamedGroup.secp256r1:
+            case NamedGroup.secp384r1:
+            case NamedGroup.secp521r1:
+                return true;
+
+            default:
+                return false;
+            }
         }
 
         public override bool HasRsaEncryption()
         {
-            return true;
+            // turbo-strip: E1 no RSA key exchange
+            return false;
         }
 
         public override bool HasSignatureAlgorithm(short signatureAlgorithm)
         {
             switch (signatureAlgorithm)
             {
+            // turbo-strip: E1 rsa, ecdsa and rsa_pss_* only (dsa, ed25519/ed448 (decision E), brainpool tls13 removed)
             case SignatureAlgorithm.rsa:
-            case SignatureAlgorithm.dsa:
             case SignatureAlgorithm.ecdsa:
-            case SignatureAlgorithm.ed25519:
-            case SignatureAlgorithm.ed448:
             case SignatureAlgorithm.rsa_pss_rsae_sha256:
             case SignatureAlgorithm.rsa_pss_rsae_sha384:
             case SignatureAlgorithm.rsa_pss_rsae_sha512:
             case SignatureAlgorithm.rsa_pss_pss_sha256:
             case SignatureAlgorithm.rsa_pss_pss_sha384:
             case SignatureAlgorithm.rsa_pss_pss_sha512:
-            case SignatureAlgorithm.ecdsa_brainpoolP256r1tls13_sha256:
-            case SignatureAlgorithm.ecdsa_brainpoolP384r1tls13_sha384:
-            case SignatureAlgorithm.ecdsa_brainpoolP512r1tls13_sha512:
                 return true;
 
             // TODO[RFC 9189]
@@ -417,6 +398,19 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override bool HasSignatureAndHashAlgorithm(SignatureAndHashAlgorithm sigAndHashAlgorithm)
         {
+            // turbo-strip: E1 hash whitelist {Intrinsic, SHA-256/384/512}, before the ML-DSA/SLH-DSA early return
+            switch (sigAndHashAlgorithm.Hash)
+            {
+            case HashAlgorithm.Intrinsic:
+            case HashAlgorithm.sha256:
+            case HashAlgorithm.sha384:
+            case HashAlgorithm.sha512:
+                break;
+
+            default:
+                return false;
+            }
+
             int signatureScheme = SignatureScheme.From(sigAndHashAlgorithm);
             if (SignatureScheme.IsMLDsaScheme(signatureScheme) ||
                 SignatureScheme.IsSlhDsa(signatureScheme))
@@ -439,6 +433,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         {
             switch (signatureScheme)
             {
+            // turbo-strip: E1 ML-DSA, SLH-DSA and sm2sig_sm3 unsupported
             case SignatureScheme.mldsa44:
             case SignatureScheme.mldsa65:
             case SignatureScheme.mldsa87:
@@ -455,7 +450,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case SignatureScheme.slhdsa_shake_256s:
             case SignatureScheme.slhdsa_shake_256f:
             case SignatureScheme.sm2sig_sm3:
-                return true;
+                return false;
             default:
             {
                 short signature = SignatureScheme.GetSignatureAlgorithm(signatureScheme);
@@ -473,7 +468,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override bool HasSrpAuthentication()
         {
-            return true;
+            // turbo-strip: E1 no SRP (CreateSrp6* throw)
+            return false;
         }
 
         public override TlsSecret CreateHybridSecret(TlsSecret s1, TlsSecret s2)
@@ -523,8 +519,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new Sha512Digest((Sha512Digest)digest);
             case CryptoHashAlgorithm.sm3:
                 return new SM3Digest((SM3Digest)digest);
-            case CryptoHashAlgorithm.gostr3411_2012_256:
-                return new Gost3411_2012_256Digest((Gost3411_2012_256Digest)digest);
+            // turbo-strip: E1 Gost3411_2012_256Digest removed
             default:
                 throw new ArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
             }
@@ -548,8 +543,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new Sha512Digest();
             case CryptoHashAlgorithm.sm3:
                 return new SM3Digest();
-            case CryptoHashAlgorithm.gostr3411_2012_256:
-                return new Gost3411_2012_256Digest();
+            // turbo-strip: E1 Gost3411_2012_256Digest removed
             default:
                 throw new ArgumentException("invalid CryptoHashAlgorithm: " + cryptoHashAlgorithm);
             }
@@ -799,34 +793,20 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         public override TlsSrp6Client CreateSrp6Client(TlsSrpConfig srpConfig)
         {
-            BigInteger[] ng = srpConfig.GetExplicitNG();
-            Srp6GroupParameters srpGroup = new Srp6GroupParameters(ng[0], ng[1]);
-
-            Srp6Client srp6Client = new Srp6Client();
-            srp6Client.Init(srpGroup, CreateDigest(CryptoHashAlgorithm.sha1), SecureRandom);
-
-            return new BcTlsSrp6Client(srp6Client);
+            // turbo-strip: E1 no SRP (abstract in AbstractTlsCrypto, so it stays and throws)
+            throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
         public override TlsSrp6Server CreateSrp6Server(TlsSrpConfig srpConfig, BigInteger srpVerifier)
         {
-            BigInteger[] ng = srpConfig.GetExplicitNG();
-            Srp6GroupParameters srpGroup = new Srp6GroupParameters(ng[0], ng[1]);
-
-            Srp6Server srp6Server = new Srp6Server();
-            srp6Server.Init(srpGroup, srpVerifier, CreateDigest(CryptoHashAlgorithm.sha1), SecureRandom);
-
-            return new BcTlsSrp6Server(srp6Server);
+            // turbo-strip: E1 no SRP (abstract in AbstractTlsCrypto, so it stays and throws)
+            throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
         public override TlsSrp6VerifierGenerator CreateSrp6VerifierGenerator(TlsSrpConfig srpConfig)
         {
-            BigInteger[] ng = srpConfig.GetExplicitNG();
-
-            Srp6VerifierGenerator srp6VerifierGenerator = new Srp6VerifierGenerator();
-            srp6VerifierGenerator.Init(ng[0], ng[1], CreateDigest(CryptoHashAlgorithm.sha1));
-
-            return new BcTlsSrp6VerifierGenerator(srp6VerifierGenerator);
+            // turbo-strip: E1 no SRP (abstract in AbstractTlsCrypto, so it stays and throws)
+            throw new TlsFatalAlert(AlertDescription.internal_error);
         }
 
         public override TlsSecret HkdfInit(int cryptoHashAlgorithm)
