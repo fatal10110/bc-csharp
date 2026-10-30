@@ -32,6 +32,9 @@ project.lock.json
 
 .claude/settings.local.json
 
+# strip/tool/closure.py work directory (generated projects, stubs, reports)
+/strip/work/
+
 # strip output (strip/tool/package.py)
 /strip/out/
 
