@@ -130,7 +130,7 @@ def candidate_files(path, word):
         if r.returncode in (0, 1):
             return sorted(Path(x) for x in r.stdout.split("\n") if x)
     except FileNotFoundError:
-        pass
+        pass  # rg not installed: fall back to the Python scan below
     rx = re.compile(r"\b" + re.escape(word) + r"\b")
     return [f for f in files if rx.search(f.read_text(encoding="utf-8", errors="replace"))]
 

@@ -119,6 +119,7 @@ def main():
     if not terms and not args.sync:
         parser.error("query must contain at least one searchable term")
 
+    issues = []  # parser.error() exits; this only satisfies static analysis
     try:
         issues = sync(args.cache) if args.sync or not args.cache.exists() else json.loads(args.cache.read_text(encoding="utf-8"))
     except (OSError, subprocess.CalledProcessError, json.JSONDecodeError) as error:

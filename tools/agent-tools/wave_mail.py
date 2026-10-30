@@ -412,7 +412,7 @@ def requeue_orphans(run, types):
             os.replace(p, req_dir(run, "new") / p.name)
             n += 1
         except FileNotFoundError:
-            pass
+            pass  # another poller already moved it back; nothing to re-serve
     return n
 
 
@@ -462,8 +462,6 @@ def cmd_lock(a):
     ld = run_dir(a.run) / "locks"
     ld.mkdir(parents=True, exist_ok=True)
     owner_file = ld / f"{a.name}.json"
-    with flock(ld / f".{a.name}.lock"):
-        cur = read_json(owner_file, None)
     if a.action == "release":
         with flock(ld / f".{a.name}.lock"):
             cur = read_json(owner_file, None)
