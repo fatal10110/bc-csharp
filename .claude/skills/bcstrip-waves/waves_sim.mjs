@@ -75,7 +75,7 @@ function world(cap, scen) {
     const sc = scen[slug] || {}
     const r = (rev[slug] ||= { round: 0, merges: 0, starts: 0 })
     r.starts++
-    const maxRounds = Number((prompt.match(/N >= (\d+): send final/) || [])[1])
+    const maxRounds = Number((prompt.match(/R >= (\d+): send final/) || [])[1])
     r.prompts = (r.prompts || []).concat(prompt)
     const merge = () => {
       const seq = sc.merges || ['merged']
@@ -261,7 +261,7 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   const r = by(res)
   assert.equal(r.n.status, 'merged')
   assert.equal(r.u.status, 'merged')
-  assert.ok(w.rev.u.prompts[0].includes('N >= 16'), 'retry budget = used rounds + maxRounds')
+  assert.ok(w.rev.u.prompts[0].includes('R >= 16'), 'retry budget = used rounds + maxRounds')
   assert.ok(w.rev.u.prompts[0].includes('is authoritative'), 'the resumed reviewer reads the current state')
 }
 
@@ -321,7 +321,8 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   const implP = w.allPrompts.find(([l]) => l.startsWith('impl:a'))[1]
   assert.ok(implP.includes('settle EVERY unresolved thread') && implP.includes('code-scanning/alerts'), 'implementer settles every thread')
   assert.ok(implP.includes('A CodeQL thread has only two outcomes'), 'CodeQL threads: fix or dismissal only')
-  assert.ok(revP.includes('never as inline comments') && revP.includes('at most 3 threads_open rounds'), 'notes stay out of threads; threads_open is capped')
+  assert.ok(revP.includes('never as inline comments') && revP.includes('threads_rounds already 3') && revP.includes('--set threads_rounds='), 'notes stay out of threads; threads_open rounds are counted in lane state and capped')
+  assert.ok(revP.includes('R = N minus threads_rounds'), 'threads_open rounds do not use the review budget')
   // The merger fetches and recognises update-branch commits of strip-v2.
   const m = await run({ run: 'sim', role: 'merger', plan: one, tool: '/r/bc-csharp/tools/agent-tools/wave_mail.py' }, { $take: [[{ id: 'm1', type: 'merge', from: 'a/review' }]] })
   const mp = m.w.allPrompts.find(([l]) => l.startsWith('merge:'))

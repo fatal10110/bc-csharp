@@ -42,3 +42,7 @@ The owner found 38 unresolved review threads on 9 merged PRs (#39–#64): 31 Cod
   - the fake `gh` asserts the exact arguments and serves two pages;
   - error and missing-PR cases;
   - sim assertions for every new rule (scenario 1b only checks that the orchestrator tolerates `threads_open`).
+- Review round 2: `threads_open` rounds are counted as `threads_rounds` in the lane state.
+  - The round limit tests R = N − threads_rounds.
+  - The cap of 3 reads that count, so it survives a resumed reviewer.
+  - The sim parses `R >= <limit>`.
