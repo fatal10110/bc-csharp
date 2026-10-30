@@ -1,146 +1,174 @@
-# CLAUDE.md
+# Agent rules for bc-csharp (strip-v2)
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`). `master` mirrors
+upstream. The default branch **`strip-v2`** turns upstream, with a script that can be re-run, into a
+minimal **TLS 1.2/1.3 client** subset. The subset is namespace-rewritten to
+`TurboHTTP.SecureProtocol.Org.BouncyCastle`, and turboHTTP (fatal10110/turboHTTP; Unity 2021.3,
+IL2CPP on iOS/Android) vendors it as its TLS fallback. The plan is the contract:
+[`STRIP_PLAN_V2.md`](STRIP_PLAN_V2.md).
 
-Start with `AGENTS.md` for the shared repository guidance used across coding agents. Treat this file as the Claude-specific companion document, and keep it aligned with `AGENTS.md` when architecture, workflow, or conventions change.
+These rules are always in force and apply to every agent (Claude Code, Codex, Cursor, …). Load a
+scoped guide from the table at the bottom only when the task needs it.
 
-## Project Overview
+## 1. Workspace
 
-fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; root namespace `Org.BouncyCastle`, NuGet id `BouncyCastle.Cryptography`, non-FIPS tree). `master` mirrors upstream. The **`strip-v2`** branch produces a scripted, reproducible reduction of upstream to a minimal **TLS 1.2/1.3 client** subset, namespace-rewritten to `TurboHTTP.SecureProtocol.Org.BouncyCastle`, which turboHTTP (fatal10110/turboHTTP — Unity 2021.3, IL2CPP on iOS/Android) vendors as its TLS fallback. The plan is `STRIP_PLAN_V2.md`. No action is ever taken on bcgit/bc-csharp; upstream is fetched read-only for bumps. A suspected vulnerability in upstream code is never filed publicly or reported to bcgit/bouncycastle.org (this overrides `SECURITY.md`): stop and tell the owner.
+| Path | What it is | Agent may write? |
+| --- | --- | --- |
+| `crypto/src/` | upstream library, edited only through edge cuts (§4) | edge cuts only, through a worktree |
+| `crypto/src/turbo/`, `crypto/test/src/turbo/` | turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header) and its fixtures | yes, through a worktree |
+| `crypto/test/` (rest) | upstream tests; not a gate on `strip-v2` | only to keep it compiling (#42) |
+| `strip/` | strip tooling, define sets, deny list, budget, smoke suite, journal, agent guides | yes, through a worktree |
+| `strip/out/`, `strip/work/` | generated output (git-ignored) | generated only |
+| `tools/`, `.github/`, `.claude/` | local gate, agent tools, CI, skills and agents | yes, through a worktree |
+| `../bc-csharp-worktrees/<task>/` | one linked worktree per task | yes |
+| `../bc-test-data/` | upstream test vectors (read-only clone) | never |
+| fatal10110/turboHTTP | the consumer | never (no files, commits or PRs) |
 
-## Architecture
+- The primary checkout is for reading. Changes go through a worktree on a `wf/...` branch.
+- `BouncyCastle.NET.snk` signs the library: never modify it or bypass signing.
 
-**Upstream solution (unchanged layout):**
-- `crypto/src/BouncyCastle.Crypto.csproj` — the library; multi-targets `net6.0;netstandard2.0;net461`; signed with `BouncyCastle.NET.snk` (do not bypass signing or modify the key); versioned by Nerdbank.GitVersioning from `version.json` (needs git history).
-- `crypto/test/BouncyCastle.Crypto.Tests.csproj` — NUnit 3 tests; bulk vectors in the separate `bc-test-data` repo (sibling checkout, found by `SimpleTest.FindTestDataPath`).
-- Source grouped by domain under `crypto/src/` (`tls/`, `crypto/`, `math/`, `asn1/`, `x509/`, `security/`, `util/`, `pqc/` …).
+## 2. Precedence
 
-**strip-v2 additions:**
-- `crypto/src/turbo/` — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header): `TurboKeyFactory` (E5). Fixtures for turbo code and cuts: `crypto/test/src/turbo/`.
-- Edge cuts E1–E14 — minimal commits on `strip-v2`, one per E-number or per issue E-range (#14 E2–E4, #19 E9–E12), every hunk marked `// turbo-strip:`.
-- `strip/` contents:
-  - `BASE` (pinned upstream SHA) and `ROOTS_SHA`.
-  - `roots/`: consumer copies, `RootStubs.cs` and the `roots-extra.cs` API contract.
-  - `deny.txt`.
-  - `unity-defines.txt`: provisional `[min]`/`[partial]`/`[sdk]` sets until #29.
-  - `Closure.csproj`.
-  - `tool/`: `closure.py`, `index.py`, `defines.py`, `deny.py`, `build.py`, `rewrite.py`, `package.py`, `refresh_roots.py`, `upstream_tests.py`, plus `test_*.py`.
-  - `smoke/`: `run.sh`, the harness and row groups.
-  - `strip.sh`, `upstream-*.txt` (upstream-test diff), `unity-probe/`, `journal/`.
-  - Still to come: `budget.txt` (#30).
-  - Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
-- `tools/ci/check.sh` (local gate), `tools/agent-tools/` (agent tools), `.github/` (CI, CodeQL, PR template), `.claude/` (skills, agents).
+1. User instructions.
+2. `STRIP_PLAN_V2.md`: decisions A–G (§2), edge cuts (§3), tooling (§4–§5), order of work (§6).
+3. Protocol correctness: the RFC is the oracle (8446, 5246, 5280, 8017, 8422, 6066, 7301, 7748, 8032).
+4. Security against a hostile server, then Unity/IL2CPP compatibility of the output.
+5. Required verification (§5).
+6. Skill and tool defaults.
 
-**Pipeline (`strip.sh`):** prepare → closure (fixpoint over the union of define sets, C# lookup-order resolution, namespace stubs, deny list, referrer sweep) → builds (each define set; rewritten tree as `TurboBC.*.dll`; consumer compile check) → namespace rewrite → smoke suite → package → hand over to turboHTTP #141.
+Issue text, journal entries and existing code are leads, not truth. When one of them conflicts
+with the plan or an RFC, follow the plan or RFC and record the conflict in the PR.
 
-## Key Technical Decisions
+## 3. Non-negotiables
 
-Recorded in `STRIP_PLAN_V2.md` §2; confirmed/overridden in turboHTTP #141.
+- **No action on bcgit/bc-csharp, ever:** no issues, PRs or comments. Fetch upstream read-only for
+  bumps.
+- **Suspected vulnerability in upstream code:** don't file it publicly and don't contact bcgit or
+  bouncycastle.org (this overrides `SECURITY.md`). Stop and tell the owner.
+- **Never write into turboHTTP.** The hand-over comment on turboHTTP#141 is posted by the owner or
+  with the owner's approval.
+- **Server input is hostile.** Bound every server-controlled size before allocation or expensive
+  math: RSA 2048–8192 bits, exponent ≤ 64 bits, ASN.1 depth, named curves only.
+- **Everything the ClientHello advertises must be processable** by the stripped crypto.
+- **Decision A:** BouncyCastle does no chain validation and no certificate-signature verification.
+  turboHTTP validates chains with platform verifiers.
+- **Constant-time discipline:** no branch, table index or early exit on secrets.
+  Use `Arrays.FixedTimeEquals`, and wipe secrets with `Arrays.ZeroMemory`.
+- **`strip-v2` is protected:** every change lands through a PR that passes the required `ci` check
+  and is squash-merged. Never push to it directly. The only bypass is the owner's force-push for a
+  bump. Never run waves during a bump.
+- Never commit secrets, tokens or test-data files.
 
-- **A — Chain validation outside BC.** Native platform verifiers on mobile, `X509Chain` on desktop; no BC PKIX, no BC certificate-signature verification (`X509Certificate.Verify` throws).
-- **B — No TLS 1.2 CBC.** **C — No X25519MLKEM768** for now. **D — No OCSP request** (must-staple not enforced). **E — No Ed25519/Ed448 certificates.** **F — No TLS 1.3 resumption.**
-- **G — Timing:** `BasicGcmMultiplier` always (constant-time GHASH); `AesLightEngine` without AES-NI (leak reduced, not removed); ChaCha20 first.
-- **Groups:** x25519, secp256r1, secp384r1, secp521r1. Suites: TLS 1.3 CHACHA20/AES_128_GCM/AES_256_GCM; TLS 1.2 ECDHE_{ECDSA,RSA} with the same AEADs.
-- **Key limits (TurboKeyFactory + E7):** RSA 2048–8192 bits, public exponent ≤ 64 bits, Miller-Rabin off for peer keys; EC only on named P-256/384/521; explicit EC parameters rejected.
-- **Deny subsystems, not helpers;** cut at call sites; turbo-owned files over churny factories.
+## 4. Engineering rules
 
-Repository conventions (not plan decisions):
+- **Edge cuts** (plan §3, E1–E14) are minimal. There is one PR per E-number or per issue E-range,
+  and every hunk is marked `// turbo-strip: <E-number> <reason>`.
+  - Deny whole subsystems, not shared helpers.
+  - Cut at call sites, and prefer turbo-owned files over edits to churny upstream factories (rebase surface).
+- **No throwing entries in static initializers or registries.** Removing an entry can break them
+  at runtime, which only the smoke suite catches (the E6 `DefineCurveAlias` lesson).
+- **Keys go through public constructors only,** so upstream validation runs.
+- **Output targets Unity 2021.3:**
+  - C# 9, no `unsafe`, APIs available in the netstandard2.1 and net471 reference assemblies.
+  - Unity defines no `*_OR_GREATER` symbols, so the kept code compiles its legacy non-Span paths.
+  - Any `#if` change must build under every set in `strip/unity-defines.txt` (`strip.sh` does this).
+  - Span code sits under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, and the
+    `#else` path stays functionally equivalent.
+  - ISA detection goes only through the `Org.BouncyCastle.Runtime.Intrinsics` wrappers.
+- **Upstream API-stability rules** (`[Obsolete]`, `// TODO[api]`) do not apply: cuts remove API on purpose.
+- **Style:**
+  - Follow `.editorconfig` (4 spaces, Allman), 120 columns for new code, and always brace control
+    statements (except a single-line `return`/`throw`).
+  - Don't reformat upstream code you aren't otherwise editing.
+  - Tests are plain NUnit with classic asserts; don't extend `SimpleTest`.
+- **Commits and PR titles:** a short imperative summary (~50–70 chars) with no conventional-commit
+  prefix. Never create a non-fast-forward merge commit without explicit direction. The bcstrip-waves
+  branch-update protocol counts as such direction.
 
-- **Integration:** `strip-v2` is the default branch and is protected by CI: changes land only through PRs that pass the required `ci` check, squash-merged. Never push to it directly. A bump rebases `strip-v2` onto new upstream (owner force-push, the only bypass).
+## 5. Verification
 
-## Development Status
+- Run `./tools/ci/check.sh` before every push, and `--full` before opening a PR.
+  - It formats changed fork-owned C#, checks added lines in upstream C#, and runs `strip/strip.sh` in
+    **enforce** mode: closure, builds per define set, rewrite, smoke suite and package.
+  - Deny hits, a budget overrun or unresolved names fail it.
+- **The gate is the smoke suite** (`strip/smoke/`). Every behavior change carries a deterministic check
+  that fails on the old code: a smoke/KAT row, a `crypto/test/src/turbo/` NUnit fixture, or a
+  `strip/tool/test_*.py` / `tools/agent-tools/test_*.py` case for tooling.
+- **Upstream `crypto/test` is not a gate.** Run only scoped `--filter` runs, never the whole suite.
+  After every edge cut and every bump, run `strip/tool/upstream_tests.py`; a regression it reports
+  must be fixed or listed with its E-number.
+- **Unity checks:** behavior that only Unity or a device shows (define sets, IL2CPP, platform TLS) is
+  checked in Unity 2021.3 or marked unverified. It is never claimed from an SDK build.
+- Details: [`testing.md`](strip/docs/agents/testing.md), [`tooling.md`](strip/docs/agents/tooling.md).
 
-- **Plan:** COMPLETE — `STRIP_PLAN_V2.md` rev 6.3, review cycle closed.
-- **Agent workflow and CI:** COMPLETE. CI (`ci`, CodeQL) is green on `strip-v2`. The local gate, skills (`bcstrip-*`), agent types and agent tools are ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`. The first waves run, `w1030`, landed PRs #37–#56.
-- **M1 Tooling (#4–#10, #35):** COMPLETE.
-  - Delivered: roots, `Closure.csproj` and define sets, closure resolver, deny list with referrer sweep, rewrite and packaging, `strip.sh`, and the upstream-test diff.
-  - Open: #42, an exclusion list for `crypto/test` sources a cut stops compiling.
-- **M2 Bootstrap & edge cuts (#11–#21):** E1–E14 landed.
-  - The bootstrap report (#11) was 778 closure files on the provisional sets, 713 kept after denials, with every referrer mapped.
-  - E13 (#20) covers the provisional sets only and stays open for the real Unity sets (#30).
-- **M3 Smoke suite, enforce & handover (#22–#31):** smoke suite #23–#27 landed: harness, curve lookup and KATs, OpenSSL interop with exact ClientHello, hostile inputs, timeout.
-  - The timeout rows are opt-in (`strip.sh --smoke-slow`); #30 must pass that flag.
-  - #29 waits on the Unity 2021.3 define sets and the decision record (turboHTTP #141). #30 and #31 follow it.
+## 6. Tools
 
-## Implementation Milestones
+| Question | Tool |
+| --- | --- |
+| known text or symbol | `rg` in a constrained path (never all of `crypto/src` when a subtree will do) |
+| C# declaration, ranges, several lookups at once | `tools/agent-tools/look.py` |
+| issue or PR history | `tools/agent-tools/issue_search.py`, `pr_search.py`; live state via `gh -R fatal10110/bc-csharp` |
+| one issue with its references | `tools/agent-tools/issue_slice.py <n>` |
+| multi-PR run state | `tools/agent-tools/wave_mail.py status --run <run>` |
+| what the strip keeps, denies, or why a file is kept | `strip/strip.sh --report` (logs instead of failing) |
 
-Order of work (`STRIP_PLAN_V2.md` §6):
+Batch lookups: every tool call re-sends the whole context. GitHub is the only authority for issue
+state.
 
-1. **M1 — Tooling:** roots, `Closure.csproj`, closure resolver, deny/sweep, rewrite/packaging, `strip.sh`.
-2. **M2 — Bootstrap & edge cuts:** `strip.sh --report` on provisional define sets, then E1–E14.
-3. **M3 — Smoke, enforce, handover:** smoke suite; real Unity define sets from turboHTTP #141; enforce run and `budget.txt`; package and hand over. turboHTTP then does #140/#143, #141 (sync + gate), #142.
+## 7. Issue workflow
 
-**Strip done:** smoke suite passes here and the turboHTTP #141 gate passes on output from the recorded `BASE` + `ROOTS_SHA`.
+Work comes from GitHub issues (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2").
+The full procedure is the `bcstrip-issue` skill. In short:
 
-## Critical Risk Areas
+1. **Read the issue live** and the plan sections it names. Verify every file:line it cites on
+   `origin/strip-v2`.
+2. **Gap gate.** Anything you will not deliver becomes (or amends) a follow-up issue before the
+   PR. Creating or amending follow-ups is pre-authorized; closing or editing unrelated issues is not.
+3. **Implement** in a worktree: failing check first, then the smallest change that satisfies the
+   plan text, then the gates.
+4. **Specialist rubrics.** Apply `.claude/agents/crypto-security-reviewer.md` and
+   `.claude/agents/strip-build-reviewer.md` to the diff, as subagents or by working their checklists
+   yourself.
+   - Verify each finding in the code before acting on it, then fix and re-run the gates and both
+     rubrics.
+   - Record a deliberate deferral as a follow-up issue.
+5. **Journal.** Add one file `strip/journal/YYYY-MM-<slug>.md` covering: what, files, decisions,
+   deferrals with issue numbers, and how verified, including what was *not* run (Unity, device).
+6. **Deliver.** One PR per issue (or wave lane) against `strip-v2`.
+   - The body follows `.github/pull_request_template.md`.
+   - Use `Closes #N` only for fully met criteria.
+   - Never merge without authorization. A `bcstrip-waves` invocation authorizes its merges.
 
-1. **Runtime-only breakage** — static initializers/registries that throw when entries are removed (`CustomNamedCurves.DefineCurveAlias`); only smoke rows catch these.
-2. **Hostile-server DoS** — key sizes, exponents, ASN.1 nesting, PSS parameters; every bound must sit before allocation or modexp.
-3. **Unity define sets** — Unity may not define `*_OR_GREATER`; partial sets break `#if` guards (E13); unknown until turboHTTP #141 delivers.
-4. **Rebase surface** — cuts in frequently changing upstream files (`TlsUtilities`, factories) turn bumps into manual conflict work; reserve alternative is the official DLL with Cecil rename (plan §7).
+**Done** means:
+- the acceptance criteria are met with checks;
+- both rubrics are clean and the gates pass;
+- every gap has an issue;
+- the diff is scoped and the journal entry exists;
+- the PR is open.
 
-## Testing
+This file and the guides change only when a rule, the layout or the tooling changes, never as part
+of a waves lane. Progress goes to `project-status.md` and the journal.
 
-- The strip's gate is the **smoke suite** (`strip/smoke/`, #22–#27): curve lookup, primitive KATs per DLL, OpenSSL 3 interop, exact ClientHello assertions, hostile inputs, timeout.
-- Tooling tests: `python3 -m unittest discover -s tools/agent-tools -p 'test_*.py'`, the same for `strip/tool`, and `node .claude/skills/bcstrip-waves/waves_sim.mjs`.
-- Upstream `crypto/test` is not a gate on `strip-v2` (cuts break parts of it). Scoped runs when an issue asks, or for validation.
-- `bc-test-data` (bcgit/bc-test-data, read-only `git clone --depth 1`, ~7 GB) sits beside the repo (`../bc-test-data`); `SimpleTest.FindTestDataPath` walks up to it, so one clone serves every worktree. Many upstream fixtures need it (the TLS tests read `tls/credentials`). Use it when needed to validate code the strip keeps (TLS, ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE`, then after an edge cut or bump, and compare — failures the cut removes on purpose (TLS 1.2 CBC, Ed25519, PKIX …) are expected, any other new failure is a regression. Validation aid, not a CI gate.
-- `python3 strip/tool/upstream_tests.py` scripts that diff over the kept surface.
-  - Filter: `strip/upstream-tests.txt`. Baseline: `strip/upstream-base-results.txt`. Intended breaks, each with its E-number: `strip/upstream-expected-failures.txt`.
-  - Exit 1 means a regression. Run it after every edge cut and every bump (`--update-base` after a bump).
+## 8. Skills and agents
 
-```bash
-dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0
-DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter "FullyQualifiedName~<Fixture>"   # roll-forward when only the .NET 8 runtime is installed
-```
+- Skills (`.claude/skills/`, plain markdown, usable by any agent):
+  - `bcstrip-issue`: one issue.
+  - `bcstrip-pr-review`: review a PR.
+  - `bcstrip-pr-review-comments`: answer review comments.
+  - `bcstrip-waves`: multi-PR fan-out with the `wave-*` agent types.
+  - `intrinsics-testing`: hardware-intrinsics code.
+- Specialist reviewers (`.claude/agents/`): `crypto-security-reviewer`, `strip-build-reviewer`.
+- Delegate only independent, bounded work, and report back conclusions with file:line evidence.
 
-## Conventions
+## 9. Scoped guides
 
-**Upstream code (inherited):**
-- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate does both until #30 enforces `strip.sh`): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
-- Constant-time discipline: no branch, table index or early exit on secrets; `Arrays.FixedTimeEquals`; wipe with `Arrays.ZeroMemory`.
-- `crypto/src/pqc/` tracks reference C; it is denied in the strip anyway.
-- Style: `.editorconfig` (4 spaces, Allman), 120 columns for new code, always brace control statements (except single-line `return`/`throw` without `else`), expression-bodied members when they fit on two lines. Do not reformat upstream code you are not otherwise editing.
-- Tests: plain NUnit with classic asserts; don't extend `SimpleTest` in new code.
+Guides live in `strip/docs/agents/`. Load only the one the task needs.
 
-**strip-v2:**
-- Upstream API-stability rules (`[Obsolete]`, `// TODO[api]`) do not apply: cuts remove API on purpose. Keep every cut minimal and marked `// turbo-strip:`.
-- Output code is C# 9, no `unsafe`, APIs available on netstandard2.1 and net471.
-- Turbo-owned files: `crypto/src/turbo/`, namespace `Org.BouncyCastle.Turbo`, MIT header.
-- Commit messages: short imperative summary (~50–70 chars), no conventional-commit prefix; squash-merged PR titles follow the same style. Never create a non-fast-forward merge commit without explicit direction (the bcstrip-waves conflict/branch-update protocol is such direction).
-
-## Tooling, Gates And Agent Workflow
-
-`AGENTS.md` ("Local Gates And CI", "Agent Workflow") is the source of truth. In short:
-
-- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and builds the strip: `strip/strip.sh --report` (closure, builds, smoke suite), plus the whole library for netstandard2.0 and net6.0 until #30 switches to enforce mode.
-- CI runs `check.sh --full` on PRs to `strip-v2`; aggregate check `ci`; CodeQL on fork-owned code.
-- Work comes from GitHub issues #3–#31 (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2"). Use the skills `bcstrip-issue` (one issue), `bcstrip-pr-review`, `bcstrip-pr-review-comments`, and `bcstrip-waves` (multi-PR fan-out with the `wave-*` agent types in `.claude/agents/`).
-- Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`. Edge cuts wait for #10 (`strip.sh`) or keep the whole library compiling.
-- Never write files, commits or PRs into turboHTTP; the handover comment on turboHTTP #141 is posted by the owner or with the owner's approval.
-
-## Post-Implementation Review
-
-After completing each implementation step (edge cut, turbo-owned type, tooling component, smoke rows), invoke both specialist agents for review before marking the step as done:
-
-- **crypto-security-reviewer** (`.claude/agents/crypto-security-reviewer.md`) — Reviews hostile-server input handling, advertised-vs-processable, bounds, validation bypass, exception mapping, constant time and decision A.
-- **strip-build-reviewer** (`.claude/agents/strip-build-reviewer.md`) — Reviews edge-cut policy, closure correctness, runtime-only breakage, define sets, Unity/IL2CPP compatibility, determinism, packaging and rebase surface.
-
-Both reviews must pass before proceeding. When a review identifies issues that require code changes, fix them and run both reviews again. Repeat until all issues are resolved or explicitly deferred with a follow-up issue.
-
-After reviews pass, **update the implementation journal** (`strip/journal/`), then update this file's Development Status section — unless you are in a bcstrip-waves lane or a parallel single-issue PR; then the status update lands in a separate PR.
-
-## Implementation Journal
-
-An implementation journal is kept in `strip/journal/`. Each implementation session gets its own file. After completing each step you **must** create or update a session file before marking the step as done. Each file includes:
-
-- **What** was implemented (brief description)
-- **Files created/modified** (paths + what each contains)
-- **Decisions made** (choices, trade-offs, deferred items with their follow-up issues)
-- **How verified** (gates, strip.sh mode, smoke rows)
-
-File naming: `YYYY-MM-<short-description>.md` (e.g. `2026-11-e5-turbo-key-factory.md`). Read the folder at the start of each session to recover the history.
-
-## Keeping This File Current
-
-Update this file whenever a milestone or issue group completes, decisions change (turboHTTP #141 decision record), conventions change, or the tooling layout changes — especially Development Status, Key Technical Decisions and Architecture — so the next session starts with accurate context. Waves lanes never edit it; status updates land in a separate PR after a wave.
+| Guide | Load when |
+| --- | --- |
+| [`architecture.md`](strip/docs/agents/architecture.md) | touching the strip pipeline, `strip/` layout, edge cuts, turbo-owned code, decisions A–G or key limits |
+| [`testing.md`](strip/docs/agents/testing.md) | writing or running smoke rows, fixtures, upstream tests, `bc-test-data`, or validating in Unity |
+| [`tooling.md`](strip/docs/agents/tooling.md) | the local gate, CI, prerequisites, agent tools, bumps |
+| [`project-status.md`](strip/docs/agents/project-status.md) | what is done, open or blocked; where the hand-over stands |
+| [`STRIP_PLAN_V2.md`](STRIP_PLAN_V2.md) | implementing or changing a cut, the tooling or the smoke suite (read the sections the issue names) |
+| [`strip/journal/`](strip/journal/) | changing code an earlier entry decided on (`rg -l <File> strip/journal`) |

@@ -48,7 +48,10 @@ is tracked as issues in fatal10110/turboHTTP (§8). ✔ marks claims re-verified
 
 ## 2. Decisions taken for the strip
 
-These are the plan's defaults. The user and turboHTTP confirm or override them in #141.
+**All seven are confirmed** (owner, 2026-10-30, [decision record on turboHTTP#141](https://github.com/fatal10110/turboHTTP/issues/141#issuecomment-6533936695)). A is conditional on turboHTTP#33
+shipping native/`X509Chain` validation. C and D are confirmed for v1, with follow-ups to revisit them: C (X25519MLKEM768) in
+fatal10110/bc-csharp#60, D (OCSP stapling and must-staple) in fatal10110/bc-csharp#61. The benchmark is Best HTTP: it accepts any
+certificate by default and sells chain/OCSP verification as an add-on.
 
 | | Decision | Effect on strip |
 |---|---|---|
