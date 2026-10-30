@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace TurboSmoke
 {
@@ -105,12 +106,13 @@ namespace TurboSmoke
             }
 
             string title = Path.GetFileName(SmokeContext.TurboBcDll);
-            string text = SmokeRunner.Format(title, outcomes);
+            var sb = new StringBuilder(SmokeRunner.Format(title, outcomes));
             foreach (string id in skipped)
             {
                 // Not a result: the package says which rows this run left out (strip.sh --smoke-slow runs them).
-                text += "  SKIP " + id + " (slow row; not run without --slow)\n";
+                sb.Append("  SKIP ").Append(id).Append(" (slow row; not run without --slow)\n");
             }
+            string text = sb.ToString();
             Console.Write(text);
             if (results != null)
             {
