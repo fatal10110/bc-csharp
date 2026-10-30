@@ -228,6 +228,17 @@ class StripShTest(unittest.TestCase):
         self.assertIn(f"{self.work}/dll/TurboBC.min.dll", smoke)
         self.assertIn(f"--smoke {self.work}/smoke-results.md", calls[-1])
 
+    def test_smoke_slow_is_opt_in(self):
+        executable(self.repo / "strip" / "smoke" / "run.sh", SMOKE)
+        self.assertEqual(self.run_sh().returncode, 0)
+        smoke = next(c for c in self.calls() if c.startswith("run.sh"))
+        self.assertNotIn("--slow", smoke)
+        self.log.unlink()
+        r = self.run_sh("--smoke-slow")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        smoke = next(c for c in self.calls() if c.startswith("run.sh"))
+        self.assertIn(f"--slow {self.work}/dll/TurboBC.min.dll", smoke)
+
     def test_smoke_failure_and_skip(self):
         executable(self.repo / "strip" / "smoke" / "run.sh", SMOKE)
         r = self.run_sh(FAKE_RC_smoke="1")

@@ -6,8 +6,9 @@ namespace TurboSmoke
 {
     /// <summary>
     /// TurboSmoke --label &lt;x&gt; --dll &lt;TurboBC.x.dll&gt; [--results &lt;file&gt;] [--work &lt;dir&gt;]
-    ///            [--filter &lt;substring of group/row&gt;]...
+    ///            [--filter &lt;substring of group/row&gt;]... [--slow]
     /// TurboSmoke --self-test
+    /// Slow rows (<see cref="SmokeRows.AddSlow"/>) run only with --slow; otherwise they are listed as skipped.
     /// Exit: 0 every row passed, 1 a row failed (or no row ran), 2 usage.
     /// </summary>
     public static class Program
@@ -23,7 +24,7 @@ namespace TurboSmoke
             {
                 Console.Error.WriteLine("TurboSmoke: " + e.Message);
                 Console.Error.WriteLine("usage: TurboSmoke --label <x> --dll <TurboBC.x.dll> [--results <file>] "
-                    + "[--work <dir>] [--filter <text>]... | --self-test");
+                    + "[--work <dir>] [--filter <text>]... [--slow] | --self-test");
                 code = 2;
             }
             Console.Out.Flush();
@@ -36,7 +37,7 @@ namespace TurboSmoke
         {
             string label = null, dll = null, results = null, work = null;
             var filters = new List<string>();
-            bool selfTest = false;
+            bool selfTest = false, slow = false;
             for (int i = 0; i < args.Length; i++)
             {
                 switch (args[i])
@@ -59,6 +60,9 @@ namespace TurboSmoke
                 case "--filter":
                     filters.Add(Value(args, ref i));
                     break;
+                case "--slow":
+                    slow = true;
+                    break;
                 default:
                     throw new UsageException("unknown argument: " + args[i]);
                 }
@@ -80,10 +84,17 @@ namespace TurboSmoke
             List<SmokeRowGroup> groups = SmokeRunner.FindGroups(outcomes);
             List<SmokeRow> rows = SmokeRunner.Register(groups, outcomes);
             int ran = 0;
+            var skipped = new List<string>();
             foreach (SmokeRow row in rows)
             {
                 if (filters.Count > 0 && !filters.Exists(f => row.Id.Contains(f, StringComparison.OrdinalIgnoreCase)))
                 {
+                    continue;
+                }
+                if (row.Slow && !slow)
+                {
+                    skipped.Add(row.Id);
+                    Console.WriteLine("SKIP " + row.Id + " (slow row; needs --slow)");
                     continue;
                 }
                 SmokeResult r = SmokeRunner.Run(row);
@@ -95,11 +106,16 @@ namespace TurboSmoke
             if (ran == 0)
             {
                 outcomes.Add(new SmokeResult("harness/rows", false, "no row ran (filter: "
-                    + string.Join(", ", filters) + ")", 0));
+                    + string.Join(", ", filters) + "; slow rows skipped without --slow: " + skipped.Count + ")", 0));
             }
 
             string title = Path.GetFileName(SmokeContext.TurboBcDll);
             string text = SmokeRunner.Format(title, outcomes);
+            foreach (string id in skipped)
+            {
+                // Not a result: the package says which rows this run left out (strip.sh --smoke-slow runs them).
+                text += "  SKIP " + id + " (slow row; not run without --slow)\n";
+            }
             Console.Write(text);
             if (results != null)
             {

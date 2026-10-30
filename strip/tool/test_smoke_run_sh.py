@@ -209,6 +209,17 @@ class SmokeRunShTest(unittest.TestCase):
         labelled = [c for c in self.calls() if "--label" in c]
         self.assertTrue(labelled and all(c.endswith("--filter curves") for c in labelled), labelled)
 
+    def test_slow_is_off_by_default_and_passed_to_every_run(self):
+        self.assertEqual(self.run_hook().returncode, 0)
+        labelled = [c for c in self.calls() if "--label" in c]
+        self.assertTrue(labelled and not any("--slow" in c for c in labelled), labelled)
+        self.log.unlink()
+        self.assertEqual(self.run_hook("--filter", "timeout", "--slow").returncode, 0)
+        labelled = [c for c in self.calls() if "--label" in c]
+        self.assertEqual(len(labelled), 2)
+        self.assertTrue(all(c.endswith("--filter timeout --slow") for c in labelled), labelled)
+        self.assertFalse(any("--slow" in c for c in self.calls() if "--self-test" in c))
+
     def test_failing_row_exits_1_and_keeps_every_block(self):
         r = self.run_hook(FAKE_RC_run_min="1")
         self.assertEqual(r.returncode, 1)

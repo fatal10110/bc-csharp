@@ -28,12 +28,13 @@ namespace TurboSmoke
 
     public sealed class SmokeRow
     {
-        internal SmokeRow(string group, string name, Action body, int timeoutMillis)
+        internal SmokeRow(string group, string name, Action body, int timeoutMillis, bool slow = false)
         {
             Group = group;
             Name = name;
             Body = body;
             TimeoutMillis = timeoutMillis;
+            Slow = slow;
         }
 
         public string Group { get; }
@@ -41,6 +42,9 @@ namespace TurboSmoke
         public string Id => Group + "/" + Name;
         public Action Body { get; }
         public int TimeoutMillis { get; }
+
+        /// <summary>Runs only with --slow (run.sh --slow, strip.sh --smoke-slow; the enforce run, #30).</summary>
+        public bool Slow { get; }
     }
 
     /// <summary>Row registration for one group.</summary>
@@ -58,7 +62,15 @@ namespace TurboSmoke
             m_rows = rows;
         }
 
-        public void Add(string name, Action body, int timeoutMillis = DefaultTimeoutMillis)
+        public void Add(string name, Action body, int timeoutMillis = DefaultTimeoutMillis) =>
+            Add(name, body, timeoutMillis, false);
+
+        /// <summary>A row too slow for the local gate (tens of seconds per DLL): it runs only with --slow and is
+        /// listed as skipped otherwise.</summary>
+        public void AddSlow(string name, Action body, int timeoutMillis = DefaultTimeoutMillis) =>
+            Add(name, body, timeoutMillis, true);
+
+        private void Add(string name, Action body, int timeoutMillis, bool slow)
         {
             if (string.IsNullOrEmpty(name))
             {
@@ -72,7 +84,7 @@ namespace TurboSmoke
             {
                 throw new ArgumentOutOfRangeException(nameof(timeoutMillis));
             }
-            m_rows.Add(new SmokeRow(m_group, name, body, timeoutMillis));
+            m_rows.Add(new SmokeRow(m_group, name, body, timeoutMillis, slow));
         }
     }
 
