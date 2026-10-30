@@ -187,7 +187,7 @@ namespace TurboSmoke
 
         /// <summary>An odd modulus of exactly <paramref name="bits"/> bits with no prime factor below 2000 (a
         /// superset of the small-factor test RsaKeyParameters runs), deterministic from the seed.</summary>
-        private static BigInteger OddModulus(int bits, int seed)
+        internal static BigInteger OddModulus(int bits, int seed)
         {
             BigInteger smallPrimes = BigInteger.One;
             for (int p = 3; p < 2000; p += 2)
@@ -214,7 +214,7 @@ namespace TurboSmoke
             return n;
         }
 
-        private static byte[] Certificate(SubjectPublicKeyInfo spki, AlgorithmIdentifier signatureAlgorithm)
+        internal static byte[] Certificate(SubjectPublicKeyInfo spki, AlgorithmIdentifier signatureAlgorithm)
         {
             var name = new X509Name("CN=localhost");
             var tbs = new V3TbsCertificateGenerator();

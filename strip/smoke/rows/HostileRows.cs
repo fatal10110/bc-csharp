@@ -21,7 +21,7 @@ namespace TurboSmoke
     /// e = 3 and e = 65537 are accepted. Hostile certificates come from SmokeHostileTlsServer (BASE), which
     /// OpenSSL cannot be made to send.
     /// </summary>
-    public sealed class HostileRows : SmokeRowGroup
+    public sealed partial class HostileRows : SmokeRowGroup
     {
         /// <summary>Worker-thread stack for every row (plan section 5 step 5).</summary>
         public const int StackBytes = 256 * 1024;
@@ -111,6 +111,9 @@ namespace TurboSmoke
                 () => AssertKeyRejectedOverTls(P256.Value, ExplicitP256Cert(), true));
             Add(rows, "ec-explicit-params-tls12-rejected",
                 () => AssertKeyRejectedOverTls(P256.Value, ExplicitP256Cert(), false));
+
+            // --- E5 key table (HostileKeyRows.cs) ---
+            AddKeyRows(rows);
         }
 
         private static byte[] RsaCert(int modulusBits, string exponentHex) =>
