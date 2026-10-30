@@ -81,11 +81,13 @@ mkdir -p "$sw" "$(dirname "$results")" || fatal "creating $sw"
 echo "== smoke 1: upstream BASE build"
 if [ -n "$base_dll" ]; then
   echo "using --base-dll $base_dll"
+  base_label=$base_dll
 else
   [ -f "$repo/strip/BASE" ] || fatal "strip/BASE missing"
   base=$(tr -d '[:space:]' < "$repo/strip/BASE")
   bdir=$sw/base
   base_dll=$bdir/bin/BouncyCastle.Cryptography.dll
+  base_label=$base
   if [ -f "$base_dll" ] && [ "$(cat "$bdir/BASE" 2>/dev/null)" = "$base" ]; then
     echo "reusing $base_dll (BASE $base)"
   else
@@ -143,7 +145,7 @@ for dll in "${dlls[@]}"; do
 done
 
 {
-  echo "Smoke suite (strip/smoke), BASE build: $(cat "$sw/base/BASE" 2>/dev/null || echo "$base_dll")"
+  echo "Smoke suite (strip/smoke), BASE build: $base_label"
   for p in "${parts[@]}"; do echo; cat "$p"; done
 } > "$results" || fatal "writing $results"
 if [ "$status" = 0 ]; then echo "smoke: passed ($results)"; else echo "smoke: FAILED ($results)"; fi

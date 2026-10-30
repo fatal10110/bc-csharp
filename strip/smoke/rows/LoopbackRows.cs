@@ -1,5 +1,6 @@
 using System;
 using System.Text;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls;
 
 namespace TurboSmoke
 {
@@ -52,11 +53,11 @@ namespace TurboSmoke
                 {
                     SmokeTlsClient client = SmokeClient.CreateClient("localhost", Alpn,
                         SmokeTlsAuthentication.Pinned(RsaKey.Value.CertificateDer));
-                    Exception e = SmokeAssert.Throws<Exception>(
+                    TlsFatalAlert e = SmokeAssert.Throws<TlsFatalAlert>(
                         () => SmokeClient.Connect(SmokeServerHost.Address, host.Port, client).Dispose(),
                         "handshake with an unpinned certificate");
-                    SmokeAssert.True(e.GetType().Name == "TlsFatalAlert" && e.Message.Contains("bad_certificate"),
-                        "expected a bad_certificate alert, got " + e.GetType().Name + ": " + e.Message);
+                    SmokeAssert.Equal(AlertDescription.GetText(AlertDescription.bad_certificate),
+                        AlertDescription.GetText(e.AlertDescription), "alert for an unpinned certificate");
                     host.Join();
                 }
             });

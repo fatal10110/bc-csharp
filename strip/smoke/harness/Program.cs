@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace TurboSmoke
@@ -79,7 +80,7 @@ namespace TurboSmoke
 
             SmokeContext.Label = label;
             SmokeContext.TurboBcDll = Path.GetFullPath(dll);
-            SmokeContext.WorkDir = Path.GetFullPath(work ?? Path.Combine(Path.GetTempPath(), "turbo-smoke-" + label));
+            SmokeContext.WorkDir = Path.GetFullPath(work ?? Path.Join(Path.GetTempPath(), "turbo-smoke-" + label));
 
             var outcomes = new List<SmokeResult>();
             List<SmokeRowGroup> groups = SmokeRunner.FindGroups(outcomes);
@@ -91,9 +92,8 @@ namespace TurboSmoke
             {
                 Console.WriteLine("SKIP " + id + " (slow row; needs --slow)");
             }
-            foreach (SmokeRow row in selected)
+            foreach (SmokeResult r in selected.Select(SmokeRunner.Run))
             {
-                SmokeResult r = SmokeRunner.Run(row);
                 outcomes.Add(r);
                 ran++;
                 Console.WriteLine((r.Passed ? "PASS " : "FAIL ") + r.Id + " (" + r.Millis + " ms)"

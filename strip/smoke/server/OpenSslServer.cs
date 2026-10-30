@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -124,7 +125,7 @@ namespace TurboSmoke
             {
                 lock (_stderr)
                 {
-                    return _stdout.ToString() + _stderr.ToString();
+                    return string.Concat(_stdout, _stderr);
                 }
             }
         }
@@ -161,9 +162,9 @@ namespace TurboSmoke
             Untrack(_process);
             try
             {
-                string dir = Path.Combine(SmokeContext.WorkDir, "openssl");
+                string dir = Path.Join(SmokeContext.WorkDir, "openssl");
                 Directory.CreateDirectory(dir);
-                File.WriteAllText(Path.Combine(dir, _logName + ".log"), Binary + " "
+                File.WriteAllText(Path.Join(dir, _logName + ".log"), Binary + " "
                     + string.Join(" ", _process.StartInfo.ArgumentList) + "\n" + Describe() + "\n");
             }
             catch (IOException)
@@ -281,9 +282,13 @@ namespace TurboSmoke
                     {
                         process.Kill();
                     }
-                    catch (Exception)
+                    catch (InvalidOperationException)
                     {
-                        // Best effort at exit.
+                        // Best effort at exit: already exited or disposed.
+                    }
+                    catch (Win32Exception)
+                    {
+                        // Best effort at exit: the process could not be terminated.
                     }
                 }
                 s_running.Clear();
@@ -347,9 +352,9 @@ namespace TurboSmoke
                 throw new ArgumentException("unknown certificate kind " + name, nameof(name));
             }
 
-            string dir = Path.Combine(SmokeContext.WorkDir, "openssl");
+            string dir = Path.Join(SmokeContext.WorkDir, "openssl");
             Directory.CreateDirectory(dir);
-            string cert = Path.Combine(dir, name + ".crt.pem"), key = Path.Combine(dir, name + ".key.pem");
+            string cert = Path.Join(dir, name + ".crt.pem"), key = Path.Join(dir, name + ".key.pem");
             var args = new List<string> { "req", "-x509", "-newkey", newKey };
             args.AddRange(keyOptions);
             args.AddRange(new[]

@@ -74,6 +74,9 @@ EXCLUDE_PATH = re.compile(r"^crypto/test/src/([A-Za-z0-9_.-]+/)*[A-Za-z0-9_.-]+\
 # Type declarations of an excluded source, mapped onto the kept-surface filter for the report.
 NAMESPACE_DECL = re.compile(r"^\s*namespace\s+([A-Za-z_][A-Za-z0-9_.]*)", re.MULTILINE)
 TYPE_DECL = re.compile(r"\b(?:class|struct|record)\s+([A-Za-z_][A-Za-z0-9_]*)")
+# Comments and string/char literals, blanked before TYPE_DECL so that prose ("the class under test") does not
+# read as a declaration. One alternation scanned left to right, so '//' inside a string stays part of the string.
+CODE_NOISE = re.compile(r'/\*.*?\*/|//[^\n]*|@"(?:[^"]|"")*"|"(?:[^"\\\n]|\\.)*"|\'(?:[^\'\\\n]|\\.)*\'', re.DOTALL)
 
 
 class ToolError(Exception):
@@ -183,6 +186,27 @@ def exclusion_targets(exclusions):
     return "\n".join(lines) + "\n"
 
 
+def top_level_types(text):
+    """Names of the types declared at the outermost type level of a C# source, in declaration order.
+
+    Comments and literals are blanked first (newlines kept); nested types are left out, since their enclosing
+    type is reported and namespace + nested name is not a test's full name.
+    """
+    code = CODE_NOISE.sub(lambda m: " " + "\n" * m.group().count("\n"), text)
+    found = [(code.count("{", 0, m.start()) - code.count("}", 0, m.start()), m.group(1))
+             for m in TYPE_DECL.finditer(code)]
+    if not found:
+        return []
+    top = min(depth for depth, _ in found)
+    return [name for depth, name in found if depth == top]
+
+
+def entry_selects_type(entry, name):
+    """Whether a kept-surface entry selects tests of the type 'name': a namespace or type entry contained in
+    'name.' (FullyQualifiedName~ matches substrings), or a deeper entry below the type ('Ns.Type.Method.')."""
+    return entry in name + "." or entry.startswith(name + ".")
+
+
 def excluded_kept_tests(root, exclusions, entries):
     """(tag, path, [type full name]) for each excluded source declaring a type the kept-surface filter selects.
 
@@ -192,8 +216,8 @@ def excluded_kept_tests(root, exclusions, entries):
     for path, tag in sorted(exclusions.items()):
         text = (root / path).read_text(encoding="utf-8", errors="replace")
         namespaces = NAMESPACE_DECL.findall(text) or [""]
-        names = sorted({f"{ns}.{name}" if ns else name for ns in namespaces for name in TYPE_DECL.findall(text)})
-        kept = [name for name in names if any(entry in name + "." for entry in entries)]
+        names = sorted({f"{ns}.{name}" if ns else name for ns in namespaces for name in top_level_types(text)})
+        kept = [name for name in names if any(entry_selects_type(entry, name) for entry in entries)]
         if kept:
             rows.append((tag, path, kept))
     return rows

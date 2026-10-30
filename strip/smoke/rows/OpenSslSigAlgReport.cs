@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace TurboSmoke
 {
@@ -36,9 +37,8 @@ namespace TurboSmoke
         public static string Mismatch(string report, int[] expected)
         {
             string found = null;
-            foreach (string raw in report.Split('\n'))
+            foreach (string line in report.Split('\n').Select(raw => raw.TrimEnd('\r')))
             {
-                string line = raw.TrimEnd('\r');
                 if (!line.StartsWith(Prefix, StringComparison.Ordinal))
                 {
                     continue;

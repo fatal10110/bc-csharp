@@ -5,9 +5,9 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import unittest.mock
 import xml.etree.ElementTree as ET
 from pathlib import Path
-from unittest import mock
 
 SCRIPT = Path(__file__).with_name("upstream_tests.py")
 sys.path.insert(0, str(SCRIPT.parent))
@@ -125,8 +125,8 @@ class MsBuildTest(unittest.TestCase):
                 )
                 return subprocess.CompletedProcess(command, 0)
 
-            with mock.patch.object(ut.subprocess, "run", fake_run), \
-                    mock.patch.object(ut, "find_dotnet", return_value="dotnet"):
+            with unittest.mock.patch.object(ut.subprocess, "run", fake_run), \
+                    unittest.mock.patch.object(ut, "find_dotnet", return_value="dotnet"):
                 ut.run_tests(tree, ["Org.X."], {PROBE: "E9"}, results_dir, "t.trx", "net6.0")
                 targets = results_dir / "exclude.targets"
                 stamp = targets.stat().st_mtime_ns
@@ -149,8 +149,8 @@ class MsBuildTest(unittest.TestCase):
                 seen.append((tree.name, excl))
                 return {"Org.BouncyCastle.Tls.Tests.T.A": "pass", "Org.BouncyCastle.Crypto.Tests.GcmTest.B": "pass"}
 
-            with mock.patch.object(ut, "run_tests", fake_run_tests), mock.patch.object(ut, "git", return_value=""), \
-                    mock.patch("sys.stdout"):
+            with unittest.mock.patch.object(ut, "run_tests", fake_run_tests), \
+                    unittest.mock.patch.object(ut, "git", return_value=""), unittest.mock.patch("sys.stdout"):
                 ut.update_base(root, ut.parse_filter(FILTER), exclusions, Path(tmp) / "results", "net6.0", False)
             self.assertEqual(seen, [(f".upstream-base-{BASE_SHA[:12]}", exclusions)])
             meta, _ = ut.parse_base((root / ut.BASE_RESULTS_FILE).read_text(encoding="utf-8"))
@@ -158,6 +158,45 @@ class MsBuildTest(unittest.TestCase):
 
 
 class ReportTest(unittest.TestCase):
+    def test_type_names_skip_comments_literals_and_nested_types(self):
+        source = """// The class Prose under test; /* class Block */ is a comment too.
+namespace Org.X.Tests
+{
+    /* class Hidden */
+    [TestFixture]
+    public class Kept
+    {
+        private const string Url = "http://h/ class InString";
+        private const char Quote = '"';
+        private sealed class Nested { }
+        private static void M<T>() where T : class { }
+    }
+
+    public struct Also { }
+}
+"""
+        self.assertEqual(ut.top_level_types(source), ["Kept", "Also"])
+        self.assertEqual(ut.top_level_types("namespace Org.X;\npublic class A { class B { } }\nrecord C;\n"),
+                         ["A", "C"])
+        self.assertEqual(ut.top_level_types("// class Only in a comment\n"), [])
+
+    def test_type_level_and_deeper_entries_select_the_type(self):
+        name = "Org.X.Tests.Kept"
+        for entry in ("Org.X.", "Org.X.Tests.Kept.", "X.Tests.", "Org.X.Tests.Kept.Method."):
+            with self.subTest(entry=entry):
+                self.assertTrue(ut.entry_selects_type(entry, name))
+        for entry in ("Org.X.Tests.KeptFoo.", "Org.X.Tests.Other.", "Org.Y."):
+            with self.subTest(entry=entry):
+                self.assertFalse(ut.entry_selects_type(entry, name))
+
+    def test_method_level_entry_reports_its_type(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            make_tree(root, "")
+            entries = ["Org.BouncyCastle.Tls.Tests.ExclusionProbeTest.Probe."]
+            self.assertEqual(ut.excluded_kept_tests(root, {PROBE: "E9", OTHER: "E10"}, entries),
+                             [("E9", PROBE, ["Org.BouncyCastle.Tls.Tests.ExclusionProbeTest"])])
+
     def test_excluded_sources_in_the_kept_surface_are_reported(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -165,7 +204,7 @@ class ReportTest(unittest.TestCase):
             rows = ut.excluded_kept_tests(root, {PROBE: "E9", OTHER: "E10"}, ut.parse_filter(FILTER))
             self.assertEqual(
                 rows,
-                [("E9", PROBE, ["Org.BouncyCastle.Tls.Tests.ExclusionProbeTest", "Org.BouncyCastle.Tls.Tests.Helper"])],
+                [("E9", PROBE, ["Org.BouncyCastle.Tls.Tests.ExclusionProbeTest"])],
             )
             entries = ["Org.BouncyCastle.X509.Tests.OtherTest."]
             self.assertEqual(ut.excluded_kept_tests(root, {OTHER: "E10"}, entries),

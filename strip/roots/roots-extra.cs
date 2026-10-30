@@ -72,7 +72,9 @@ namespace TurboHTTP.Transport.BouncyCastle.Contract
             bool serverAuth = eku == null || eku.HasKeyPurposeId(KeyPurposeID.id_kp_serverAuth);
             bool isCA = basicConstraints != null && basicConstraints.IsCA();
             int usage = keyUsage == null ? 0 : keyUsage.IntValue;
-            bool signs = keyUsage == null || (usage & (KeyUsage.DigitalSignature | KeyUsage.KeyCertSign)) != 0;
+            // digitalSignature is the bit a leaf needs to sign the handshake (RFC 8446 4.4.3, RFC 8422 5.4);
+            // keyCertSign is the CA bit (RFC 5280 4.2.1.3) and does not make a leaf usable as a TLS server.
+            bool signs = keyUsage == null || (usage & KeyUsage.DigitalSignature) != 0;
             return serverAuth && !isCA && signs && hostNames > 0;
         }
     }
