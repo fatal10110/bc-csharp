@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 using Org.BouncyCastle.Asn1.Anssi;
-using Org.BouncyCastle.Asn1.CryptoPro;
+// turbo-strip: E6 Asn1.CryptoPro using dropped (ECGost3410NamedCurves cut)
 using Org.BouncyCastle.Asn1.GM;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.Sec;
@@ -34,10 +34,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 ecP = AnssiNamedCurves.GetByName(name);
             }
-            if (ecP == null)
-            {
-                ecP = ECGost3410NamedCurves.GetByName(name);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (ecP == null)
             {
                 ecP = GMNamedCurves.GetByName(name);
@@ -70,10 +67,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 holder = AnssiNamedCurves.GetByNameLazy(name);
             }
-            if (null == holder)
-            {
-                holder = ECGost3410NamedCurves.GetByNameLazy(name);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (null == holder)
             {
                 holder = GMNamedCurves.GetByNameLazy(name);
@@ -102,10 +96,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 ecP = AnssiNamedCurves.GetByOid(oid);
             }
-            if (ecP == null)
-            {
-                ecP = ECGost3410NamedCurves.GetByOid(oid);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (ecP == null)
             {
                 ecP = GMNamedCurves.GetByOid(oid);
@@ -138,10 +129,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 holder = AnssiNamedCurves.GetByOidLazy(oid);
             }
-            if (null == holder)
-            {
-                holder = ECGost3410NamedCurves.GetByOidLazy(oid);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (null == holder)
             {
                 holder = GMNamedCurves.GetByOidLazy(oid);
@@ -170,10 +158,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 name = AnssiNamedCurves.GetName(oid);
             }
-            if (name == null)
-            {
-                name = ECGost3410NamedCurves.GetName(oid);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (name == null)
             {
                 name = GMNamedCurves.GetName(oid);
@@ -202,10 +187,7 @@ namespace Org.BouncyCastle.Asn1.X9
             {
                 oid = AnssiNamedCurves.GetOid(name);
             }
-            if (oid == null)
-            {
-                oid = ECGost3410NamedCurves.GetOid(name);
-            }
+            // turbo-strip: E6 ECGost3410NamedCurves lookup cut (deny: **/*gost*)
             if (oid == null)
             {
                 oid = GMNamedCurves.GetOid(name);
@@ -224,7 +206,7 @@ namespace Org.BouncyCastle.Asn1.X9
                 result.AddRange(NistNamedCurves.Names);
                 result.AddRange(TeleTrusTNamedCurves.Names);
                 result.AddRange(AnssiNamedCurves.Names);
-                result.AddRange(ECGost3410NamedCurves.Names);
+                // turbo-strip: E6 ECGost3410NamedCurves names cut (deny: **/*gost*)
                 result.AddRange(GMNamedCurves.Names);
                 return result;
             }
