@@ -27,6 +27,15 @@
   `BouncyCastle.Crypto.csproj`. All 3 tests fail on strip-v2 4f5c5913.
 - `strip/tool/defines.py`, `deny.py`, `build.py` and `strip/Closure.csproj`: comment and docstring
   wording only (no provisional sets any more).
+- `strip/smoke/rows/OpenSslSigAlgReport.cs` (new) and `strip/smoke/rows/ClientHelloRows.cs`
+  (CI fix): `clienthello/seen-by-openssl` compared the s_server "Signature Algorithms:" line as
+  exact OpenSSL 3.0 text. The CI runner has OpenSSL 3.5.5, whose `do_print_sigalgs`
+  (apps/lib/s_cb.c) prints 0x0809-0x080B as `rsa_pss_pss_shaN`, so the row failed there. Under
+  `--report` the failure was only logged; enforce mode exposed it. The row now checks the line
+  entry by entry against the advertised wire list. Each wire value accepts only the spellings
+  OpenSSL 3 prints for it, and the order and count must match. A new pure row,
+  `clienthello/openssl-sigalg-report`, runs the checker on fixed 3.0.13 and 3.5.5 lines (both
+  pass) and on swapped, missing, extra and shared-only lines (all rejected).
 
 ## Decisions
 
