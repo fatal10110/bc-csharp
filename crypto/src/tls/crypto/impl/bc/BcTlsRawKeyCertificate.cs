@@ -2,15 +2,13 @@
 using System.IO;
 
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Asn1.Cmp;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
-using Org.BouncyCastle.Utilities;
+using Org.BouncyCastle.Turbo; // turbo-strip: E5 TurboKeyFactory; Asn1.Cmp, Security and Utilities usings dropped
 
 namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 {
@@ -23,8 +21,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         protected DHPublicKeyParameters m_pubKeyDH = null;
         protected ECPublicKeyParameters m_pubKeyEC = null;
-        protected Ed25519PublicKeyParameters m_pubKeyEd25519 = null;
-        protected Ed448PublicKeyParameters m_pubKeyEd448 = null;
+        // turbo-strip: E5 Ed25519/Ed448 key fields cut (decision E)
         protected RsaKeyParameters m_pubKeyRsa = null;
 
         /// <exception cref="IOException"/>
@@ -67,23 +64,13 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         /// <exception cref="IOException"/>
         public virtual TlsVerifier CreateVerifier(short signatureAlgorithm)
         {
-            switch (signatureAlgorithm)
-            {
-            case SignatureAlgorithm.ed25519:
-            case SignatureAlgorithm.ed448:
-            {
-                int signatureScheme = SignatureScheme.From(HashAlgorithm.Intrinsic, signatureAlgorithm);
-                Tls13Verifier tls13Verifier = CreateVerifier(signatureScheme);
-                return new LegacyTls13Verifier(signatureScheme, tls13Verifier);
-            }
-            }
+            // turbo-strip: E5 Ed25519/Ed448 legacy verifier cut (decision E)
 
             ValidateKeyUsage(KeyUsage.DigitalSignature);
 
             switch (signatureAlgorithm)
             {
-            case SignatureAlgorithm.dsa:
-                return new BcTlsDsaVerifier(m_crypto, GetPubKeyDss());
+            // turbo-strip: E5 DSA verifier cut
 
             case SignatureAlgorithm.ecdsa:
                 return new BcTlsECDsaVerifier(m_crypto, GetPubKeyEC());
@@ -145,21 +132,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new BcTls13Verifier(verifier);
             }
 
-            case SignatureScheme.ed25519:
-            {
-                Ed25519Signer verifier = new Ed25519Signer();
-                verifier.Init(false, GetPubKeyEd25519());
-
-                return new BcTls13Verifier(verifier);
-            }
-
-            case SignatureScheme.ed448:
-            {
-                Ed448Signer verifier = new Ed448Signer(TlsUtilities.EmptyBytes);
-                verifier.Init(false, GetPubKeyEd448());
-
-                return new BcTls13Verifier(verifier);
-            }
+            // turbo-strip: E5 ed25519/ed448 verifiers cut (decision E)
 
             case SignatureScheme.rsa_pkcs1_sha1:
             case SignatureScheme.rsa_pkcs1_sha256:
@@ -208,54 +181,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return new BcTls13Verifier(verifier);
             }
 
-            // RFC 8998
-            case SignatureScheme.sm2sig_sm3:
-            {
-                ParametersWithID parametersWithID = new ParametersWithID(GetPubKeyEC(),
-                    Strings.ToByteArray("TLSv1.3+GM+Cipher+Suite"));
-
-                SM2Signer verifier = new SM2Signer();
-                verifier.Init(false, parametersWithID);
-
-                return new BcTls13Verifier(verifier);
-            }
-
-            case SignatureScheme.mldsa44:
-            case SignatureScheme.mldsa65:
-            case SignatureScheme.mldsa87:
-            {
-                var mlDsaAlgOid = PqcUtilities.GetMLDsaObjectidentifier(signatureScheme);
-                ValidateMLDsa(mlDsaAlgOid);
-
-                var publicKey = GetPubKeyMLDsa();
-
-                var verifier = SignerUtilities.InitSigner(mlDsaAlgOid, forSigning: false, publicKey, random: null);
-
-                return new BcTls13Verifier(verifier);
-            }
-
-            case SignatureScheme.slhdsa_sha2_128s:
-            case SignatureScheme.slhdsa_sha2_128f:
-            case SignatureScheme.slhdsa_sha2_192s:
-            case SignatureScheme.slhdsa_sha2_192f:
-            case SignatureScheme.slhdsa_sha2_256s:
-            case SignatureScheme.slhdsa_sha2_256f:
-            case SignatureScheme.slhdsa_shake_128s:
-            case SignatureScheme.slhdsa_shake_128f:
-            case SignatureScheme.slhdsa_shake_192s:
-            case SignatureScheme.slhdsa_shake_192f:
-            case SignatureScheme.slhdsa_shake_256s:
-            case SignatureScheme.slhdsa_shake_256f:
-            {
-                var slhDsaAlgOid = PqcUtilities.GetSlhDsaObjectidentifier(signatureScheme);
-                ValidateSlhDsa(slhDsaAlgOid);
-
-                var publicKey = GetPubKeySlhDsa();
-
-                var verifier = SignerUtilities.InitSigner(slhDsaAlgOid, forSigning: false, publicKey, random: null);
-
-                return new BcTls13Verifier(verifier);
-            }
+            // turbo-strip: E5 sm2sig_sm3, ML-DSA and SLH-DSA verifiers cut
 
             default:
                 throw new TlsFatalAlert(AlertDescription.internal_error);
@@ -302,12 +228,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             if (publicKey is RsaKeyParameters)
                 return SignatureAlgorithm.rsa;
 
-            /*
-                * DSA public key; the certificate MUST allow the key to be used for signing with the
-                * hash algorithm that will be employed in the certificate verify message.
-                */
-            if (publicKey is DsaPublicKeyParameters)
-                return SignatureAlgorithm.dsa;
+            // turbo-strip: E5 DSA public key mapping cut
 
             /*
              * ECDSA-capable public key; the certificate MUST allow the key to be used for signing
@@ -336,18 +257,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        /// <exception cref="IOException"/>
-        public virtual DsaPublicKeyParameters GetPubKeyDss()
-        {
-            try
-            {
-                return (DsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not DSS", e);
-            }
-        }
+        // turbo-strip: E5 GetPubKeyDss cut
 
         /// <exception cref="IOException"/>
         public virtual ECPublicKeyParameters GetPubKeyEC()
@@ -362,44 +272,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        /// <exception cref="IOException"/>
-        public virtual Ed25519PublicKeyParameters GetPubKeyEd25519()
-        {
-            try
-            {
-                return (Ed25519PublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not Ed25519", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        public virtual Ed448PublicKeyParameters GetPubKeyEd448()
-        {
-            try
-            {
-                return (Ed448PublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not Ed448", e);
-            }
-        }
-
-        /// <exception cref="IOException"/>
-        public virtual MLDsaPublicKeyParameters GetPubKeyMLDsa()
-        {
-            try
-            {
-                return (MLDsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not ML-DSA", e);
-            }
-        }
+        // turbo-strip: E5 GetPubKeyEd25519/GetPubKeyEd448/GetPubKeyMLDsa cut
 
         /// <exception cref="IOException"/>
         public virtual RsaKeyParameters GetPubKeyRsa()
@@ -414,18 +287,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        /// <exception cref="IOException"/>
-        public virtual SlhDsaPublicKeyParameters GetPubKeySlhDsa()
-        {
-            try
-            {
-                return (SlhDsaPublicKeyParameters)GetPublicKey();
-            }
-            catch (InvalidCastException e)
-            {
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "Public key not SLH-DSA", e);
-            }
-        }
+        // turbo-strip: E5 GetPubKeySlhDsa cut
 
         /// <exception cref="IOException"/>
         public virtual bool SupportsSignatureAlgorithm(short signatureAlgorithm)
@@ -466,7 +328,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
         {
             try
             {
-                return PublicKeyFactory.CreateKey(m_keyInfo);
+                return TurboKeyFactory.CreateKey(m_keyInfo); // turbo-strip: E5 whitelisting key factory
             }
             catch (Exception e)
             {
@@ -480,11 +342,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return true;
         }
 
-        protected virtual bool SupportsMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
-            return PqcUtilities.SupportsMLDsa(pubKeyAlgID, mlDsaAlgOid);
-        }
+        // turbo-strip: E5 SupportsMLDsa cut
 
         protected virtual bool SupportsRsa_Pkcs1()
         {
@@ -504,11 +362,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             return RsaUtilities.SupportsPss_Rsae(pubKeyAlgID);
         }
 
-        protected virtual bool SupportsSlhDsa(DerObjectIdentifier slhDsaAlgOid)
-        {
-            AlgorithmIdentifier pubKeyAlgID = m_keyInfo.Algorithm;
-            return PqcUtilities.SupportsSlhDsa(pubKeyAlgID, slhDsaAlgOid);
-        }
+        // turbo-strip: E5 SupportsSlhDsa cut
 
         /// <exception cref="IOException"/>
         protected virtual bool SupportsSignatureAlgorithm(short signatureAlgorithm, int keyUsage)
@@ -524,8 +378,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 return SupportsRsa_Pkcs1()
                     && publicKey is RsaKeyParameters;
 
-            case SignatureAlgorithm.dsa:
-                return publicKey is DsaPublicKeyParameters;
+            // turbo-strip: E5 dsa cut
 
             case SignatureAlgorithm.ecdsa:
             case SignatureAlgorithm.ecdsa_brainpoolP256r1tls13_sha256:
@@ -533,11 +386,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             case SignatureAlgorithm.ecdsa_brainpoolP512r1tls13_sha512:
                 return publicKey is ECPublicKeyParameters;
 
-            case SignatureAlgorithm.ed25519:
-                return publicKey is Ed25519PublicKeyParameters;
-
-            case SignatureAlgorithm.ed448:
-                return publicKey is Ed448PublicKeyParameters;
+            // turbo-strip: E5 ed25519/ed448 cut (decision E)
 
             case SignatureAlgorithm.rsa_pss_rsae_sha256:
             case SignatureAlgorithm.rsa_pss_rsae_sha384:
@@ -583,12 +432,7 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
             }
         }
 
-        /// <exception cref="IOException"/>
-        protected virtual void ValidateMLDsa(DerObjectIdentifier mlDsaAlgOid)
-        {
-            if (!SupportsMLDsa(mlDsaAlgOid))
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "No support for ML-DSA signature scheme");
-        }
+        // turbo-strip: E5 ValidateMLDsa cut
 
         /// <exception cref="IOException"/>
         protected virtual void ValidateRsa_Pkcs1()
@@ -614,11 +458,6 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                     "No support for rsa_pss_rsae signature schemes");
         }
 
-        /// <exception cref="IOException"/>
-        protected virtual void ValidateSlhDsa(DerObjectIdentifier slhDsaAlgOid)
-        {
-            if (!SupportsSlhDsa(slhDsaAlgOid))
-                throw new TlsFatalAlert(AlertDescription.certificate_unknown, "No support for SLH-DSA signature scheme");
-        }
+        // turbo-strip: E5 ValidateSlhDsa cut
     }
 }
