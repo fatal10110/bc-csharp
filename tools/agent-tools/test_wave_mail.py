@@ -233,19 +233,36 @@ class WaveMailTest(unittest.TestCase):
 
 
 FAKE_GH = r"""#!/usr/bin/env python3
-import json, sys
+import json, os, sys
 args = sys.argv[1:]
+mode = os.environ.get("FAKE_MODE", "")
 if args[:2] == ["api", "graphql"]:
-    nodes = [
-        {"id": "T1", "isResolved": False, "isOutdated": False, "path": "strip/tool/a.py", "line": 7,
-         "comments": {"nodes": [{"author": {"login": "github-advanced-security"},
-                                 "body": "## CodeQL / Module is imported\n\nwith both", "url": "u1"}]}},
-        {"id": "T2", "isResolved": True, "isOutdated": False, "path": "x.cs", "line": 1,
-         "comments": {"nodes": [{"author": {"login": "fatal10110"}, "body": "fixed", "url": "u2"}]}},
-        {"id": "T3", "isResolved": False, "isOutdated": True, "path": "strip/tool/b.py", "line": None,
-         "comments": {"nodes": [{"author": {"login": "fatal10110"}, "body": "[nit] rename", "url": "u3"}]}},
-    ]
-    print(json.dumps({"data": {"repository": {"pullRequest": {"reviewThreads": {"nodes": nodes}}}}}))
+    a = " ".join(args)
+    # Int! needs a typed -F; strings stay -f; the query must ask for isResolved and page info.
+    assert "-F pr=64" in a and "-f owner=fatal10110" in a and "-f name=bc-csharp" in a, a
+    assert "isResolved" in a and "hasNextPage" in a, a
+    if mode == "errors":
+        print(json.dumps({"errors": [{"message": "rate limited"}]})); sys.exit(0)
+    if mode == "missing":
+        print(json.dumps({"data": {"repository": {"pullRequest": None}}})); sys.exit(0)
+    page2 = "-f after=C1" in a
+    if not page2:
+        nodes = [
+            {"id": "T1", "isResolved": False, "isOutdated": False, "path": "strip/tool/a.py", "line": 7,
+             "comments": {"nodes": [{"author": {"login": "github-advanced-security"},
+                                     "body": "## CodeQL / Module is imported\n\nwith both\n[Show more details](https://github.com/fatal10110/bc-csharp/security/code-scanning/53)",
+                                     "url": "u1"}]}},
+            {"id": "T2", "isResolved": True, "isOutdated": False, "path": "x.cs", "line": 1,
+             "comments": {"nodes": [{"author": {"login": "fatal10110"}, "body": "fixed", "url": "u2"}]}},
+        ]
+        info = {"hasNextPage": True, "endCursor": "C1"}
+    else:
+        nodes = [
+            {"id": "T3", "isResolved": False, "isOutdated": True, "path": "strip/tool/b.py", "line": None,
+             "comments": {"nodes": [{"author": {"login": "fatal10110"}, "body": "[nit] rename", "url": "u3"}]}},
+        ]
+        info = {"hasNextPage": False, "endCursor": "C2"}
+    print(json.dumps({"data": {"repository": {"pullRequest": {"reviewThreads": {"pageInfo": info, "nodes": nodes}}}}}))
 elif args[1].startswith("repos/fatal10110/bc-csharp/pulls/"):
     print(json.dumps({"state": "open", "merged": False, "draft": False, "mergeable_state": "clean",
                       "head": {"sha": "abc", "ref": "wf/x"}, "base": {"ref": "strip-v2"}}))
@@ -274,18 +291,25 @@ class ReviewThreadsTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         return json.loads(r.stdout)
 
-    def test_pr_state_counts_unresolved_threads(self):
+    def test_pr_state_counts_unresolved_threads_across_pages(self):
         st = self.cli("pr-state", "--pr", "64")
         self.assertEqual((st["head"], st["behind_by"], st["unresolved_threads"]), ("abc", 0, 2))
 
-    def test_threads_lists_only_unresolved_with_kind(self):
+    def test_threads_lists_only_unresolved_with_kind_and_alert(self):
         got = self.cli("threads", "--pr", "64")
         self.assertEqual(got["unresolved"], 2)
         self.assertEqual([(t["id"], t["kind"]) for t in got["threads"]], [("T1", "codeql"), ("T3", "review")])
-        self.assertEqual(got["threads"][0]["excerpt"], "## CodeQL / Module is imported with both")
+        self.assertEqual(got["threads"][0]["alert"], 53)
+        self.assertNotIn("alert", got["threads"][1])
         self.assertTrue(got["threads"][1]["outdated"])
 
-    def test_gh_failure_is_an_error_not_a_zero_count(self):
+    def test_failures_are_errors_never_a_zero_count(self):
+        for mode in ("errors", "missing"):
+            self.env["FAKE_MODE"] = mode
+            self.assertIn("error", self.cli("threads", "--pr", "64"), mode)
+            st = self.cli("pr-state", "--pr", "64")
+            self.assertIsNone(st["unresolved_threads"], mode)
+            self.assertIn("threads_error", st, mode)
         self.env["WAVES_GH"] = "false"
         self.assertIn("error", self.cli("pr-state", "--pr", "64"))
         self.assertIn("error", self.cli("threads", "--pr", "64"))

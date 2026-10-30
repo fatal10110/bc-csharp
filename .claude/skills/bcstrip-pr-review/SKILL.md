@@ -36,7 +36,8 @@ gh api repos/fatal10110/bc-csharp/pulls/<N>/comments --paginate
 - Existing threads: do not repost what is raised or resolved. Every **unresolved** thread on the PR,
   including CodeQL (`github-advanced-security`) alerts, is part of your verdict: list them with
   `tools/agent-tools/wave_mail.py threads --pr <N>` and put each in the action list with the expected
-  outcome (fix, dismiss with a reason, or follow-up issue). On a re-review, first look at what
+  outcome. A review thread can be fixed, rebutted or turned into a follow-up issue; a CodeQL thread can
+  only be fixed in code or dismissed with a reason (anything else leaves the alert open). On a re-review, first look at what
   earlier reviews never questioned, then the diff since the last reviewed head.
 - Linked issues: for each, `tools/agent-tools/issue_slice.py <X>`; copy its **Acceptance** items
   into your checklist before reading the diff (no `## Acceptance` → its opening bullets plus the plan
@@ -109,18 +110,20 @@ scenario** (concrete server input or build condition → wrong state, cost, cras
 | `[must-fix]` | real bug, missing regression check for a new branch, failing gate, missing marker/journal | yes |
 | `[should-fix]` | correctness-adjacent or rebase-surface issue worth fixing here | no, action expected |
 | `[nit]` | small style/naming | no, but action required: fix it or reply why not |
-| `[note]` | pre-existing gap or follow-up candidate; name the issue that tracks it (file one if none) | no |
+| `[note]` | pre-existing gap or follow-up candidate; name the issue that tracks it (file one if none) | no; review body only, never inline |
 
-There are no optional findings: a point not worth acting on is not raised. Every `[nit]`, and
-every open CodeQL thread, must be settled (fixed, answered with a reason, dismissed with a reason,
-or turned into an issue) before merge.
+There are no optional findings: a point not worth acting on is not raised. Every inline comment is
+a thread that blocks the merge until it is settled (fixed, answered with a reason, or turned into an
+issue) and resolved; an open CodeQL thread is settled only by a code fix or an alert dismissal with
+a reason. So `[note]` items go in the review body, never inline.
 
 ## 7. Submit the review
 
 Do not modify, commit, push, merge or close anything on the PR.
 
 1. Confirm `headRefOid` has not moved.
-2. Submit one review (event `COMMENT`) with every gated finding inline. Nothing actionable →
+2. Submit one review (event `COMMENT`) with every `[blocker]`/`[must-fix]`/`[should-fix]`/`[nit]` finding
+   inline (`[note]` items only in the body). Nothing actionable →
    summary-only review.
 3. Review body:
 

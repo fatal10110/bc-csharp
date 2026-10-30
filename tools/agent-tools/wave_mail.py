@@ -606,7 +606,10 @@ def gh_graphql(query, **variables):
     gh = os.environ.get("WAVES_GH", "gh")
     args = [gh, "api", "graphql", "-f", f"query={query}"]
     for k, v in variables.items():
-        args += ["-F", f"{k}={v}"]
+        if v is None:
+            continue
+        # -F types its value (needed for Int!); -f keeps strings literal (no true/null/@file magic).
+        args += ["-F" if isinstance(v, int) else "-f", f"{k}={v}"]
     r = subprocess.run(args, capture_output=True, text=True, timeout=120)
     if r.returncode != 0:
         raise RuntimeError((r.stderr or r.stdout).strip()[-300:])
@@ -616,25 +619,42 @@ def gh_graphql(query, **variables):
     return d["data"]
 
 
-THREADS_QUERY = ("query($owner:String!,$name:String!,$pr:Int!){repository(owner:$owner,name:$name){pullRequest(number:$pr)"
-                 "{reviewThreads(first:100){nodes{id isResolved isOutdated path line"
-                 " comments(first:1){nodes{author{login} body url}}}}}}}")
+THREADS_QUERY = ("query($owner:String!,$name:String!,$pr:Int!,$after:String){repository(owner:$owner,name:$name)"
+                 "{pullRequest(number:$pr){reviewThreads(first:100,after:$after){pageInfo{hasNextPage endCursor}"
+                 " nodes{id isResolved isOutdated path line comments(first:1){nodes{author{login} body url}}}}}}}")
+THREAD_PAGES = 20
 
 
 def unresolved_threads(pr):
     """Every unresolved review thread on the PR, CodeQL (github-advanced-security) ones included."""
     owner, name = GH_REPO.split("/")
-    data = gh_graphql(THREADS_QUERY, owner=owner, name=name, pr=int(pr))
-    nodes = data["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    nodes, after = [], None
+    for _ in range(THREAD_PAGES):  # every page: a truncated list would undercount and let a PR merge
+        data = gh_graphql(THREADS_QUERY, owner=owner, name=name, pr=int(pr), after=after)
+        pull = (data.get("repository") or {}).get("pullRequest")
+        if not pull:
+            raise RuntimeError(f"PR {pr} not found")
+        page = pull["reviewThreads"]
+        nodes += page.get("nodes") or []
+        if not (page.get("pageInfo") or {}).get("hasNextPage"):
+            break
+        after = page["pageInfo"]["endCursor"]
+    else:
+        raise RuntimeError(f"PR {pr} has more than {THREAD_PAGES * 100} review threads")
     res = []
     for t in nodes:
         if t.get("isResolved"):
             continue
         first = ((t.get("comments") or {}).get("nodes") or [{}])[0]
         author = (first.get("author") or {}).get("login") or ""
-        res.append({"id": t.get("id"), "kind": "codeql" if author.startswith("github-advanced-security") else "review",
-                    "author": author, "path": t.get("path"), "line": t.get("line"), "outdated": bool(t.get("isOutdated")),
-                    "url": first.get("url") or "", "excerpt": " ".join((first.get("body") or "").split())[:160]})
+        body = first.get("body") or ""
+        item = {"id": t.get("id"), "kind": "codeql" if author.startswith("github-advanced-security") else "review",
+                "author": author, "path": t.get("path"), "line": t.get("line"), "outdated": bool(t.get("isOutdated")),
+                "url": first.get("url") or "", "excerpt": " ".join(body.split())[:160]}
+        alert = re.search(r"/security/code-scanning/(\d+)", body)
+        if item["kind"] == "codeql" and alert:
+            item["alert"] = int(alert.group(1))  # for: gh api -X PATCH .../code-scanning/alerts/<alert>
+        res.append(item)
     return res
 
 
@@ -645,15 +665,20 @@ def pr_state(pr):
     if not res["merged"]:
         cmp = gh_api(f"repos/{GH_REPO}/compare/{p['base']['ref']}...{p['head']['sha']}")
         res["behind_by"] = cmp.get("behind_by")
-        # A PR merges only with every review thread settled (CodeQL posts its alerts as threads when its check ends).
-        res["unresolved_threads"] = len(unresolved_threads(pr))
+        # A PR merges only with every review thread settled (CodeQL posts its alerts as threads).
+        # A failed lookup is null + threads_error, never 0: the merge agent then retries instead of merging.
+        try:
+            res["unresolved_threads"] = len(unresolved_threads(pr))
+        except (RuntimeError, KeyError, ValueError, TypeError, subprocess.TimeoutExpired) as e:
+            res["unresolved_threads"] = None
+            res["threads_error"] = str(e)[:300]
     return res
 
 
 def cmd_pr_state(a):
     try:
         out(pr_state(a.pr))
-    except (RuntimeError, KeyError, ValueError) as e:
+    except (RuntimeError, KeyError, ValueError, TypeError, subprocess.TimeoutExpired) as e:
         out({"error": str(e)})
 
 
@@ -661,7 +686,7 @@ def cmd_threads(a):
     try:
         threads = unresolved_threads(a.pr)
         out({"pr": a.pr, "unresolved": len(threads), "threads": threads})
-    except (RuntimeError, KeyError, ValueError) as e:
+    except (RuntimeError, KeyError, ValueError, TypeError, subprocess.TimeoutExpired) as e:
         out({"error": str(e)})
 
 

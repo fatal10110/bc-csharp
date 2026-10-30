@@ -178,7 +178,8 @@ const plan = {
 const by = res => Object.fromEntries(res.map(r => [r.slug, r]))
 const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(prefix + '#')).length
 
-// 1b. threads_open (CodeQL alerts posted after CI) sends the PR back for one more round, then it merges.
+// 1b. The orchestrator tolerates a threads_open merge answer (the fake reviewer turns it into a round);
+//     the protocol itself is guarded by the prompt assertions in scenario 1.
 {
   const one = { tracks: ['A'], waves: [{ name: '1', lanes: [lane('a', 'A')] }] }
   const { res, w } = await run({ run: 'sim', track: 'A', plan: one }, { a: { reviewRounds: 1, merges: ['threads_open', 'merged'] } })
@@ -319,6 +320,8 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   assert.ok(revP.includes('threads_open:'), 'reviewer handles threads_open')
   const implP = w.allPrompts.find(([l]) => l.startsWith('impl:a'))[1]
   assert.ok(implP.includes('settle EVERY unresolved thread') && implP.includes('code-scanning/alerts'), 'implementer settles every thread')
+  assert.ok(implP.includes('A CodeQL thread has only two outcomes'), 'CodeQL threads: fix or dismissal only')
+  assert.ok(revP.includes('never as inline comments') && revP.includes('at most 3 threads_open rounds'), 'notes stay out of threads; threads_open is capped')
   // The merger fetches and recognises update-branch commits of strip-v2.
   const m = await run({ run: 'sim', role: 'merger', plan: one, tool: '/r/bc-csharp/tools/agent-tools/wave_mail.py' }, { $take: [[{ id: 'm1', type: 'merge', from: 'a/review' }]] })
   const mp = m.w.allPrompts.find(([l]) => l.startsWith('merge:'))
@@ -326,6 +329,7 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   assert.ok(mp[1].includes("Merge branch 'strip-v2'") && mp[1].includes('fetch origin wf/a strip-v2'), 'merger uses strip-v2')
   assert.ok(!leftover.test(mp[1]), 'no main leftovers in the merger prompt')
   assert.ok(mp[1].includes('3b. Threads (after CI is green') && mp[1].includes('answer threads_open'), 'merger gates on unresolved threads after CI')
+  assert.ok(mp[1].includes('Never treat a missing count as 0') && mp[1].includes('threads_open|merge_blocked'), 'a failed thread lookup never merges; threads_open is a merge answer')
 }
 
 // 7. The example plan runs on both tracks.

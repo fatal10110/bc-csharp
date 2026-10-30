@@ -96,12 +96,14 @@ back to the thread.
   (`gh api graphql -f query='mutation { resolveReviewThread(input:{threadId:"<id>"}) { thread { isResolved } } }'`).
 - Out-of-scope or latent: reply with evidence and the issue number, then resolve.
 - Invalid: reply with the specific evidence, then resolve. Never resolve without a reply.
-- CodeQL alert whose code is deliberate (a catch-all that maps every parse failure to one exception,
-  a test helper, mirrored consumer code): dismiss the alert with a reason, reply with that reason,
-  then resolve the thread:
+- CodeQL thread: only two outcomes, because a rebuttal or an issue leaves the alert open in code
+  scanning. Fix the code (the next analysis closes the alert), or, when the code is deliberate (a
+  catch-all that maps every parse failure to one exception, a test helper, mirrored consumer code),
+  dismiss the alert with a reason (`dismissed_comment` at most 280 characters), reply with that
+  reason, then resolve the thread:
   `gh api -X PATCH repos/fatal10110/bc-csharp/code-scanning/alerts/<n> -f state=dismissed -f dismissed_reason="won't fix" -f dismissed_comment="<why>"`
-  (reasons: `won't fix`, `false positive`, `used in tests`; the alert number is in the thread's
-  code-scanning link). Otherwise fix the code like any other finding.
+  (reasons: `won't fix`, `false positive`, `used in tests`; `wave_mail.py threads --pr <N>` gives
+  the alert number in each CodeQL thread's `alert` field).
 - A top-level review body: one PR comment answering it point by point.
 - Push before resolving threads that reference a fix.
 

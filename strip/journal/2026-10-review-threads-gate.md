@@ -27,3 +27,18 @@ The owner found 38 unresolved review threads on 9 merged PRs (#39–#64): 31 Cod
 - `wave_mail.py threads --pr 64` against GitHub returns the same 3 threads GitHub shows.
 - `node .claude/skills/bcstrip-waves/waves_sim.mjs`: all scenarios passed, including `threads_open`.
 - `./tools/ci/check.sh --full`.
+
+## Review round 1 (strip-build-reviewer): fixes
+- `unresolved_threads` paginates (`pageInfo`, up to 20 pages, with an error beyond that). It no longer truncates at 100, so the count can't come out too low.
+- `pr-state` stays usable when the thread lookup fails: `unresolved_threads: null` plus `threads_error`. Merger step 3b treats a missing or null count as "retry", never as 0.
+- `threads` reports the CodeQL `alert` number used by the dismissal command.
+- `gh_graphql` passes `-f` for strings and `-F` only for integers. `TypeError` and `TimeoutExpired` are caught.
+- CodeQL threads are settled only by a code fix or an alert dismissal with a reason (a rebuttal or an issue would leave the alert open).
+- `[note]` items go in the review body only, so they never become blocking threads.
+- `threads_open` rounds don't use the review round budget; there are at most 3 per lane.
+- The dismissal permission is scoped to the implementation agent, with a note on the 280-character comment limit.
+- Step 3b wording: it runs after every check, CodeQL analyze jobs included.
+- Tests:
+  - the fake `gh` asserts the exact arguments and serves two pages;
+  - error and missing-PR cases;
+  - sim assertions for every new rule (scenario 1b only checks that the orchestrator tolerates `threads_open`).
