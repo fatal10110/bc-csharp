@@ -16,9 +16,19 @@ fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; roo
 - Source grouped by domain under `crypto/src/` (`tls/`, `crypto/`, `math/`, `asn1/`, `x509/`, `security/`, `util/`, `pqc/` …).
 
 **strip-v2 additions:**
-- `crypto/src/turbo/` (planned, M2) — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header), e.g. `TurboKeyFactory`.
+- `crypto/src/turbo/` — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header): `TurboKeyFactory` (E5). Fixtures for turbo code and cuts: `crypto/test/src/turbo/`.
 - Edge cuts E1–E14 — minimal commits on `strip-v2`, one per E-number or per issue E-range (#14 E2–E4, #19 E9–E12), every hunk marked `// turbo-strip:`.
-- `strip/` — present: `BASE` (pinned upstream SHA), `tool/` (closure prototype), `unity-probe/`, `journal/`; planned (M1/M3): `ROOTS_SHA`, `roots/` (consumer copies, `RootStubs.cs`, `roots-extra.cs` API contract), `deny.txt`, `budget.txt`, `unity-defines.txt`, `Closure.csproj`, `tool/` (closure/deny tooling), `smoke/`, `strip.sh`. Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
+- `strip/` contents:
+  - `BASE` (pinned upstream SHA) and `ROOTS_SHA`.
+  - `roots/`: consumer copies, `RootStubs.cs` and the `roots-extra.cs` API contract.
+  - `deny.txt`.
+  - `unity-defines.txt`: provisional `[min]`/`[partial]`/`[sdk]` sets until #29.
+  - `Closure.csproj`.
+  - `tool/`: `closure.py`, `index.py`, `defines.py`, `deny.py`, `build.py`, `rewrite.py`, `package.py`, `refresh_roots.py`, `upstream_tests.py`, plus `test_*.py`.
+  - `smoke/`: `run.sh`, the harness and row groups.
+  - `strip.sh`, `upstream-*.txt` (upstream-test diff), `unity-probe/`, `journal/`.
+  - Still to come: `budget.txt` (#30).
+  - Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
 - `tools/ci/check.sh` (local gate), `tools/agent-tools/` (agent tools), `.github/` (CI, CodeQL, PR template), `.claude/` (skills, agents).
 
 **Pipeline (`strip.sh`):** prepare → closure (fixpoint over the union of define sets, C# lookup-order resolution, namespace stubs, deny list, referrer sweep) → builds (each define set; rewritten tree as `TurboBC.*.dll`; consumer compile check) → namespace rewrite → smoke suite → package → hand over to turboHTTP #141.
@@ -41,10 +51,16 @@ Repository conventions (not plan decisions):
 ## Development Status
 
 - **Plan:** COMPLETE — `STRIP_PLAN_V2.md` rev 6.3, review cycle closed.
-- **Agent workflow and CI:** COMPLETE pending the first green CI run on GitHub — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
-- **M1 Tooling (#4–#10):** NOT STARTED. `strip/tool/` holds the closure prototype only.
-- **M2 Bootstrap & edge cuts (#11–#21):** NOT STARTED.
-- **M3 Smoke suite, enforce & handover (#22–#31):** NOT STARTED; #29 waits on turboHTTP #141 (Unity define sets, decision record).
+- **Agent workflow and CI:** COMPLETE. CI (`ci`, CodeQL) is green on `strip-v2`. The local gate, skills (`bcstrip-*`), agent types and agent tools are ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`. The first waves run, `w1030`, landed PRs #37–#56.
+- **M1 Tooling (#4–#10, #35):** COMPLETE.
+  - Delivered: roots, `Closure.csproj` and define sets, closure resolver, deny list with referrer sweep, rewrite and packaging, `strip.sh`, and the upstream-test diff.
+  - Open: #42, an exclusion list for `crypto/test` sources a cut stops compiling.
+- **M2 Bootstrap & edge cuts (#11–#21):** E1–E14 landed.
+  - The bootstrap report (#11) was 778 closure files on the provisional sets, 713 kept after denials, with every referrer mapped.
+  - E13 (#20) covers the provisional sets only and stays open for the real Unity sets (#30).
+- **M3 Smoke suite, enforce & handover (#22–#31):** smoke suite #23–#27 landed: harness, curve lookup and KATs, OpenSSL interop with exact ClientHello, hostile inputs, timeout.
+  - The timeout rows are opt-in (`strip.sh --smoke-slow`); #30 must pass that flag.
+  - #29 waits on the Unity 2021.3 define sets and the decision record (turboHTTP #141). #30 and #31 follow it.
 
 ## Implementation Milestones
 
@@ -68,7 +84,10 @@ Order of work (`STRIP_PLAN_V2.md` §6):
 - The strip's gate is the **smoke suite** (`strip/smoke/`, #22–#27): curve lookup, primitive KATs per DLL, OpenSSL 3 interop, exact ClientHello assertions, hostile inputs, timeout.
 - Tooling tests: `python3 -m unittest discover -s tools/agent-tools -p 'test_*.py'`, the same for `strip/tool`, and `node .claude/skills/bcstrip-waves/waves_sim.mjs`.
 - Upstream `crypto/test` is not a gate on `strip-v2` (cuts break parts of it). Scoped runs when an issue asks, or for validation.
-- `bc-test-data` (bcgit/bc-test-data, read-only `git clone --depth 1`, ~7 GB) sits beside the repo (`../bc-test-data`); `SimpleTest.FindTestDataPath` walks up to it, so one clone serves every worktree. Many upstream fixtures need it (the TLS tests read `tls/credentials`). Use it when needed to validate code the strip keeps (TLS, ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE`, then after an edge cut or bump, and compare — failures the cut removes on purpose (TLS 1.2 CBC, Ed25519, PKIX …) are expected, any other new failure is a regression. Validation aid, not a CI gate (#35 scripts the diff).
+- `bc-test-data` (bcgit/bc-test-data, read-only `git clone --depth 1`, ~7 GB) sits beside the repo (`../bc-test-data`); `SimpleTest.FindTestDataPath` walks up to it, so one clone serves every worktree. Many upstream fixtures need it (the TLS tests read `tls/credentials`). Use it when needed to validate code the strip keeps (TLS, ASN.1, X.509, EC/RSA, primitives): run the scoped upstream tests on `BASE`, then after an edge cut or bump, and compare — failures the cut removes on purpose (TLS 1.2 CBC, Ed25519, PKIX …) are expected, any other new failure is a regression. Validation aid, not a CI gate.
+- `python3 strip/tool/upstream_tests.py` scripts that diff over the kept surface.
+  - Filter: `strip/upstream-tests.txt`. Baseline: `strip/upstream-base-results.txt`. Intended breaks, each with its E-number: `strip/upstream-expected-failures.txt`.
+  - Exit 1 means a regression. Run it after every edge cut and every bump (`--update-base` after a bump).
 
 ```bash
 dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0
@@ -78,7 +97,7 @@ DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastl
 ## Conventions
 
 **Upstream code (inherited):**
-- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate does both until `strip.sh` exists): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
+- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate does both until #30 enforces `strip.sh`): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
 - Constant-time discipline: no branch, table index or early exit on secrets; `Arrays.FixedTimeEquals`; wipe with `Arrays.ZeroMemory`.
 - `crypto/src/pqc/` tracks reference C; it is denied in the strip anyway.
 - Style: `.editorconfig` (4 spaces, Allman), 120 columns for new code, always brace control statements (except single-line `return`/`throw` without `else`), expression-bodied members when they fit on two lines. Do not reformat upstream code you are not otherwise editing.
@@ -94,7 +113,7 @@ DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastl
 
 `AGENTS.md` ("Local Gates And CI", "Agent Workflow") is the source of truth. In short:
 
-- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and builds the strip (`strip/strip.sh --report` once present, else the library for netstandard2.0 and net6.0).
+- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and builds the strip: `strip/strip.sh --report` (closure, builds, smoke suite), plus the whole library for netstandard2.0 and net6.0 until #30 switches to enforce mode.
 - CI runs `check.sh --full` on PRs to `strip-v2`; aggregate check `ci`; CodeQL on fork-owned code.
 - Work comes from GitHub issues #3–#31 (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2"). Use the skills `bcstrip-issue` (one issue), `bcstrip-pr-review`, `bcstrip-pr-review-comments`, and `bcstrip-waves` (multi-PR fan-out with the `wave-*` agent types in `.claude/agents/`).
 - Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`. Edge cuts wait for #10 (`strip.sh`) or keep the whole library compiling.
