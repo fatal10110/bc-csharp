@@ -8,6 +8,8 @@
   Defines go through a file because ``-p:DefineConstants=a;b`` fails with MSB1006.
 - ``csc_defines`` / ``check_defines``: the binlog assertion set(csc /define:) == captured set,
   ignoring empty entries.
+- ``debug_variants``: the DEBUG build of #58 (Unity Editor and Development builds), derived from a
+  captured set; build.py builds it, the closure does not see it.
 """
 
 import re
@@ -20,6 +22,14 @@ NETSTANDARD_TFM = "netstandard2.1"
 # Symbols the SDK adds on its own; any of them in a csc command line that the set does not list is
 # leakage (configuration defines, TRACE, or a -c Strip configuration).
 LEAK_SUSPECTS = ("DEBUG", "RELEASE", "STRIP", "TRACE")
+
+# #58: Unity defines DEBUG for every Editor compile and for Development player builds; the Editor
+# rsp of TurboHTTP.Transport.BouncyCastle also has TRACE (unity-defines.txt header). The file stays
+# the unedited player capture: the variant is derived here, as the captured set plus these symbols,
+# for build.py only (builds 3a/3c/consumer and the smoke hook). closure.py never reads it, so the
+# kept file list and the budget stay those of the captured sets.
+EDITOR_DEFINES = ("DEBUG", "TRACE")
+DEBUG_VARIANTS = {"netstandard21_debug": "netstandard21"}  # variant set -> captured set
 
 _SECTION = re.compile(r"^\[([A-Za-z0-9_.-]+)\]$")
 _SYMBOL = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
@@ -77,6 +87,16 @@ def load_unity_defines(path):
 
 def tfm_for_set(name):
     return NETFRAMEWORK_TFM if name == NETFRAMEWORK_SET else NETSTANDARD_TFM
+
+
+def debug_variants(sets):
+    """{variant: captured defines + EDITOR_DEFINES} for every DEBUG variant whose captured set is in sets."""
+    out = {}
+    for variant, captured in DEBUG_VARIANTS.items():
+        if captured in sets:
+            defines = list(sets[captured])
+            out[variant] = defines + [d for d in EDITOR_DEFINES if d not in defines]
+    return out
 
 
 def _msbuild_escape(value):

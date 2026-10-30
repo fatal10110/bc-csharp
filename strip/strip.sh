@@ -8,8 +8,11 @@
 #   4 rewrite   Org.BouncyCastle -> TurboHTTP.SecureProtocol.Org.BouncyCastle (rewrite.py: kept tree,
 #               stubs, roots); runs before step 3 because build 3c compiles its output
 #   3 builds    per define set: 3a the stripped tree, 3c the rewritten tree -> TurboBC.<x>.dll and
-#               the consumer files + RootStubs + roots-extra against it (build.py build)
-#   5 smoke     hook: strip/smoke/run.sh when present and executable (#23 fills it)
+#               the consumer files + RootStubs + roots-extra against it (build.py build); with
+#               [netstandard21] also its DEBUG variant (#58: + DEBUG TRACE, Unity Editor and
+#               Development builds; derived in defines.py, not a set of unity-defines.txt)
+#   5 smoke     hook: strip/smoke/run.sh when present and executable (#23 fills it); every row on the
+#               release DLLs, the curve, KAT and registry rows on the DEBUG DLL
 #   6 package   strip/out: Lib/ + .meta, LICENSE.md, THIRD-PARTY-NOTICES.txt, STRIP_INFO.md (package.py)
 #   7 hand over strip/out/ to turboHTTP#141; this script never writes into turboHTTP.
 #
@@ -21,8 +24,10 @@
 # Smoke hook contract (#23): strip/smoke/run.sh --work <work> --results <file> [--slow] <TurboBC dll>...
 # runs only when every 3c build is clean; exit 0 = pass. --smoke-slow adds --slow (slow rows such as
 # the 30 s handshake-timeout row, #27; the enforce run of #30 uses it, the local gate does not).
-# The results file, when written, goes into STRIP_INFO.md (package.py --smoke); otherwise STRIP_INFO.md
-# says "Not run.".
+# A second call runs DEBUG_SMOKE_FILTERS on the DEBUG DLL(s) in <work>/dll/debug/ (#58: the static
+# constructors, including DigestUtilities' #if DEBUG self-checks); its results are appended under a
+# "DEBUG build" line. The results file, when written, goes into STRIP_INFO.md (package.py --smoke);
+# otherwise STRIP_INFO.md says "Not run.".
 
 set -uo pipefail
 
@@ -97,6 +102,8 @@ check_failed() {
   exit 1
 }
 failed=()
+# #58: the rows run against the DEBUG build (run.sh --filter: substrings of group/row ids).
+DEBUG_SMOKE_FILTERS=(--filter curves/ --filter kat- --filter registries/)
 
 step "1 prepare ($mode)"
 command -v python3 >/dev/null || fatal "python3 not found (Python 3.8+ required)"
@@ -184,12 +191,31 @@ else
     *) fatal "the smoke suite needs OpenSSL 3.x (openssl version: '${ssl:-none}')" ;;
   esac
   results=$work/smoke-results.md
-  rm -f "$results"
+  debug_results=$work/smoke-results-debug.md
+  rm -f "$results" "$debug_results"
   if strip/smoke/run.sh --work "$work" --results "$results" ${smoke_slow[@]+"${smoke_slow[@]}"} \
       "$work"/dll/TurboBC.*.dll; then
     echo "smoke passed"
   else
     check_failed "smoke suite failed"
+  fi
+  debug_dlls=()
+  for dll in "$work"/dll/debug/TurboBC.*.dll; do [ -f "$dll" ] && debug_dlls+=("$dll"); done
+  if [ "${#debug_dlls[@]}" -gt 0 ]; then
+    if strip/smoke/run.sh --work "$work" --results "$debug_results" "${DEBUG_SMOKE_FILTERS[@]}" \
+        "${debug_dlls[@]}"; then
+      echo "smoke passed (DEBUG build)"
+    else
+      check_failed "smoke suite failed (DEBUG build)"
+    fi
+    {
+      echo
+      echo "DEBUG build (#58): [netstandard21] + DEBUG TRACE, the Unity Editor and Development defines (derived in"
+      echo "strip/tool/defines.py; unity-defines.txt is the player capture); built 3a, 3c and consumer; rows:"
+      echo "${DEBUG_SMOKE_FILTERS[*]}"
+      echo
+      if [ -f "$debug_results" ]; then cat "$debug_results"; else echo "No results (run.sh failed before writing them)."; fi
+    } >> "$results" || fatal "writing $results"
   fi
   [ -f "$results" ] && smoke_results=$results
 fi
