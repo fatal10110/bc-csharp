@@ -72,3 +72,33 @@ E1/E Org.BouncyCastle.Tls.Tests.TlsRawKeysProtocolTest.TestServerUsesX509AndClie
 
 # E1 (#13), no plan decision: SRP is outside the strip set (CreateSrp6VerifierGenerator throws).
 E1 Org.BouncyCastle.Tls.Tests.TlsSrpProtocolTest.TestClientServer
+
+# E2-E4 (#14) E2: DefaultTlsKeyExchangeFactory denies PSK key exchange; the PSK mock peers (and the
+# DTLS AEAD invalid-record test, ECDHE_PSK) fail at CreatePskKeyExchange* with internal_error.
+E2 Org.BouncyCastle.Tls.Tests.DtlsInvalidRecordTest.AeadCipherInvalidRecordsDiscarded
+E2 Org.BouncyCastle.Tls.Tests.DtlsPskProtocolTest.BadClientKeyTimeout
+E2 Org.BouncyCastle.Tls.Tests.DtlsPskProtocolTest.BadServerKeyTimeout
+E2 Org.BouncyCastle.Tls.Tests.DtlsPskProtocolTest.ClientServer
+E2 Org.BouncyCastle.Tls.Tests.TlsPskProtocolTest.BadClientKey
+E2 Org.BouncyCastle.Tls.Tests.TlsPskProtocolTest.BadServerKey
+E2 Org.BouncyCastle.Tls.Tests.TlsPskProtocolTest.TestClientServer
+
+# E2-E4 (#14) E4, decision D (no OCSP request): AbstractTlsClient.GetCertificateStatusRequest
+# returns null, so the mock clients that call base.GetCertificateStatusRequest() send no
+# status_request and receive no staple or echo.
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.ClientReadsAStapleForEachCertificate
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.ClientReadsSingleOcspAgainstTheEndEntityOnly
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.MalformedStapleFailsTheHandshake
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.MustStapleFailsWithoutAStaple
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.MustStapleIsSatisfiedByTheCertificateEntryStaple
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.OcspMultiIsDistributedAcrossCertificateEntries
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.ServerSuppliedEntryExtensionIsPreserved
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.SingleOcspStatusAnswersTheEndEntityOnly
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.Tls12MustStapleFailsOnAnEchoWithoutAStatus
+E4/D Org.BouncyCastle.Tls.Tests.Tls13CertificateStatusTest.Tls12MustStapleIsSatisfiedByTheCertificateStatusMessage
+E4/D Org.BouncyCastle.Tls.Tests.TlsStatusRequestResumptionTest.ResumedHandshakeDropsTheStatusRequestEcho
+
+# E5 (#15), no plan decision: BcTlsRawKeyCertificate.CreateVerifier no longer builds an sm2sig_sm3
+# verifier (turbo-strip: E5). Already failing on strip-v2 at 631d82a3 (#40 and #41 merged in
+# parallel); listed here so the diff stays at zero regressions.
+E5 Org.BouncyCastle.Tls.Tests.SM2Tls13Test.SM2SignerAndVerifier_BC_BC
