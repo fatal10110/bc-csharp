@@ -7,7 +7,8 @@ using System.Runtime.CompilerServices;
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Runtime.InteropServices;
 #endif
-#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER
+// turbo-strip: E13 also for NETSTANDARD2_1_OR_GREATER (the Span/ValueTask overrides need these usings)
+#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Threading;
 using System.Threading.Tasks;
 #endif
@@ -517,7 +518,8 @@ namespace Org.BouncyCastle.Utilities.IO
                 throw new ArgumentOutOfRangeException(nameof(count));
         }
 
-#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER
+// turbo-strip: E13 also for NETSTANDARD2_1_OR_GREATER (Streams.WriteAsync below calls the Task overload)
+#if NETCOREAPP1_0_OR_GREATER || NET45_OR_GREATER || NETSTANDARD1_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         internal static async Task WriteAsyncCompletion(Task writeTask, byte[] localBuffer)
         {
             try
