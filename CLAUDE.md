@@ -1,78 +1,122 @@
 # CLAUDE.md
 
-Guidance for Claude Code (claude.ai/code) when working in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Overview
+Start with `AGENTS.md` for the shared repository guidance used across coding agents. Treat this file as the Claude-specific companion document, and keep it aligned with `AGENTS.md` when architecture, workflow, or conventions change.
 
-Bouncy Castle for .NET — a cryptography library providing primitives, protocols (CMS, OpenPGP, (D)TLS, TSP, X.509), and NIST PQC algorithms (ML-DSA, ML-KEM, SLH-DSA, Falcon, etc.). This is the **non-FIPS** source tree; the FIPS distribution is separate.
+## Project Overview
 
-Root namespace: `Org.BouncyCastle`. NuGet package id: `BouncyCastle.Cryptography`.
+fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; root namespace `Org.BouncyCastle`, NuGet id `BouncyCastle.Cryptography`, non-FIPS tree). `master` mirrors upstream. The **`strip-v2`** branch produces a scripted, reproducible reduction of upstream to a minimal **TLS 1.2/1.3 client** subset, namespace-rewritten to `TurboHTTP.SecureProtocol.Org.BouncyCastle`, which turboHTTP (fatal10110/turboHTTP — Unity 2021.3, IL2CPP on iOS/Android) vendors as its TLS fallback. The plan is `STRIP_PLAN_V2.md`. No action is ever taken on bcgit/bc-csharp; upstream is fetched read-only for bumps.
 
-Security issues: see [SECURITY.md](SECURITY.md) — report privately to feedback-crypto@bouncycastle.org rather than filing a public issue.
+## Architecture
 
-## Solution layout
+**Upstream solution (unchanged layout):**
+- `crypto/src/BouncyCastle.Crypto.csproj` — the library; multi-targets `net6.0;netstandard2.0;net461`; signed with `BouncyCastle.NET.snk` (do not bypass signing or modify the key); versioned by Nerdbank.GitVersioning from `version.json` (needs git history).
+- `crypto/test/BouncyCastle.Crypto.Tests.csproj` — NUnit 3 tests; bulk vectors in the separate `bc-test-data` repo (sibling checkout, found by `SimpleTest.FindTestDataPath`).
+- Source grouped by domain under `crypto/src/` (`tls/`, `crypto/`, `math/`, `asn1/`, `x509/`, `security/`, `util/`, `pqc/` …).
 
-Two projects, both under [crypto/](crypto/):
+**strip-v2 additions:**
+- `crypto/src/turbo/` — turbo-owned code (`Org.BouncyCastle.Turbo`, MIT header), e.g. `TurboKeyFactory`.
+- Edge cuts E1–E14 — minimal commits on `strip-v2`, one per E-number, every hunk marked `// turbo-strip:`.
+- `strip/` — `BASE` (pinned upstream SHA), `ROOTS_SHA`, `roots/` (consumer copies, `RootStubs.cs`, `roots-extra.cs` API contract), `deny.txt`, `budget.txt`, `unity-defines.txt`, `Closure.csproj`, `tool/` (closure/deny tooling), `smoke/`, `strip.sh`, `journal/`. Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
+- `tools/ci/check.sh` (local gate), `tools/agent-tools/` (agent tools), `.github/` (CI, CodeQL, PR template), `.claude/` (skills, agents).
 
-- [crypto/src/BouncyCastle.Crypto.csproj](crypto/src/BouncyCastle.Crypto.csproj) — main library. Multi-targets `net6.0;netstandard2.0;net461`. AOT-compatible on net7+. Signed with [BouncyCastle.NET.snk](BouncyCastle.NET.snk) — do not bypass signing or modify the key. Versioning is driven by Nerdbank.GitVersioning from [version.json](version.json); see **API stability and versioning**.
-- [crypto/test/BouncyCastle.Crypto.Tests.csproj](crypto/test/BouncyCastle.Crypto.Tests.csproj) — NUnit 3 test project. Multi-targets `net6.0;netcoreapp3.1;net472;net461`. Small/inline test data lives in [crypto/test/data/](crypto/test/data/) and is embedded as resources.
+**Pipeline (`strip.sh`):** prepare → closure (fixpoint over the union of define sets, C# lookup-order resolution, namespace stubs, deny list, referrer sweep) → builds (each define set; rewritten tree as `TurboBC.*.dll`; consumer compile check) → namespace rewrite → smoke suite → package → hand over to turboHTTP #141.
 
-Source under [crypto/src/](crypto/src/) is grouped by domain (`crypto/`, `math/`, `asn1/`, `pqc/`, `tls/`, `openpgp/`, `cms/`, `pkix/`, `x509/`, `security/`, `util/`, …); tests mirror the layout under [crypto/test/src/](crypto/test/src/). Two things the tree doesn't tell you: the `*Utilities` classes in [crypto/src/security/](crypto/src/security/) (`CipherUtilities`, `DigestUtilities`, `PrivateKeyFactory`, …) are the public surface most consumers use, and [crypto/src/pqc/](crypto/src/pqc/) is flagged EXPERIMENTAL in the README.
+## Key Technical Decisions
 
-Build configurations: `Debug`, `Release`, `Publish` (Publish adds deterministic build + assembly signing via [signfile.bat](signfile.bat)).
+Recorded in `STRIP_PLAN_V2.md` §2; confirmed/overridden in turboHTTP #141.
 
-**Bulk test data lives in a separate repository.** Clone https://github.com/bcgit/bc-test-data.git, conventionally as a sibling of this repo (`../bc-test-data`). `SimpleTest.FindTestDataPath` ([SimpleTest.cs](crypto/test/src/util/test/SimpleTest.cs)) walks up from the working directory until it finds an ancestor containing a `bc-test-data` folder; tests that need it throw `DirectoryNotFoundException` if it is missing.
+- **A — Chain validation outside BC.** Native platform verifiers on mobile, `X509Chain` on desktop; no BC PKIX, no BC certificate-signature verification (`X509Certificate.Verify` throws).
+- **B — No TLS 1.2 CBC.** **C — No X25519MLKEM768** for now. **D — No OCSP request** (must-staple not enforced). **E — No Ed25519/Ed448 certificates.** **F — No TLS 1.3 resumption.**
+- **G — Timing:** `BasicGcmMultiplier` always (constant-time GHASH); `AesLightEngine` without AES-NI (leak reduced, not removed); ChaCha20 first.
+- **Groups:** x25519, secp256r1, secp384r1, secp521r1. Suites: TLS 1.3 CHACHA20/AES_128_GCM/AES_256_GCM; TLS 1.2 ECDHE_{ECDSA,RSA} with the same AEADs.
+- **Key limits (TurboKeyFactory + E7):** RSA 2048–8192 bits, public exponent ≤ 64 bits, Miller-Rabin off for peer keys; EC only on named P-256/384/521; explicit EC parameters rejected.
+- **Deny subsystems, not helpers;** cut at call sites; turbo-owned files over churny factories.
+- **Integration:** PRs target `strip-v2`, squash-merged; a bump rebases `strip-v2` onto new upstream (owner force-push).
 
-**Where to put new test vectors / sample files** — no fixed rule. Propose a location (embedded in [crypto/test/data/](crypto/test/data/) vs. the external `bc-test-data` repo) and let the user decide; size, sensitivity, and likely reuse by the Java/FIPS sister projects all factor in.
+## Development Status
 
-## Build / test commands
+- **Plan:** COMPLETE — `STRIP_PLAN_V2.md` rev 6.3, review cycle closed.
+- **Agent workflow and CI:** COMPLETE — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
+- **M1 Tooling (#4–#10):** NOT STARTED. `strip/tool/` holds the closure prototype only.
+- **M2 Bootstrap & edge cuts (#11–#21):** NOT STARTED.
+- **M3 Smoke suite, enforce & handover (#22–#31):** NOT STARTED; #29 waits on turboHTTP #141 (Unity define sets, decision record).
 
-```powershell
-dotnet build crypto/src/BouncyCastle.Crypto.csproj
-dotnet build BouncyCastle.sln
-dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj
-dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter "FullyQualifiedName~ChaCha20Poly1305Test"
+## Implementation Milestones
+
+Order of work (`STRIP_PLAN_V2.md` §6):
+
+1. **M1 — Tooling:** roots, `Closure.csproj`, closure resolver, deny/sweep, rewrite/packaging, `strip.sh`.
+2. **M2 — Bootstrap & edge cuts:** `strip.sh --report` on provisional define sets, then E1–E14.
+3. **M3 — Smoke, enforce, handover:** smoke suite; real Unity define sets from turboHTTP #141; enforce run and `budget.txt`; package and hand over. turboHTTP then does #140/#143, #141 (sync + gate), #142.
+
+**Strip done:** smoke suite passes here and the turboHTTP #141 gate passes on output from the recorded `BASE` + `ROOTS_SHA`.
+
+## Critical Risk Areas
+
+1. **Runtime-only breakage** — static initializers/registries that throw when entries are removed (`CustomNamedCurves.DefineCurveAlias`); only smoke rows catch these.
+2. **Hostile-server DoS** — key sizes, exponents, ASN.1 nesting, PSS parameters; every bound must sit before allocation or modexp.
+3. **Unity define sets** — Unity may not define `*_OR_GREATER`; partial sets break `#if` guards (E13); unknown until turboHTTP #141 delivers.
+4. **Rebase surface** — cuts in frequently changing upstream files (`TlsUtilities`, factories) turn bumps into manual conflict work; reserve alternative is the official DLL with Cecil rename (plan §7).
+
+## Testing
+
+- The strip's gate is the **smoke suite** (`strip/smoke/`, #22–#27): curve lookup, primitive KATs per DLL, OpenSSL 3 interop, exact ClientHello assertions, hostile inputs, timeout.
+- Tooling tests: `python3 -m unittest discover -s tools/agent-tools -p 'test_*.py'`, the same for `strip/tool`, and `node .claude/skills/bcstrip-waves/waves_sim.mjs`.
+- Upstream `crypto/test` is not a gate on `strip-v2` (cuts break parts of it). Scoped runs when an issue asks:
+
+```bash
+dotnet build crypto/src/BouncyCastle.Crypto.csproj -f netstandard2.0
+dotnet test --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj --filter "FullyQualifiedName~<Fixture>"
 ```
-
-CI ([.gitlab-ci.yml](.gitlab-ci.yml)) runs tests on net461, net472, netcoreapp3.1, and net6.0. Code that compiles on one TFM can fail on another (Span APIs, intrinsics availability, `System.Numerics` differences), so verify with at least one .NET Framework TFM when touching the `#if` switches.
-
-For hardware-intrinsics code (anything under [crypto/src/runtime/intrinsics/](crypto/src/runtime/intrinsics/), any `*_X86.cs` file, or code using `System.Runtime.Intrinsics`), use the **intrinsics-testing** skill. ISA detection must go through the `Org.BouncyCastle.Runtime.Intrinsics` wrappers, and the skill has the commands for re-running tests with specific instruction sets disabled.
-
-### Mid-session verification
-
-Fast turnaround beats exhaustive coverage during an iterative session: build only the affected project(s), run only the plausibly impacted fixtures via `--filter` on a single TFM (net6.0 unless the change is TFM-specific), and widen only when the change spans broad areas (core utilities, ASN.1 base types, anything in `crypto/src/util/`). The final pre-push run across the full TFM matrix is the user's responsibility — don't block on it.
 
 ## Conventions
 
-- **Multi-TFM source.** Span and intrinsics code is guarded by `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER` and `#if NETCOREAPP3_0_OR_GREATER` respectively (see [AesEngine_X86.cs](crypto/src/crypto/engines/AesEngine_X86.cs), [ChaCha7539Engine.cs](crypto/src/crypto/engines/ChaCha7539Engine.cs)). The legacy path under `#else` must remain functionally equivalent.
-- **Span overloads for new public APIs.** On hot paths (cipher / digest / MAC `Update`/`DoFinal`, math primitives, parsing fast paths), add a `ReadOnlySpan<byte>` / `Span<byte>` overload alongside any new `byte[]`-shaped public method, under the same guard. For non-hot-path APIs, ask first — they're only worth the maintenance when allocation/copy avoidance pays off.
-- **Tests.** Write new tests as plain NUnit (`[TestFixture]` / `[Test]`), preferring NUnit's classic assertion model (`Assert.AreEqual`, `Assert.IsTrue`, …) over the constraint model (`Assert.That`). Many existing fixtures extend `SimpleTest` ([SimpleTest.cs](crypto/test/src/util/test/SimpleTest.cs)); that base class is legacy tooling — don't extend it in new code, but follow the local convention when editing an existing subclass.
-- **Testing internals.** The test assembly is a friend of the library (`InternalsVisibleTo` in [AssemblyInfo.cs](crypto/src/AssemblyInfo.cs)). Use it only when a behaviour has no good test at the public surface; prefer public-API tests, and don't widen `private` to `internal` just for testability unless a public-API test is genuinely impractical.
-- **Constant-time discipline.** In new code, treat any branch, table index, or early exit on secret material as a defect; use [`Arrays.FixedTimeEquals`](crypto/src/util/Arrays.cs), bitwise selects, and the other CT helpers, and call out side-channel risks proactively. If told a particular leak is acceptable, propose an inline comment recording the choice. In existing code that isn't the focus of review, follow the surrounding discipline — its patterns reflect deliberate choices — and don't proactively rewrite long-established patterns.
-- **Wiping secrets.** Use [`Arrays.ZeroMemory`](crypto/src/util/Arrays.cs) rather than `Array.Clear` / `Span.Clear` / hand-written loops; it delegates to `CryptographicOperations.ZeroMemory` where available, which the JIT cannot elide as a dead store.
-- **PQC code style.** `crypto/src/pqc/` deliberately tracks the upstream reference C and is less idiomatic than the rest of the library — keep ports close to reference rather than refactoring for style.
-- **bc-java.** [bc-java](https://github.com/bcgit/bc-java) shares heritage and is worth consulting when an algorithm or API already exists there, but parity is loose: diverge freely for idiomatic C#, performance (Spans, intrinsics, ref structs), or .NET features. No obligation to keep in lockstep or to flag parity for routine work.
+**Upstream code (inherited):**
+- Multi-TFM guards: Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
+- Constant-time discipline: no branch, table index or early exit on secrets; `Arrays.FixedTimeEquals`; wipe with `Arrays.ZeroMemory`.
+- `crypto/src/pqc/` tracks reference C; it is denied in the strip anyway.
+- Style: `.editorconfig` (4 spaces, Allman), 120 columns for new code, always brace control statements (except single-line `return`/`throw` without `else`), expression-bodied members when they fit on two lines. Do not reformat upstream code you are not otherwise editing.
+- Tests: plain NUnit with classic asserts; don't extend `SimpleTest` in new code.
 
-## API stability and versioning
+**strip-v2:**
+- Upstream API-stability rules (`[Obsolete]`, `// TODO[api]`) do not apply: cuts remove API on purpose. Keep every cut minimal and marked `// turbo-strip:`.
+- Output code is C# 9, no `unsafe`, APIs available on netstandard2.1 and net471.
+- Turbo-owned files: `crypto/src/turbo/`, namespace `Org.BouncyCastle.Turbo`, MIT header.
+- Commit messages: short imperative summary (~50–70 chars), no conventional-commit prefix. Never create a non-fast-forward merge commit without explicit direction.
 
-The library follows Semantic Versioning ([version.json](version.json)); the current series is **v2.x**. `assemblyVersion.precision` is `"major"`, so the assembly version is fixed across the whole series and strong-named references must keep resolving — **binary as well as source compatibility is a hard requirement** within v2.x.
+## Tooling, Gates And Agent Workflow
 
-- Only additive changes in minor/patch releases: prefer **adding an overload** over changing an existing public signature.
-- **Deprecate, don't remove.** Mark superseded public API `[Obsolete("Use 'Replacement' instead")]` and keep it working (e.g. [SignerInformation.cs](crypto/src/cms/SignerInformation.cs#L132)). Removal waits for a major bump.
-- **Record deferred breaks with `// TODO[api]`.** When a change would improve the API but can't ship until a break is permitted, leave a `// TODO[api] <what to do>` comment at the site (e.g. [SignerUtilities.cs](crypto/src/security/SignerUtilities.cs#L954), [X509Utilities.cs](crypto/src/x509/X509Utilities.cs#L212)) — this is how the next major's work list accumulates.
-- **When a change seems to require a break, flag it** rather than proceeding; the maintainer decides whether to find a compatible path or defer it.
+`AGENTS.md` ("Local Gates And CI", "Agent Workflow") is the source of truth. In short:
 
-## Style
+- Run `./tools/ci/check.sh` before every push (`--full` before a PR). It formats-checks changed C# only and builds the strip (`strip/strip.sh --report` once present, else the library for netstandard2.0).
+- CI runs `check.sh --full` on PRs to `strip-v2`; aggregate check `ci`; CodeQL on fork-owned code.
+- Work comes from GitHub issues #3–#31 (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2"). Use the skills `bcstrip-issue` (one issue), `bcstrip-pr-review`, `bcstrip-pr-review-comments`, and `bcstrip-waves` (multi-PR fan-out with the `wave-*` agent types in `.claude/agents/`).
+- Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`.
 
-Follow [.editorconfig](.editorconfig) (4-space indent, Allman braces, modifier order, etc.). Beyond what it encodes:
+## Post-Implementation Review
 
-- **Line length: 120 characters max** for new code and comments. Plenty of older code exceeds this — leave it alone unless you're otherwise editing it.
-- **Always brace control statements.** The only exceptions: an `if` with no `else` whose body is a single-line `return` or `throw`, and a `lock` with a single-line `return` or `throw` body.
-- **Prefer expression-bodied methods** when the whole declaration fits on one or two lines (signature on line one, expression on a single indented second line). Use a block body when the expression would need wrapping or the body is more than a single expression.
-- Keep patches focused ([CONTRIBUTING.md](CONTRIBUTING.md)): don't reformat unrelated code or whitespace in the same change.
+After completing each implementation step (edge cut, turbo-owned type, tooling component, smoke rows), invoke both specialist agents for review before marking the step as done:
 
-**Whitespace cleanup workflow.** The tree has accumulated whitespace inconsistencies (mixed tabs/spaces, trailing whitespace, missing final newlines). When about to edit a file with such issues, first **propose a separate whitespace-only commit** normalizing the **entire file** to .editorconfig, then apply the substantive edits on top, so the functional change stays reviewable.
+- **crypto-security-reviewer** (`.claude/agents/crypto-security-reviewer.md`) — Reviews hostile-server input handling, advertised-vs-processable, bounds, validation bypass, exception mapping, constant time and decision A.
+- **strip-build-reviewer** (`.claude/agents/strip-build-reviewer.md`) — Reviews edge-cut policy, closure correctness, runtime-only breakage, define sets, Unity/IL2CPP compatibility, determinism, packaging and rebase surface.
 
-**Commit messages.** Match the existing log: short imperative summary (~50–70 chars), no conventional-commit prefix. Add a body only when the *why* isn't obvious from the diff (performance motivation with rough numbers, a referenced issue, a behavioral change a reader might miss, a non-trivial design choice). Example log: "Refactor (X)ChaCha20 code", "Add XChaCha20 and XChaCha20-Poly1305 (issue #624)".
+Both reviews must pass before proceeding. When a review identifies issues that require code changes, fix them and run both reviews again. Repeat until all issues are resolved or explicitly deferred with a follow-up issue.
 
-**Merges.** Never create a non-fast-forward merge commit (e.g. `git merge` of a diverged branch, `git pull` without `--ff-only`) without explicit direction or confirmation from the user.
+After reviews pass, **update the implementation journal** (`strip/journal/`), then update this file's Development Status section.
+
+## Implementation Journal
+
+An implementation journal is kept in `strip/journal/`. Each implementation session gets its own file. After completing each step you **must** create or update a session file before marking the step as done. Each file includes:
+
+- **What** was implemented (brief description)
+- **Files created/modified** (paths + what each contains)
+- **Decisions made** (choices, trade-offs, deferred items with their follow-up issues)
+- **How verified** (gates, strip.sh mode, smoke rows)
+
+File naming: `YYYY-MM-<short-description>.md` (e.g. `2026-11-e5-turbo-key-factory.md`). Read the folder at the start of each session to recover the history.
+
+## Keeping This File Current
+
+Update this file whenever a milestone or issue group completes, decisions change (turboHTTP #141 decision record), conventions change, or the tooling layout changes — especially Development Status, Key Technical Decisions and Architecture — so the next session starts with accurate context. Waves lanes never edit it; status updates land in a separate PR after a wave.
