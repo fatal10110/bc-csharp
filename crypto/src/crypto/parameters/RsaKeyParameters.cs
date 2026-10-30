@@ -81,15 +81,17 @@ namespace Org.BouncyCastle.Crypto.Parameters
                 if (Properties.GetBoolean(Properties.RsaAllowUnsafeModulus, false))
                     return modulus;
 
-                int maxBitLength = Properties.GetInt32(Properties.RsaMaxSize, 16384);
+                // turbo-strip: E7 default RSA modulus cap 8192 bits (upstream 16384); the property still overrides
+                int maxBitLength = Properties.GetInt32(Properties.RsaMaxSize, 8192);
                 if (modulus.BitLength > maxBitLength)
                     throw new ArgumentException("RSA modulus out of range", nameof(modulus));
 
                 if (BigIntegers.HasAnySmallFactors(modulus))
                     throw new ArgumentException("RSA modulus has a small prime factor", nameof(modulus));
 
-                int defaultIterations = GetMRIterations(modulus.BitLength / 2);
-                int iterations = Properties.GetInt32(Properties.RsaMaxMRTests, defaultIterations);
+                // turbo-strip: E7 no Miller-Rabin on peer moduli by default (upstream 8ee52127 costs ~1 s at 8192
+                // bits per key); GetMRIterations is kept unused for rebase surface; the property still overrides
+                int iterations = Properties.GetInt32(Properties.RsaMaxMRTests, 0);
                 if (iterations > 0)
                 {
                     Primes.MROutput mr = Primes.EnhancedMRProbablePrimeTest(modulus,
