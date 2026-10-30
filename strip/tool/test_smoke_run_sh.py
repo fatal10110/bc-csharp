@@ -175,6 +175,15 @@ class SmokeRunShTest(unittest.TestCase):
         for c in self.harness_builds():
             self.assertIn(f"-p:UpstreamBcDll={base_dll}", c)
 
+    def test_base_dll_option_names_the_dll_in_the_results_header(self):
+        self.assertEqual(self.run_hook().returncode, 0)
+        self.assertTrue((self.work / "smoke" / "base" / "BASE").is_file())
+        base_dll = self.work / "BouncyCastle.Cryptography.dll"
+        base_dll.touch()
+        r = self.run_hook("--base-dll", str(base_dll))
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual(self.results.read_text().splitlines()[0], f"Smoke suite (strip/smoke), BASE build: {base_dll}")
+
     def test_base_build_failure_exits_3_and_removes_the_worktree(self):
         r = self.run_hook(FAKE_RC_base="1")
         self.assertEqual(r.returncode, 3)

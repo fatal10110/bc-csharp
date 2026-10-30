@@ -39,7 +39,7 @@ namespace TurboSmoke
                 "522dc1f099567d07f47f37a32a84427d643a8cdcbfe5c0c97598a2bd2555d1aa"
                 + "8cb08e48590dbb3da7b08b1056828838c5f61e6393ba7a0abcc9f662"
                 + "76fc6ece0f4e1768cddf8853bb2d551b"));
-            rows.Add("chacha20-poly1305-tls", () => Check(ChaCha20Poly1305, typeof(TlsFatalAlert),
+            rows.Add("chacha20-poly1305-tls", () => Check(ChaCha20Poly1305, IsBadRecordMac,
                 "808182838485868788898a8b8c8d8e8f909192939495969798999a9b9c9d9e9f",
                 "070000004041424344454647",
                 "50515253c0c1c2c3c4c5c6c7",
@@ -56,8 +56,8 @@ namespace TurboSmoke
 
         private delegate byte[] AeadProcess(bool encrypt, byte[] key, byte[] nonce, byte[] aad, byte[] input);
 
-        private static void Check(AeadProcess process, Type tamperException, string key, string nonce, string aad,
-            string plain, string sealedHex)
+        private static void Check(AeadProcess process, Action<Exception> checkTamper, string key, string nonce,
+            string aad, string plain, string sealedHex)
         {
             byte[] k = SmokeHex.Decode(key), n = SmokeHex.Decode(nonce), a = SmokeHex.Decode(aad);
             byte[] p = SmokeHex.Decode(plain), expected = SmokeHex.Decode(sealedHex);
@@ -67,17 +67,27 @@ namespace TurboSmoke
 
             byte[] tampered = (byte[])expected.Clone();
             tampered[tampered.Length - 1] ^= 0x01;
-            Exception e = SmokeAssert.Throws<Exception>(() => process(false, k, n, a, tampered), "flipped tag bit");
-            SmokeAssert.True(tamperException.IsInstanceOfType(e), "flipped tag bit: expected "
-                + tamperException.Name + ", got " + e.GetType().Name + ": " + e.Message);
+            checkTamper(SmokeAssert.Throws<Exception>(() => process(false, k, n, a, tampered), "flipped tag bit"));
+        }
+
+        private static void IsInvalidCipherText(Exception e) => SmokeAssert.True(e is InvalidCipherTextException,
+            "flipped tag bit: expected InvalidCipherTextException, got " + e.GetType().Name + ": " + e.Message);
+
+        // The TLS AEAD reports a tag mismatch as the record-layer alert (RFC 8446 section 5.2, RFC 5246 7.2.2).
+        private static void IsBadRecordMac(Exception e)
+        {
+            SmokeAssert.True(e is TlsFatalAlert, "flipped tag bit: expected TlsFatalAlert, got " + e.GetType().Name
+                + ": " + e.Message);
+            SmokeAssert.Equal(AlertDescription.GetText(AlertDescription.bad_record_mac),
+                AlertDescription.GetText(((TlsFatalAlert)e).AlertDescription), "flipped tag bit alert");
         }
 
         // Both constructions: BasicGcmMultiplier passed explicitly (decision G), and GcmBlockCipher(engine) as
         // BcTlsCrypto builds it, whose default multiplier E14 makes BasicGcmMultiplier.
         private static void CheckGcm(string key, string nonce, string aad, string plain, string sealedHex)
         {
-            Check(GcmBasic, typeof(InvalidCipherTextException), key, nonce, aad, plain, sealedHex);
-            Check(GcmDefault, typeof(InvalidCipherTextException), key, nonce, aad, plain, sealedHex);
+            Check(GcmBasic, IsInvalidCipherText, key, nonce, aad, plain, sealedHex);
+            Check(GcmDefault, IsInvalidCipherText, key, nonce, aad, plain, sealedHex);
         }
 
 #pragma warning disable CS0618 // BasicGcmMultiplier and this constructor are [Obsolete] upstream

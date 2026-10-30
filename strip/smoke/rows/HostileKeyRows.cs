@@ -19,8 +19,7 @@ namespace TurboSmoke
         {
             foreach (SmokeKeyCase key in SmokeHostileKeys.Cases)
             {
-                SmokeKeyCase k = key;
-                Add(rows, "key-" + k.Id, () => AssertKeyCase(k));
+                Add(rows, "key-" + key.Id, () => AssertKeyCase(key));
             }
             Add(rows, "key-ec-secp256k1-tls13-rejected",
                 () => AssertKeyRejectedOverTls(P256.Value, SmokeHostileKeys.Secp256k1Certificate(), true));
