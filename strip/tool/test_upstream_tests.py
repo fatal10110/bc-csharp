@@ -2,6 +2,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 from pathlib import Path
 
 SCRIPT = Path(__file__).with_name("upstream_tests.py")
@@ -236,6 +237,37 @@ class CliTest(unittest.TestCase):
         data = Path(self.tmp.name) / "bc-test-data"
         data.mkdir()
         self.assertEqual(ut.find_test_data(self.root / "crypto" / "test"), data)
+
+
+class ErrorPathTest(unittest.TestCase):
+    def test_git_failure_is_a_tool_error(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with self.assertRaisesRegex(ut.ToolError, "git rev-parse HEAD failed"):
+                ut.git(Path(tmp) / "missing", "rev-parse", "HEAD")
+
+    def test_no_trx_names_a_test_compile_failure(self):
+        log = "Build started\nPKCS12Example.cs(121,5): error CS1729: no constructor\nBuild FAILED.\n"
+        message = str(ut.no_trx_error(1, log))
+        self.assertIn("crypto/test does not compile on this tree", message)
+        self.assertIn("error CS1729", message)
+        self.assertNotIn("does not compile", str(ut.no_trx_error(1, "Test host crashed\n")))
+
+    def test_relative_results_dir_is_resolved(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp) / "repo"
+            (root / "strip").mkdir(parents=True)
+            (root / "strip" / "BASE").write_text(BASE_SHA + "\n", encoding="utf-8")
+            (root / "strip" / "upstream-tests.txt").write_text(FILTER, encoding="utf-8")
+            seen = []
+
+            def fake_update_base(root_arg, entries, results_dir, framework, keep_tree):
+                seen.append(results_dir)
+                return 0
+
+            with mock.patch.object(ut, "update_base", fake_update_base):
+                code = ut.main(["--root", str(root), "--results-dir", "rel", "--update-base"])
+            self.assertEqual(code, 0)
+            self.assertTrue(seen[0].is_absolute(), seen[0])
 
 
 class RepoFilesTest(unittest.TestCase):

@@ -298,13 +298,29 @@ def run_tests(tree, entries, results_dir, trx_name, framework):
     with open(log, "w", encoding="utf-8") as handle:
         completed = subprocess.run(command, cwd=tree, env=env, stdout=handle, stderr=subprocess.STDOUT)
     if not trx.is_file():
-        tail = log.read_text(encoding="utf-8", errors="replace").splitlines()[-20:]
-        raise ToolError(f"dotnet test exited {completed.returncode} without a TRX; last log lines:\n" + "\n".join(tail))
+        raise no_trx_error(completed.returncode, log.read_text(encoding="utf-8", errors="replace"))
     return parse_trx(trx)
 
 
+def no_trx_error(returncode, log_text):
+    """The error for a dotnet test run that wrote no TRX; names a compile failure of crypto/test."""
+    lines = log_text.splitlines()
+    message = f"dotnet test exited {returncode} without a TRX"
+    if any("error CS" in line for line in lines):
+        message += (
+            "; crypto/test does not compile on this tree (a cut removed API the upstream tests use),"
+            " so no upstream test result exists"
+        )
+    return ToolError(message + "; last log lines:\n" + "\n".join(lines[-20:]))
+
+
 def git(root, *args):
-    return subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True, text=True).stdout.strip()
+    try:
+        completed = subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True, text=True)
+    except (subprocess.CalledProcessError, OSError) as error:
+        stderr = getattr(error, "stderr", None) or str(error)
+        raise ToolError(f"git {' '.join(args)} failed in {root}: {stderr.strip()}") from error
+    return completed.stdout.strip()
 
 
 def update_base(root, entries, results_dir, framework, keep_tree):
@@ -369,7 +385,7 @@ def main(argv=None):
     parser.add_argument("--keep-base-tree", action="store_true", help="keep the BASE worktree after --update-base")
     args = parser.parse_args(argv)
     root = args.root.resolve()
-    results_dir = args.results_dir or root / RESULTS_DIR
+    results_dir = (args.results_dir or root / RESULTS_DIR).resolve()
     try:
         if not (args.trx or args.print_filter or args.update_base):
             require_test_data(root)

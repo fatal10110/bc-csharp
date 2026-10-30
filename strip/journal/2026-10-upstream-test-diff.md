@@ -62,6 +62,18 @@ strip/tool/upstream_tests.py --print-filter  # the dotnet test --filter expressi
   lanes do not edit them); #12 got a comment asking each edge-cut PR to run the script and add its
   lines to the expected-failures file.
 
+- Test sources that stop compiling after a cut (E9 may cut the key-identifier constructors that
+  `crypto/test/src/pkcs/examples/PKCS12Example.cs` uses): #42 adds an E-tagged exclusion list. Until
+  then a `dotnet test` log with `error CS` makes the tool say that crypto/test does not compile on the
+  tree (exit 2).
+
+## Review round 1
+
+- `git()` failures become `ToolError` with git's stderr (exit 2, not a traceback with exit 1).
+- `--results-dir` is resolved before use, so a relative path no longer splits the TRX from the check.
+- No-TRX error names a crypto/test compile failure; follow-up #42 filed.
+- Three new cases in `strip/tool/test_upstream_tests.py` (`ErrorPathTest`); each fails on the old code.
+
 ## How verified
 
 - `--update-base` on BASE `7c9c8d5a`: 505 tests, 505 pass (1m41s including the cold build);
