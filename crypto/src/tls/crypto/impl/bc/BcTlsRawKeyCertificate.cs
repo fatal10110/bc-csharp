@@ -126,8 +126,14 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
                 int cryptoHashAlgorithm = SignatureScheme.GetCryptoHashAlgorithm(signatureScheme);
                 IDigest digest = m_crypto.CreateDigest(cryptoHashAlgorithm);
 
+                // turbo-strip: E5 RFC 8446 4.2.3: an ecdsa_secp* scheme binds the key's curve
+                ECPublicKeyParameters publicKey = GetPubKeyEC();
+                int namedGroup = SignatureScheme.GetNamedGroup(signatureScheme);
+                if (namedGroup >= 0 && !publicKey.Parameters.Equals(BcTlsECDomain.GetDomainParameters(namedGroup)))
+                    throw new TlsFatalAlert(AlertDescription.illegal_parameter, "Scheme does not match key's curve");
+
                 ISigner verifier = new DsaDigestSigner(new ECDsaSigner(), digest);
-                verifier.Init(false, GetPubKeyEC());
+                verifier.Init(false, publicKey);
 
                 return new BcTls13Verifier(verifier);
             }
