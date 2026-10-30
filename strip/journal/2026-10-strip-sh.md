@@ -45,6 +45,10 @@ of the netstandard2.0/net6.0 library builds.
   3a build of the unrewritten tree is library-only (the consumer check is 3c's).
 - **build.py exit 1 also under `--report`** (unlike closure.py): `--report` only changes the line
   prefix, strip.sh owns report/enforce for builds and needs the signal to skip the smoke hook.
+- **closure.py runs without its `--report` in both modes:** its `--report` exits 0 on fail checks,
+  which would hide deny hits, budget overrun and unresolved errors from strip.sh's report summary
+  and the package note. Without it closure.py prints every `FAIL` line and exits 1; strip.sh logs
+  that as a failing step (report) or stops (enforce).
 - **Smoke hook contract (#23):** `strip/smoke/run.sh --work <work> --results <file> <TurboBC dll>...`,
   run only when it is executable and every build is clean; exit 0 = pass; the results file feeds
   `package.py --smoke`. Without the hook STRIP_INFO.md says "Not run.". The hook requires OpenSSL 3.x
@@ -54,8 +58,11 @@ of the netstandard2.0/net6.0 library builds.
   release.
 - **CI:** no workflow change. ubuntu-latest ships python3; the net471 reference pack comes from NuGet
   through Closure.csproj when a `[netframework]` set exists (none of the provisional sets), and the
-  NuGet cache key already covers `strip/**/*.csproj`. check.sh is unchanged (#30 switches it to
-  enforce and adds `strip/budget.txt`).
+  NuGet cache key already covers `strip/**/*.csproj`.
+- **check.sh keeps the library builds:** `strip.sh --report` never fails on compile errors of the
+  stripped builds (all of them have errors until #19/#20), so the gate still builds `crypto/src`
+  for netstandard2.0 and net6.0 after it. Without that a cut that breaks kept code would pass the
+  gate. #30 switches the gate to enforce (and adds `strip/budget.txt`) and can drop the loop.
 
 ## Deferred
 
@@ -75,5 +82,7 @@ of the netstandard2.0/net6.0 library builds.
   `TurboBC.min.dll` build clean; the same kept tree with a scratch `[netframework]` set
   (`NETFRAMEWORK;NET471`) builds `TurboBC.netfx.dll` and its consumer clean (reference pack restored).
 - `git status --porcelain` clean under `crypto/src` and `strip/roots` after every run.
+- `test_strip_sh.py`'s fake closure.py follows the real exit contract (0 under `--report`, 1
+  without); the report tests fail on a strip.sh that passes `--report` to closure.py.
 - `python3 -m unittest discover -s strip/tool -p 'test_*.py'`, `shellcheck strip/strip.sh`,
   `./tools/ci/check.sh`.

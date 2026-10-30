@@ -127,8 +127,9 @@ echo "BASE $base, ROOTS_SHA $roots_sha, HEAD $(git rev-parse HEAD 2>/dev/null ||
 echo "work $work, out $out"
 
 step "2 closure"
+# closure.py runs without --report in both modes: its --report exits 0 on fail checks, and strip.sh
+# needs exit 1 to log them (report) or stop (enforce) and to mark a report package.
 closure_args=(--roots strip/roots --work "$work" ${sets[@]+"${sets[@]}"})
-[ "$report" = 1 ] && closure_args+=(--report)
 python3 "$tool/closure.py" "${closure_args[@]}"
 rc=$?
 case $rc in

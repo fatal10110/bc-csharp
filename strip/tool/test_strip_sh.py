@@ -22,13 +22,19 @@ case ${1:-} in
 esac
 tool=$(basename "$1"); shift
 echo "$tool $*" >> "$FAKE_LOG"
+args=" $* "
 out=""; files=""; work=""; sub=${1:-}
 while [ $# -gt 0 ]; do
   case $1 in --out) out=$2 ;; --files) files=$2 ;; --work) work=$2 ;; esac
   shift
 done
 case $tool in
-  closure.py) exit "${FAKE_RC_closure:-0}" ;;
+  closure.py)
+    # Real contract: fail checks exit 1, but exit 0 under --report (only the line prefix changes).
+    if [ -n "${FAKE_CLOSURE_FAILS:-}" ]; then
+      case $args in *" --report "*) echo "REPORT deny hit"; exit 0 ;; *) echo "FAIL deny hit"; exit 1 ;; esac
+    fi
+    exit "${FAKE_RC_closure:-0}" ;;
   rewrite.py)
     mkdir -p "$out"
     while read -r f; do case $f in '#'*|'') ;; *) touch "$out/$f" ;; esac; done < "$files" ;;
@@ -145,7 +151,7 @@ class StripShTest(unittest.TestCase):
         self.assertEqual(self.tools(), ["closure.py", "build.py stage", "rewrite.py", "rewrite.py", "rewrite.py",
                                         "build.py build", "package.py"])
         calls = self.calls()
-        self.assertIn("--report", calls[0].split())
+        self.assertNotIn("--report", calls[0].split())
         self.assertIn("--set min", calls[0])
         self.assertIn("--set min", calls[5])
         self.assertIn("--report", calls[5].split())
@@ -162,13 +168,13 @@ class StripShTest(unittest.TestCase):
         self.assertIn("clean", r.stdout)
 
     def test_enforce_stops_on_closure_fail_checks(self):
-        r = self.run_sh(FAKE_RC_closure="1")
+        r = self.run_sh(FAKE_CLOSURE_FAILS="1")
         self.assertEqual(r.returncode, 1)
         self.assertIn("FAIL strip.sh: closure fail checks", r.stderr)
         self.assertEqual(self.tools(), ["closure.py"])
 
     def test_report_goes_on_after_closure_and_build_failures(self):
-        r = self.run_sh("--report", FAKE_RC_closure="1", FAKE_RC_build="1")
+        r = self.run_sh("--report", FAKE_CLOSURE_FAILS="1", FAKE_RC_build="1")
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.tools()[-1], "package.py")
         self.assertIn("report: 2 failing step(s)", r.stdout)
@@ -179,6 +185,14 @@ class StripShTest(unittest.TestCase):
         self.assertTrue(text.startswith("Not for handover"))
         self.assertIn("- closure fail checks", text)
         self.assertIn("Smoke: not run.", text)
+
+    def test_report_logs_closure_fail_checks_and_marks_package(self):
+        # closure.py exits 0 under its own --report: strip.sh must not rely on that flag (round 1).
+        r = self.run_sh("--report", FAKE_CLOSURE_FAILS="1")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("REPORT strip.sh: closure fail checks", r.stdout)
+        self.assertIn("report: 1 failing step(s)", r.stdout)
+        self.assertTrue((self.work / "report-note.md").read_text().startswith("Not for handover"))
 
     def test_enforce_stops_on_compile_errors(self):
         r = self.run_sh(FAKE_RC_build="1")
