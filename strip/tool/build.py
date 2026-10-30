@@ -19,6 +19,10 @@ build  (after the rewrite) builds, per define set, in <work>/build/<stage>-<set>
        other set). The consumer build is skipped when its TurboBC.<x>.dll did not build. Built
        TurboBC.<x>.dll files are copied to <work>/dll/ for the smoke hook; every compile error goes
        to <work>/build_report.json.
+       #58: when [netstandard21] is built, its DEBUG variant [netstandard21_debug] (the captured set
+       plus DEBUG and TRACE, defines.debug_variants; not in unity-defines.txt) is built too, last:
+       3a, 3c and consumer, <x> = ns21-debug, its TurboBC.ns21-debug.dll copied to <work>/dll/debug/
+       (strip.sh runs only the curve, KAT and registry smoke rows against it).
 
 Every build is a copy of strip/Closure.csproj (CS3021 suppressed, exactly the captured defines) with
 the define assertion of closure.py (binlog, csc /define: == the set). One `dotnet restore` per
@@ -53,7 +57,8 @@ REWRITTEN_ROOTS = os.path.join("rewritten", "roots")
 DLL_DIR = "dll"
 BUILD_REPORT = "build_report.json"
 # The real sets of turboHTTP#141 (#29) get the plan's DLL names; any other set keeps its own.
-DLL_SUFFIX = {"netstandard21": "ns21", defines_mod.NETFRAMEWORK_SET: "netfx"}
+DLL_SUFFIX = {"netstandard21": "ns21", defines_mod.NETFRAMEWORK_SET: "netfx", "netstandard21_debug": "ns21-debug"}
+DEBUG_DLL_DIR = os.path.join(DLL_DIR, "debug")  # DEBUG variants (#58): strip.sh runs a row subset on them
 _SET_NAME = re.compile(r"^[A-Za-z0-9_]+$")
 SHOWN_ERRORS = 10  # per build on the console; build_report.json has all
 
@@ -153,6 +158,16 @@ class StageBuilder(closure_mod.DotnetBuilder):
         return os.path.join(self.set_dir(key), "bin", "Debug", tfm, assembly + ".dll")
 
 
+def select_sets(all_sets, wanted):
+    """The captured sets to build (all when wanted is empty), then the DEBUG variants of those (#58)."""
+    unknown = [s for s in wanted if s not in all_sets]
+    if unknown:
+        raise StageError(f"unknown define set(s) {unknown}; the define file has {list(all_sets)}")
+    sets = {s: all_sets[s] for s in (wanted or all_sets)}
+    sets.update(defines_mod.debug_variants(sets))
+    return sets
+
+
 def plan_builds(builder, sets, work, src):
     """Register every build; return [(set, key_3a, key_3c, key_consumer, 3a files, 3c files, consumer files)]."""
     kept = read_list(os.path.join(work, KEPT_LIST))
@@ -196,7 +211,9 @@ def run_builds(builder, plan, work, log=print):
             results[key] = [str(e) for e in sorted(errors)]
             log(f"[{key}] {builder.targets[key][1]}.dll: {len(errors)} compile error(s)")
         if not results[k3c]:
-            shutil.copyfile(builder.output(k3c), os.path.join(dll_dir, lib_assembly(s) + ".dll"))
+            dest = os.path.join(work, DEBUG_DLL_DIR if s in defines_mod.DEBUG_VARIANTS else DLL_DIR)
+            os.makedirs(dest, exist_ok=True)
+            shutil.copyfile(builder.output(k3c), os.path.join(dest, lib_assembly(s) + ".dll"))
     return results
 
 
@@ -244,11 +261,7 @@ def main(argv=None):
         return 0
 
     try:
-        all_sets = defines_mod.load_unity_defines(a.defines)
-        unknown = [s for s in a.sets if s not in all_sets]
-        if unknown:
-            raise StageError(f"unknown define set(s) {unknown}; {a.defines} has {list(all_sets)}")
-        sets = {s: all_sets[s] for s in (a.sets or all_sets)}
+        sets = select_sets(defines_mod.load_unity_defines(a.defines), a.sets)
         builder = StageBuilder(work, os.path.abspath(a.csproj), dotnet=a.dotnet)
         plan = plan_builds(builder, sets, work, os.path.abspath(a.src))
         builder.prepare(restore=not a.no_restore)
@@ -267,7 +280,10 @@ def main(argv=None):
         print(("REPORT " if a.report else "FAIL ") + line)
     if failures:
         return 1
-    print(f"builds clean: {sorted(os.listdir(os.path.join(work, DLL_DIR)))}")
+    built = [os.path.join(d, f).replace(os.sep, "/") for d in (DLL_DIR, DEBUG_DLL_DIR)
+             if os.path.isdir(os.path.join(work, d)) for f in sorted(os.listdir(os.path.join(work, d)))
+             if f.endswith(".dll")]
+    print(f"builds clean: {built}")
     return 0
 
 
