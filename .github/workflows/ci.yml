@@ -51,7 +51,7 @@ jobs:
           CHECK_BASE: origin/strip-v2
         run: tools/ci/check.sh --full
 
-  # A strip-v2 ruleset should require this single check (owner setting, not yet configured).
+  # strip-v2 (the default branch) requires this single check.
   # It passes only when every job above does.
   ci:
     if: always()

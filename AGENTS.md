@@ -16,7 +16,8 @@ branch of fatal10110/bc-csharp.
 ## Project Snapshot
 
 - This repository is a **fork** of upstream Bouncy Castle C# (`bcgit/bc-csharp`). `master` mirrors
-  upstream; `strip-v2` is this fork's integration branch.
+  upstream; **`strip-v2` is the default branch**, protected by CI: every change lands through a PR
+  that passes the required `ci` check (only the owner bypasses, for bump force-pushes).
 - Goal: a scripted, reproducible reduction of upstream to a minimal **TLS 1.2/1.3 client** subset,
   namespace-rewritten to `TurboHTTP.SecureProtocol.Org.BouncyCastle` and handed to turboHTTP
   (fatal10110/turboHTTP, Unity 2021.3, IL2CPP on iOS/Android) as its TLS fallback.
@@ -148,7 +149,8 @@ Agent tools (`tools/agent-tools/`): `look.py` (batched C# declaration/range/rg l
 Rules for every agent:
 
 - Work in a worktree under `../bc-csharp-worktrees/`, never in the primary checkout.
-- PRs target `strip-v2` and are squash-merged (one commit per PR keeps the edge-cut series).
+- Never push to `strip-v2` directly: push a `wf/...` branch and open a PR against `strip-v2`; it is
+  squash-merged once `ci` is green (one commit per PR keeps the edge-cut series).
 - One issue (or one lane of related issues) per PR; "Closes #N" only for fully delivered criteria;
   anything left becomes a follow-up issue before the PR is opened.
 - Every PR body follows `.github/pull_request_template.md` and records which local gates ran.

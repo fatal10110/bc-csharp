@@ -41,7 +41,8 @@ agent tools, two specialist review rubrics, and `AGENTS.md` / `CLAUDE.md` in tur
 
 ## Deferred
 
-- Branch ruleset on `strip-v2` requiring the `ci` check is a repository-settings change for the owner.
+- `strip-v2` is the default branch and is meant to be protected by CI (PR required, `ci` check
+  required, owner bypass for bumps). At the time of writing the fork had no ruleset configured yet.
 
 ## Review fixes (same session)
 

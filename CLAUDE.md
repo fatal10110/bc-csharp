@@ -36,12 +36,12 @@ Recorded in `STRIP_PLAN_V2.md` §2; confirmed/overridden in turboHTTP #141.
 
 Repository conventions (not plan decisions):
 
-- **Integration:** PRs target `strip-v2`, squash-merged; a bump rebases `strip-v2` onto new upstream (owner force-push).
+- **Integration:** `strip-v2` is the default branch and is protected by CI: changes land only through PRs that pass the required `ci` check, squash-merged. Never push to it directly. A bump rebases `strip-v2` onto new upstream (owner force-push, the only bypass).
 
 ## Development Status
 
 - **Plan:** COMPLETE — `STRIP_PLAN_V2.md` rev 6.3, review cycle closed.
-- **Agent workflow and CI:** COMPLETE pending the first green CI run on GitHub and a `strip-v2` ruleset requiring `ci` (owner) — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
+- **Agent workflow and CI:** COMPLETE pending the first green CI run on GitHub — CI (`ci`, CodeQL), local gate, skills (`bcstrip-*`), agent types and agent tools ported from turboHTTP. See `strip/journal/2026-10-agent-workflow-ci.md`.
 - **M1 Tooling (#4–#10):** NOT STARTED. `strip/tool/` holds the closure prototype only.
 - **M2 Bootstrap & edge cuts (#11–#21):** NOT STARTED.
 - **M3 Smoke suite, enforce & handover (#22–#31):** NOT STARTED; #29 waits on turboHTTP #141 (Unity define sets, decision record).
