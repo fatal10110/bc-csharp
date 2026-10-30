@@ -36,10 +36,10 @@ branch of fatal10110/bc-csharp.
 - **Turbo-owned code** lives in `crypto/src/turbo/` (namespace `Org.BouncyCastle.Turbo`, MIT header):
   `TurboKeyFactory` (E5); its NUnit fixtures sit in `crypto/test/src/turbo/`.
 - **Strip tooling** lives in `strip/`: `BASE`, `ROOTS_SHA`, `roots/`, `deny.txt`,
-  `unity-defines.txt` (provisional `[min]`/`[partial]`/`[sdk]` sets until #29), `Closure.csproj`,
+  `unity-defines.txt` (the captured Unity 2021.3 `[netstandard21]`/`[netframework]` sets), `budget.txt`, `Closure.csproj`,
   `tool/` (closure, deny/sweep, build, rewrite, package, refresh-roots, upstream-test diff),
   `smoke/` (harness and row groups), `strip.sh`, `unity-probe/`, `journal/`, and the upstream-test
-  diff files `upstream-*.txt`. Still to come (#30): `budget.txt`. Output goes to `strip/out/` and is
+  diff files `upstream-*.txt`. Output goes to `strip/out/` and is
   handed over to turboHTTP (#141 there).
 - **Agent and CI tooling** lives in `tools/` (`tools/ci/check.sh`, `tools/agent-tools/*`),
   `.github/` and `.claude/`.
@@ -130,9 +130,9 @@ re-review, and document deliberate deferrals with a follow-up issue.
 
 - `./tools/ci/check.sh` before every push: `dotnet format whitespace` on changed fork-owned C#
   (`crypto/src/turbo`, `strip`, `tools`); for changed upstream C#, only added lines are checked
-  (trailing whitespace) — upstream files are never reformatted. Then `strip/strip.sh --report`
-  (closure, stripped and rewritten builds, smoke suite; #30 switches it to enforce mode) and,
-  until #30, the whole library for netstandard2.0 and net6.0. `--full` adds actionlint, shellcheck, the Python tool tests and the waves simulation; run it
+  (trailing whitespace) — upstream files are never reformatted. Then `strip/strip.sh` in enforce
+  mode (closure, stripped and rewritten builds, smoke suite; deny hits, the budget and unresolved
+  names fail it; the slow smoke rows need `--smoke-slow`). `--full` adds actionlint, shellcheck, the Python tool tests and the waves simulation; run it
   before opening a PR (waves lanes: when the lane note asks). `--fix` formats fork-owned C#.
 - CI (`.github/workflows/ci.yml`) runs `check.sh --full` on PRs to `strip-v2` and on pushes to it;
   the aggregate check is `ci`. CodeQL (`codeql.yml`) analyses fork-owned code only
@@ -172,8 +172,8 @@ Rules for every agent:
 - Lanes add their own journal file and do not edit `AGENTS.md`/`CLAUDE.md`.
 - Never write files, commits or PRs into turboHTTP. The handover comment on turboHTTP #141 is
   posted by the owner or with the owner's approval.
-- Edge cuts keep the whole library compiling until #30 switches the gate to enforce mode (the gate
-  still builds it beside `strip.sh --report`).
+- Edge cuts only need to keep the strip compiling: since #30 the gate runs `strip.sh` in enforce
+  mode and no longer builds the whole library. Run `strip/tool/upstream_tests.py` after each cut.
 - Never run waves during a bump (the owner rebases and force-pushes `strip-v2`).
 
 ## Repository Conventions

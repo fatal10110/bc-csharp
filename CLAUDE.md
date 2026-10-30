@@ -22,12 +22,12 @@ fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; roo
   - `BASE` (pinned upstream SHA) and `ROOTS_SHA`.
   - `roots/`: consumer copies, `RootStubs.cs` and the `roots-extra.cs` API contract.
   - `deny.txt`.
-  - `unity-defines.txt`: provisional `[min]`/`[partial]`/`[sdk]` sets until #29.
+  - `unity-defines.txt`: the captured Unity 2021.3.45f2 sets `[netstandard21]` and `[netframework]` (no `*_OR_GREATER` symbols, so BC takes its legacy non-Span paths).
+  - `budget.txt`: 748 (680 kept + 10%).
   - `Closure.csproj`.
   - `tool/`: `closure.py`, `index.py`, `defines.py`, `deny.py`, `build.py`, `rewrite.py`, `package.py`, `refresh_roots.py`, `upstream_tests.py`, plus `test_*.py`.
   - `smoke/`: `run.sh`, the harness and row groups.
   - `strip.sh`, `upstream-*.txt` (upstream-test diff), `unity-probe/`, `journal/`.
-  - Still to come: `budget.txt` (#30).
   - Output: `strip/out/` (Lib + `.meta`, `LICENSE.md`, `THIRD-PARTY-NOTICES.txt`, `STRIP_INFO.md`).
 - `tools/ci/check.sh` (local gate), `tools/agent-tools/` (agent tools), `.github/` (CI, CodeQL, PR template), `.claude/` (skills, agents).
 
@@ -35,7 +35,7 @@ fatal10110/bc-csharp is a fork of Bouncy Castle for .NET (`bcgit/bc-csharp`; roo
 
 ## Key Technical Decisions
 
-Recorded in `STRIP_PLAN_V2.md` §2; confirmed/overridden in turboHTTP #141.
+Recorded in `STRIP_PLAN_V2.md` §2; all confirmed by the owner on turboHTTP #141 (2026-10-30). C and D are v1 choices with follow-ups #60 and #61.
 
 - **A — Chain validation outside BC.** Native platform verifiers on mobile, `X509Chain` on desktop; no BC PKIX, no BC certificate-signature verification (`X509Certificate.Verify` throws).
 - **B — No TLS 1.2 CBC.** **C — No X25519MLKEM768** for now. **D — No OCSP request** (must-staple not enforced). **E — No Ed25519/Ed448 certificates.** **F — No TLS 1.3 resumption.**
@@ -57,10 +57,13 @@ Repository conventions (not plan decisions):
   - Open: #42, an exclusion list for `crypto/test` sources a cut stops compiling.
 - **M2 Bootstrap & edge cuts (#11–#21):** E1–E14 landed.
   - The bootstrap report (#11) was 778 closure files on the provisional sets, 713 kept after denials, with every referrer mapped.
-  - E13 (#20) covers the provisional sets only and stays open for the real Unity sets (#30).
-- **M3 Smoke suite, enforce & handover (#22–#31):** smoke suite #23–#27 landed: harness, curve lookup and KATs, OpenSSL interop with exact ClientHello, hostile inputs, timeout.
-  - The timeout rows are opt-in (`strip.sh --smoke-slow`); #30 must pass that flag.
-  - #29 waits on the Unity 2021.3 define sets and the decision record (turboHTTP #141). #30 and #31 follow it.
+  - E13 (#20) is complete: the real Unity sets need no guard fix.
+- **M3 Smoke suite, enforce & handover (#22–#31):** smoke suite, real define sets (#29), decision record and enforce run (#30) are COMPLETE.
+  - The smoke suite (#23–#27) covers curve lookup and KATs, OpenSSL interop with exact ClientHello, hostile inputs and timeout.
+  - #29: define sets captured from Unity 2021.3.45f2; decisions A–G confirmed on turboHTTP #141.
+  - #30 (PR #59, `2e1ee72a`): CI runs `strip.sh` in enforce mode; kept 680 files, budget 748; smoke 216/216 on `TurboBC.ns21` and `TurboBC.netfx` (with `--smoke-slow`).
+  - The strip output was also checked in Unity 2021.3 against turboHTTP@3856398f: player compile for Windows, Android and iOS, and the turboHTTP TLS integration tests.
+  - Open: #31 (hand-over comment on turboHTTP #141, owner-approved), #58 (DEBUG build of the kept tree), and follow-ups #42, #60 and #61.
 
 ## Implementation Milestones
 
@@ -76,7 +79,7 @@ Order of work (`STRIP_PLAN_V2.md` §6):
 
 1. **Runtime-only breakage** — static initializers/registries that throw when entries are removed (`CustomNamedCurves.DefineCurveAlias`); only smoke rows catch these.
 2. **Hostile-server DoS** — key sizes, exponents, ASN.1 nesting, PSS parameters; every bound must sit before allocation or modexp.
-3. **Unity define sets** — Unity may not define `*_OR_GREATER`; partial sets break `#if` guards (E13); unknown until turboHTTP #141 delivers.
+3. **Unity define sets** — Unity 2021.3 defines no `*_OR_GREATER` (captured, #29), so BC compiles its legacy non-Span paths. Editor and Development builds add `DEBUG` (#58). A Unity upgrade needs a new capture and enforce run.
 4. **Rebase surface** — cuts in frequently changing upstream files (`TlsUtilities`, factories) turn bumps into manual conflict work; reserve alternative is the official DLL with Cecil rename (plan §7).
 
 ## Testing
@@ -97,7 +100,7 @@ DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastl
 ## Conventions
 
 **Upstream code (inherited):**
-- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate does both until #30 enforces `strip.sh`): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
+- Multi-TFM guards (when touching `#if` switches, build at least netstandard2.0 and net6.0 — the gate checks the strip's define sets via `strip.sh`): Span code under `#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER`, intrinsics under `#if NETCOREAPP3_0_OR_GREATER`; the `#else` path stays functionally equivalent. ISA detection only via `Org.BouncyCastle.Runtime.Intrinsics` wrappers (skill `intrinsics-testing`).
 - Constant-time discipline: no branch, table index or early exit on secrets; `Arrays.FixedTimeEquals`; wipe with `Arrays.ZeroMemory`.
 - `crypto/src/pqc/` tracks reference C; it is denied in the strip anyway.
 - Style: `.editorconfig` (4 spaces, Allman), 120 columns for new code, always brace control statements (except single-line `return`/`throw` without `else`), expression-bodied members when they fit on two lines. Do not reformat upstream code you are not otherwise editing.
@@ -113,7 +116,7 @@ DOTNET_ROLL_FORWARD=Major dotnet test --framework net6.0 crypto/test/BouncyCastl
 
 `AGENTS.md` ("Local Gates And CI", "Agent Workflow") is the source of truth. In short:
 
-- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and builds the strip: `strip/strip.sh --report` (closure, builds, smoke suite), plus the whole library for netstandard2.0 and net6.0 until #30 switches to enforce mode.
+- Run `./tools/ci/check.sh` before every push (`--full` before opening a PR; waves lanes only when the lane note asks). It formats changed fork-owned C#, checks only added lines in upstream C#, and runs `strip/strip.sh` in enforce mode (closure, builds, smoke suite; deny hits, budget and unresolved names fail).
 - CI runs `check.sh --full` on PRs to `strip-v2`; aggregate check `ci`; CodeQL on fork-owned code.
 - Work comes from GitHub issues #3–#31 (milestones "Strip v2 — M1/M2/M3", project "BouncyCastle strip v2"). Use the skills `bcstrip-issue` (one issue), `bcstrip-pr-review`, `bcstrip-pr-review-comments`, and `bcstrip-waves` (multi-PR fan-out with the `wave-*` agent types in `.claude/agents/`).
 - Worktrees go under `../bc-csharp-worktrees/`. PRs target `strip-v2`. Edge cuts wait for #10 (`strip.sh`) or keep the whole library compiling.
