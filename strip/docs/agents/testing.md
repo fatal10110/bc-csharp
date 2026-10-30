@@ -10,7 +10,7 @@ validating in Unity.
 | Smoke suite (fast rows) on every define set's DLL | `strip/smoke/`, run by `strip.sh` | **yes** (`check.sh`, CI) |
 | Smoke slow rows (30 s handshake timeout) | `strip.sh --smoke-slow` | before a hand-over or a change to the timeout path |
 | Tool tests | `strip/tool/test_*.py`, `tools/agent-tools/test_*.py`, `waves_sim.mjs` | yes, with `check.sh --full` |
-| Turbo fixtures | `crypto/test/src/turbo/` | scoped runs; required for cuts that have no smoke row |
+| Turbo fixtures | `crypto/test/src/turbo/` | yes, with `check.sh --full`; required for cuts that have no smoke row |
 | Upstream `crypto/test` diff over the kept surface | `strip/tool/upstream_tests.py` | after every edge cut and every bump; not in CI |
 | Unity 2021.3 compile and turboHTTP TLS tests | probe project (below) | after define-set or `#if` changes, and before a hand-over |
 

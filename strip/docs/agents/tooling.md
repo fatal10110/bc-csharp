@@ -9,7 +9,8 @@ Load when working on the local gate, CI, prerequisites, agent tools or a bump.
   - a trailing-whitespace check on added lines only in changed upstream C# (upstream files are never reformatted);
   - `strip/strip.sh` in enforce mode.
   - The whole library is not built: code outside the closure may stop compiling after a cut.
-- **`--full`** (before opening a PR) adds actionlint, shellcheck, the Python tool tests and the waves
+- **`--full`** (before opening a PR) adds actionlint, shellcheck, the turbo NUnit tests
+  (`FullyQualifiedName~Org.BouncyCastle.Turbo`, net6.0 with roll-forward), the Python tool tests and the waves
   simulation (`node .claude/skills/bcstrip-waves/waves_sim.mjs`).
 - **`--fix`** applies the whitespace formatting.
 - **`CHECK_BASE`** (default `origin/strip-v2`) is what "changed" is diffed against.

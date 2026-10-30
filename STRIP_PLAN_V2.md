@@ -154,12 +154,12 @@ strip/
   roots/                # COMMITTED: 3 consumer files (rewrite reversed), RootStubs.cs (ITlsProvider, TlsResult 5-arg
                         #   ctor, UnityEngine.Scripting.PreserveAttribute), roots-extra.cs
   deny.txt  budget.txt
-  unity-defines.txt     # [netstandard21] / [netframework] sections, one DefineConstants line each, from #141.
-                        #   Until then, --report runs three provisional sets:
+  unity-defines.txt     # [netstandard21] / [netframework] sections, one DefineConstants line each, captured
+                        #   from Unity 2021.3 (#29). Before the capture, --report ran three provisional sets:
                         #   [min] NETSTANDARD;NETSTANDARD2_1 = the no-Span floor (pure legacy paths);
                         #   [partial] [min] + NETSTANDARD2_1_OR_GREATER = the E13 11-file case;
                         #   [sdk] = the full SDK netstandard2.1 implicit set = Span paths, Poly1305 only.
-                        #   That way the guard fixes are known whichever way #141 answers.
+                        #   The captured sets match [min] (no *_OR_GREATER), so E13 needs no edits.
   unity-probe/          # DefineProbe.cs — optional Editor cross-check of the captured sets
   Closure.csproj        # EnableDefaultCompileItems=false; LangVersion 9; AllowUnsafeBlocks=false;
                         #   DisableImplicitFrameworkDefines=true; single TargetFramework per run (no multi-targeting):
