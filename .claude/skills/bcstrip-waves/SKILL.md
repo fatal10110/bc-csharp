@@ -66,10 +66,17 @@ The loop per lane:
 1. The implementation agent implements and pushes.
 2. The review agent reviews. If there are findings, they go to the implementation agent, which
    fixes, pushes, and gets a delta re-review from the same review agent. This repeats until a
-   review is clean, at most `maxRounds` rounds.
+   review is clean, at most `maxRounds` rounds. There are no optional findings: every nit is
+   action required, and so is every unresolved PR thread, CodeQL alerts included
+   (`wave_mail.py threads --pr N`). The implementation agent settles each thread (fix, rebuttal,
+   CodeQL dismissal with a reason, or follow-up issue), replies on it and resolves it. "Clean"
+   means no items and 0 unresolved threads.
 3. The review agent asks the merger to merge. A real CI failure goes to the implementation agent,
    then gets a delta review. A conflict goes to the implementation agent and is re-reviewed only if
-   the resolution was semantic. Then merge again.
+   the resolution was semantic. After CI is green the merger checks the PR's unresolved threads again
+   (CodeQL posts its alerts when its check finishes). Any open thread is answered `threads_open`
+   instead of a merge, and the review agent sends the threads back as a review round. Then merge
+   again.
 
 All coordination goes through `tools/agent-tools/wave_mail.py` under
 `<repo-parent>/bc-csharp-worktrees/.waves/<run>/` (mailboxes `box/impl`, `box/review`; lane state;

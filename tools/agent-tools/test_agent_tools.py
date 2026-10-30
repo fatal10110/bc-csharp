@@ -128,9 +128,13 @@ class WaveMailTools(Base):
     def test_pr_state_is_compact(self):
         self.gh({"api repos/fatal10110/bc-csharp/pulls/7": {"state": "open", "merged": False, "draft": False,
                  "head": {"sha": "h1", "ref": "wf/a"}, "base": {"ref": "strip-v2"}, "mergeable_state": "behind"},
-                 "api repos/fatal10110/bc-csharp/compare/strip-v2...h1": {"behind_by": 3}})
+                 "api repos/fatal10110/bc-csharp/compare/strip-v2...h1": {"behind_by": 3},
+                 "api graphql": {"data": {"repository": {"pullRequest": {"reviewThreads": {"nodes": [
+                     {"id": "T1", "isResolved": False, "path": "a.cs", "line": 1,
+                      "comments": {"nodes": [{"author": {"login": "github-advanced-security"}, "body": "x"}]}},
+                     {"id": "T2", "isResolved": True, "path": "b.cs", "line": 2, "comments": {"nodes": []}}]}}}}}})
         self.assertEqual(self.mb("pr-state", "--pr", "7"), {"pr": 7, "state": "open", "merged": False, "merge_sha": "", "draft": False,
-                         "head": "h1", "branch": "wf/a", "mergeable_state": "behind", "behind_by": 3})
+                         "head": "h1", "branch": "wf/a", "mergeable_state": "behind", "behind_by": 3, "unresolved_threads": 1})
 
     def runs(self, *rows):
         return {"api repos/fatal10110/bc-csharp/commits/h1/check-runs": {"check_runs": [

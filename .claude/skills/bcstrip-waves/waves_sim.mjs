@@ -98,6 +98,7 @@ function world(cap, scen) {
       if (out === 'merged') { post(slug, 'impl', 'final', { reason: 'merged' }); set(slug, { status: 'merged' }); return { status: 'merged', pr_number: sc.pr || 100, rounds: r.round, merge_sha: 'sha-' + slug, summary: '' } }
       if (out === 'ci_failed') post(slug, 'impl', 'ci', { file: 'c1' })
       if (out === 'conflict') post(slug, 'impl', 'conflict', { notes: 'x' })
+      if (out === 'threads_open') { post(slug, 'impl', 'review', { round: r.round + 1 }); set(slug, { stage: 'fix' }) }
     }
   }
 
@@ -176,6 +177,16 @@ const plan = {
 }
 const by = res => Object.fromEntries(res.map(r => [r.slug, r]))
 const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(prefix + '#')).length
+
+// 1b. threads_open (CodeQL alerts posted after CI) sends the PR back for one more round, then it merges.
+{
+  const one = { tracks: ['A'], waves: [{ name: '1', lanes: [lane('a', 'A')] }] }
+  const { res, w } = await run({ run: 'sim', track: 'A', plan: one }, { a: { reviewRounds: 1, merges: ['threads_open', 'merged'] } })
+  const r = by(res)
+  assert.equal(r.a.status, 'merged')
+  assert.equal(r.a.rounds, 3) // R1 findings, R2 clean -> threads_open, R3 after the threads are settled
+  assert.equal(count(w, 'impl:a'), 1, 'still one implementation agent')
+}
 
 // 1. One implementation agent and ONE review agent per PR for every review, CI and conflict round,
 //    on a 2-slot cap; deps gate later lanes.
@@ -301,12 +312,20 @@ const count = (w, prefix) => w.labels.filter(l => l === prefix || l.startsWith(p
   for (const [label, p] of w.allPrompts) assert.ok(!leftover.test(p), 'no main/turboHTTP leftovers in ' + label)
   const brief = w.allPrompts.find(([l]) => l.startsWith('brief:a'))
   assert.ok(brief && brief[1].includes('origin/strip-v2'), 'the brief reads origin/strip-v2')
+  // Review threads gate the merge: the reviewer counts every unresolved thread (CodeQL included) and
+  // no optional nits; the merger checks threads after CI and answers threads_open.
+  const revP = w.allPrompts.find(([l]) => l.startsWith('review:a'))[1]
+  assert.ok(revP.includes('threads --pr <n>') && revP.includes('there are no optional findings') && revP.includes('CodeQL'), 'reviewer counts every thread')
+  assert.ok(revP.includes('threads_open:'), 'reviewer handles threads_open')
+  const implP = w.allPrompts.find(([l]) => l.startsWith('impl:a'))[1]
+  assert.ok(implP.includes('settle EVERY unresolved thread') && implP.includes('code-scanning/alerts'), 'implementer settles every thread')
   // The merger fetches and recognises update-branch commits of strip-v2.
   const m = await run({ run: 'sim', role: 'merger', plan: one, tool: '/r/bc-csharp/tools/agent-tools/wave_mail.py' }, { $take: [[{ id: 'm1', type: 'merge', from: 'a/review' }]] })
   const mp = m.w.allPrompts.find(([l]) => l.startsWith('merge:'))
   assert.ok(mp, 'merger agent ran')
   assert.ok(mp[1].includes("Merge branch 'strip-v2'") && mp[1].includes('fetch origin wf/a strip-v2'), 'merger uses strip-v2')
   assert.ok(!leftover.test(mp[1]), 'no main leftovers in the merger prompt')
+  assert.ok(mp[1].includes('3b. Threads (after CI is green') && mp[1].includes('answer threads_open'), 'merger gates on unresolved threads after CI')
 }
 
 // 7. The example plan runs on both tracks.

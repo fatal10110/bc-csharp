@@ -602,6 +602,42 @@ def gh_api(path):
     return json.loads(r.stdout)
 
 
+def gh_graphql(query, **variables):
+    gh = os.environ.get("WAVES_GH", "gh")
+    args = [gh, "api", "graphql", "-f", f"query={query}"]
+    for k, v in variables.items():
+        args += ["-F", f"{k}={v}"]
+    r = subprocess.run(args, capture_output=True, text=True, timeout=120)
+    if r.returncode != 0:
+        raise RuntimeError((r.stderr or r.stdout).strip()[-300:])
+    d = json.loads(r.stdout)
+    if d.get("errors"):
+        raise RuntimeError(str(d["errors"])[:300])
+    return d["data"]
+
+
+THREADS_QUERY = ("query($owner:String!,$name:String!,$pr:Int!){repository(owner:$owner,name:$name){pullRequest(number:$pr)"
+                 "{reviewThreads(first:100){nodes{id isResolved isOutdated path line"
+                 " comments(first:1){nodes{author{login} body url}}}}}}}")
+
+
+def unresolved_threads(pr):
+    """Every unresolved review thread on the PR, CodeQL (github-advanced-security) ones included."""
+    owner, name = GH_REPO.split("/")
+    data = gh_graphql(THREADS_QUERY, owner=owner, name=name, pr=int(pr))
+    nodes = data["repository"]["pullRequest"]["reviewThreads"]["nodes"]
+    res = []
+    for t in nodes:
+        if t.get("isResolved"):
+            continue
+        first = ((t.get("comments") or {}).get("nodes") or [{}])[0]
+        author = (first.get("author") or {}).get("login") or ""
+        res.append({"id": t.get("id"), "kind": "codeql" if author.startswith("github-advanced-security") else "review",
+                    "author": author, "path": t.get("path"), "line": t.get("line"), "outdated": bool(t.get("isOutdated")),
+                    "url": first.get("url") or "", "excerpt": " ".join((first.get("body") or "").split())[:160]})
+    return res
+
+
 def pr_state(pr):
     p = gh_api(f"repos/{GH_REPO}/pulls/{int(pr)}")
     res = {"pr": int(pr), "state": p.get("state"), "merged": bool(p.get("merged")), "merge_sha": p.get("merge_commit_sha") if p.get("merged") else "",
@@ -609,12 +645,22 @@ def pr_state(pr):
     if not res["merged"]:
         cmp = gh_api(f"repos/{GH_REPO}/compare/{p['base']['ref']}...{p['head']['sha']}")
         res["behind_by"] = cmp.get("behind_by")
+        # A PR merges only with every review thread settled (CodeQL posts its alerts as threads when its check ends).
+        res["unresolved_threads"] = len(unresolved_threads(pr))
     return res
 
 
 def cmd_pr_state(a):
     try:
         out(pr_state(a.pr))
+    except (RuntimeError, KeyError, ValueError) as e:
+        out({"error": str(e)})
+
+
+def cmd_threads(a):
+    try:
+        threads = unresolved_threads(a.pr)
+        out({"pr": a.pr, "unresolved": len(threads), "threads": threads})
     except (RuntimeError, KeyError, ValueError) as e:
         out({"error": str(e)})
 
@@ -834,6 +880,9 @@ def main(argv=None):
     s.add_argument("--remove", action="store_true")
 
     s = add("pr-state", cmd_pr_state, run=False)
+    s.add_argument("--pr", required=True, type=int)
+
+    s = add("threads", cmd_threads, run=False)
     s.add_argument("--pr", required=True, type=int)
 
     s = add("ci-wait", cmd_ci_wait)

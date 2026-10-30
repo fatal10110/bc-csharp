@@ -33,7 +33,10 @@ gh api repos/fatal10110/bc-csharp/pulls/<N>/comments --paginate
 ```
 
 - Read the **whole** diff. Base must be `strip-v2`.
-- Existing threads: do not repost what is raised or resolved. On a re-review, first look at what
+- Existing threads: do not repost what is raised or resolved. Every **unresolved** thread on the PR,
+  including CodeQL (`github-advanced-security`) alerts, is part of your verdict: list them with
+  `tools/agent-tools/wave_mail.py threads --pr <N>` and put each in the action list with the expected
+  outcome (fix, dismiss with a reason, or follow-up issue). On a re-review, first look at what
   earlier reviews never questioned, then the diff since the last reviewed head.
 - Linked issues: for each, `tools/agent-tools/issue_slice.py <X>`; copy its **Acceptance** items
   into your checklist before reading the diff (no `## Acceptance` → its opening bullets plus the plan
@@ -105,8 +108,12 @@ scenario** (concrete server input or build condition → wrong state, cost, cras
 | `[blocker]` | security hole, advertised-but-unprocessable, validation bypass, unmet acceptance item, plan departure without plan change, upstream/turboHTTP action | yes |
 | `[must-fix]` | real bug, missing regression check for a new branch, failing gate, missing marker/journal | yes |
 | `[should-fix]` | correctness-adjacent or rebase-surface issue worth fixing here | no, action expected |
-| `[nit]` | small style/naming | no, action expected unless optional |
-| `[note]` | pre-existing gap or follow-up candidate; say where it is tracked | no |
+| `[nit]` | small style/naming | no, but action required: fix it or reply why not |
+| `[note]` | pre-existing gap or follow-up candidate; name the issue that tracks it (file one if none) | no |
+
+There are no optional findings: a point not worth acting on is not raised. Every `[nit]`, and
+every open CodeQL thread, must be settled (fixed, answered with a reason, dismissed with a reason,
+or turned into an issue) before merge.
 
 ## 7. Submit the review
 
@@ -122,7 +129,7 @@ Do not modify, commit, push, merge or close anything on the PR.
    **Verdict:** <Blocked | Changes required | Approve after small fixes | Approve as-is>
    **Action required before merge:** <YES | NO>
    <If YES: numbered list — `[tag] path:line — what to do`.>
-   <Optional items or "none">  <Follow-ups to track or "none">
+   <Open threads (CodeQL included) and their expected outcome, or "none">  <Follow-ups to track or "none">
 
    ## Security, closure, limits
    ClientHello derived; hostile inputs considered and the bound that stops each; closure delta.
@@ -139,8 +146,8 @@ Do not modify, commit, push, merge or close anything on the PR.
    ```
 
    Verdict rules: any `[blocker]` or unmet item → **Blocked**; any `[must-fix]` → **Changes
-   required**; only `[should-fix]`/non-optional `[nit]` → **Approve after small fixes**; otherwise
-   **Approve as-is**.
+   required**; only `[should-fix]`/`[nit]` items or unresolved threads → **Approve after small fixes**;
+   otherwise (no items and 0 unresolved threads) **Approve as-is**.
 4. Remove the review worktree and local branch.
 
 ## 8. Final chat response
@@ -150,6 +157,6 @@ PR #<N> — review submitted (<url>).
 Verdict: <verdict>
 Action required: <YES — N items | NO>
 1. [tag] path:line — what to do
-Optional: <items or "none">   Follow-ups: <items or "none">
+Open threads: <count or "none">   Follow-ups: <items or "none">
 Checks: <check.sh pass; strip.sh --report pass | n/a>
 ```
