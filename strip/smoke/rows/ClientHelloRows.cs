@@ -142,11 +142,40 @@ namespace TurboSmoke
                         + "TLS_AES_256_GCM_SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:"
                         + "ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-RSA-AES128-GCM-SHA256:"
                         + "ECDHE-RSA-AES256-GCM-SHA384:TLS_EMPTY_RENEGOTIATION_INFO_SCSV", server);
-                    ExpectLine(report, "Signature Algorithms: ECDSA+SHA256:ECDSA+SHA384:ECDSA+SHA512:"
-                        + "RSA-PSS+SHA256:RSA-PSS+SHA384:RSA-PSS+SHA512:RSA-PSS+SHA256:RSA-PSS+SHA384:RSA-PSS+SHA512:"
-                        + "RSA+SHA256:RSA+SHA384:RSA+SHA512", server);
+                    // The spelling of this line depends on the OpenSSL 3 release: compare entry by entry.
+                    string sigAlgs = OpenSslSigAlgReport.Mismatch(report, ExpectedSignatureAlgorithms);
+                    if (sigAlgs != null)
+                    {
+                        throw new SmokeCheckException("OpenSSL " + OpenSslServer.Version + " signature algorithms: "
+                            + sigAlgs + "; " + server.Describe());
+                    }
                     ExpectLine(report, "Supported groups: x25519:secp256r1:secp384r1:secp521r1", server);
                 }
+            });
+            rows.Add("openssl-sigalg-report", () =>
+            {
+                // The checker of seen-by-openssl on fixed s_server output: OpenSSL 3.0.13 (RSA-PSS+SHAn for both
+                // PSS families) and 3.5.5 (rsa_pss_pss_shaN) pass; reordered, missing or extra entries do not.
+                const string Ecdsa = "ECDSA+SHA256:ECDSA+SHA384:ECDSA+SHA512:";
+                const string Rsae = "RSA-PSS+SHA256:RSA-PSS+SHA384:RSA-PSS+SHA512:";
+                const string Pkcs1 = "RSA+SHA256:RSA+SHA384:RSA+SHA512";
+                const string Pss35 = "rsa_pss_pss_sha256:rsa_pss_pss_sha384:rsa_pss_pss_sha512:";
+                const string Shared = "\nShared Signature Algorithms: ECDSA+SHA256\n";
+                int[] expected = ExpectedSignatureAlgorithms;
+                SmokeAssert.Equal(null, OpenSslSigAlgReport.Mismatch(
+                    "Signature Algorithms: " + Ecdsa + Rsae + Rsae + Pkcs1 + Shared, expected), "OpenSSL 3.0 line");
+                SmokeAssert.Equal(null, OpenSslSigAlgReport.Mismatch(
+                    "Signature Algorithms: " + Ecdsa + Pss35 + Rsae + Pkcs1 + "\r" + Shared, expected),
+                    "OpenSSL 3.5 line");
+                SmokeAssert.True(OpenSslSigAlgReport.Mismatch(
+                    "Signature Algorithms: " + Ecdsa + Rsae + Pss35 + Pkcs1, expected) != null, "pss/rsae swapped");
+                SmokeAssert.True(OpenSslSigAlgReport.Mismatch(
+                    "Signature Algorithms: " + Ecdsa + Pss35 + Rsae + "RSA+SHA256:RSA+SHA384", expected) != null,
+                    "entry missing");
+                SmokeAssert.True(OpenSslSigAlgReport.Mismatch(
+                    "Signature Algorithms: " + Ecdsa + Pss35 + Rsae + Pkcs1 + ":ed25519", expected) != null,
+                    "extra entry");
+                SmokeAssert.True(OpenSslSigAlgReport.Mismatch(Shared, expected) != null, "only the shared line");
             });
         }
 

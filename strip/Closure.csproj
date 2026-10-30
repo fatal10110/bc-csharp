@@ -8,7 +8,7 @@
   - Closure.props is imported after Sdk.props, so its <DefineConstants> replaces the SDK's TRACE;
     DisableImplicitFrameworkDefines / DisableImplicitConfigurationDefines stop the SDK adding
     NETSTANDARD*/NET4*/DEBUG/RELEASE. closure.py asserts set(csc /define:) == captured set from a binlog.
-  - One TargetFramework per run: netstandard2.1 for [netstandard21] (and the provisional sets),
+  - One TargetFramework per run: netstandard2.1 for [netstandard21] (and any other set),
     net471 reference assemblies for [netframework] (Unity's 4.7.x surface).
 -->
 <Project>

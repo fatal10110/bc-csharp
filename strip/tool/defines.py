@@ -1,8 +1,7 @@
 """Define sets for the closure builds (STRIP_PLAN_V2.md §4, issue #6).
 
 - ``parse_unity_defines``: ``strip/unity-defines.txt`` -> {set name: [defines]}. Section names are
-  generic: the provisional ``[min]``/``[partial]``/``[sdk]`` sets and the real ``[netstandard21]``/
-  ``[netframework]`` sets from turboHTTP#141 (#29) go through the same code.
+  generic; the file holds the captured Unity sets ``[netstandard21]``/``[netframework]`` (#29, #30).
 - ``tfm_for_set``: ``netframework`` builds against net471 reference assemblies, every other set
   against netstandard2.1.
 - ``render_props``: the generated Closure.props (TargetFramework, DefineConstants, Compile items).
