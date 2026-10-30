@@ -102,3 +102,9 @@ E4/D Org.BouncyCastle.Tls.Tests.TlsStatusRequestResumptionTest.ResumedHandshakeD
 # verifier (turbo-strip: E5). Already failing on strip-v2 at 631d82a3 (#40 and #41 merged in
 # parallel); listed here so the diff stays at zero regressions.
 E5 Org.BouncyCastle.Tls.Tests.SM2Tls13Test.SM2SignerAndVerifier_BC_BC
+
+# E8 (#18), decision A: X509Certificate.GetPublicKey goes through TurboKeyFactory and every
+# Verify/IsSignatureValid path throws NotSupportedException. CertTest is one SimpleTest that stops at
+# its first failing sub-test: now "RSA modulus size out of range" (its 1024-bit RSA test certificates);
+# the later sub-tests call cert.Verify, which throws by design.
+E8/A Org.BouncyCastle.Tests.CertTest.TestFunction
