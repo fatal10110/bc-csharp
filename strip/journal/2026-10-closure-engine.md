@@ -58,8 +58,9 @@ sets, fail checks at the fixpoint). Replaces the prototype `index.py`/`closure.p
 ## Deferred
 
 - Deny list, referrer sweep, budget → #8. `strip.sh` → #10. Packaging of the stubs → #9.
-- net471 (`[netframework]`) needs `Microsoft.NETFramework.ReferenceAssemblies.net471` from NuGet;
-  not cached on the dev box, so only exercised once #29 delivers the real set.
+- net471 (`[netframework]`) restores `Microsoft.NETFramework.ReferenceAssemblies.net471` from NuGet;
+  a `[netframework]` run in review reached the fixpoint (929 files, define assertion ok, no
+  unresolved errors). The real Unity set arrives with #29.
 
 ## How verified
 
