@@ -671,7 +671,8 @@ namespace Org.BouncyCastle.Tls.Crypto.Impl.BC
 
         protected virtual IBlockCipher CreateAesEngine()
         {
-            return AesUtilities.CreateEngine();
+            // turbo-strip: E14 AES-NI engine when available, else the 256-byte S-box AesLightEngine
+            return AesUtilities.IsHardwareAccelerated ? AesUtilities.CreateEngine() : new AesLightEngine();
         }
 
         protected virtual IBlockCipher CreateAriaEngine()
