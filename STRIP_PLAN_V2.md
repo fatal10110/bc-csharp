@@ -6,7 +6,7 @@ against master, and a fresh cold read. 6.1 applied the round-5 readiness review.
 (major), an internal-API fix in the smoke suite, and nits. The third closing review found only minor items and nits;
 they are folded in, and **the review cycle is closed**.
 
-**Scope:** this repo only. The output is the stripped BouncyCastle source with its namespace rewritten. turboHTTP work
+**Scope:** this repo only. No actions are ever taken on bcgit/bc-csharp: no issues, PRs or reports. The output is the stripped BouncyCastle source with its namespace rewritten. turboHTTP work
 is tracked as issues in fatal10110/turboHTTP (§8). ✔ marks claims re-verified against code.
 
 **Status:** ready for the `--report` bootstrap (§6 step 1), using the provisional define sets. Enforce mode waits for
@@ -85,7 +85,7 @@ service that E7 closes. OpenSSL applies the same 64-bit bound when `n` is larger
 only through the public constructors, so master's validation runs.** RSA uses `new RsaKeyParameters(false, n, e)`, which checks for an even modulus, small
 factors and the size cap (`RsaKeyParameters.cs:75-99`). EC decodes the point with the named curve's
 `Curve.DecodePoint` and wraps it in `ECPublicKeyParameters`, which runs `ValidatePublicPoint`. Parameters that are
-not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA and PqcUtilities/ML-DSA/SLH-DSA branches. Drop the unused `using …Asn1.Cmp` (`:5`). Rejections become `TlsFatalAlert(unsupported_certificate)` via `GetPublicKey` (`:465-474`). The TLS 1.3 ECDSA scheme↔curve binding is not added here; report it upstream. |
+not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA and PqcUtilities/ML-DSA/SLH-DSA branches. Drop the unused `using …Asn1.Cmp` (`:5`). Rejections become `TlsFatalAlert(unsupported_certificate)` via `GetPublicKey` (`:465-474`). The TLS 1.3 ECDSA scheme↔curve binding (RFC 8446 §4.2.3) is not enforced; this is accepted as low impact, because the signature is still verified with the certificate's own key. |
 | E6 | `crypto/ec/CustomNamedCurves.cs`, `asn1/x9/ECNamedCurveTable.cs` | Only what deny forces. In CustomNamedCurves, drop the SecT* and SM2 `DefineCurve` lines, their holder classes, **and the B-163…B-571 / K-163…K-571 `DefineCurveAlias` lines (`:842-852`)**. `DefineCurveAlias` throws `InvalidOperationException` when the OID is missing (`:795-801`) ✔, and that exception in the static constructor would break every EC lookup, P-256/384/521 included (`BcTlsECDomain` → `ECDomainParameters.LookupName` → `ECUtilities.FindECCurveOid`). From ECNamedCurveTable, drop the `ECGost3410NamedCurves` lookup. Leave the SEC/NIST/X962 tables alone; TurboKeyFactory already restricts curves. |
 | E7 | `crypto/parameters/RsaKeyParameters.cs` (`:84`, `:92`) | Defaults: `RsaMaxSize` = 8192, `RsaMaxMRTests` = 0. |
 | E8 | `x509/X509Certificate.cs` | Route `CreatePublicKey` (`:619`) to `TurboKeyFactory`. `TurboKeyFactory` turns **every** failure, malformed SPKI included, into `ArgumentException`. Callers get it unwrapped, and #33's validator must catch it. `X509Certificate.ToString()` calls `GetPublicKey()` (`:431`), so it is wrapped in try/catch and prints `<unsupported key>` instead. `IsSignatureValid`/`Verify`/the alternative-signature methods (`:513`, `:519`, `:556`) throw `NotSupportedException` (decision A). `SigAlgName` uses a small turbo OID→name map and returns the OID string for unknown OIDs, because `ToString` depends on it. After this cut, `Asn1Signature.cs` and `X509SignatureUtil.cs` leave the closure. |
@@ -93,7 +93,7 @@ not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA a
 | E10 | `crypto/generators/ECKeyPairGenerator.cs` (`:38-46`) | Remove the `ECGost3410Utilities` branch. |
 | E11 | `security/DigestUtilities.cs` (`:403-408`) | Remove the GOST3411, GOST3411-2012 and Dstu7564 entries. Reached via `SecureRandom.cs:27`. |
 | E12 | `tls/crypto/impl/bc/BcTlsHmac.cs` (`:31`) | Inline `MacUtilities.DoFinal(m_hmac)`. That is MacUtilities' only caller in the current closure. `crypto/operators/DefaultMacResult.cs:17` also calls it ✔, so if that file ever enters the closure, MacUtilities comes back with its `Gost28147Mac` reference. The referrer sweep catches that; this cut is not a permanent guarantee. |
-| E13 | Any file builds 3a/3b flag | **General rule:** fix every `#if`-guard mismatch that the captured define sets expose, with the smallest guard edit, and report each one upstream. Known cases: with `NETSTANDARD2_1_OR_GREATER` but no `NETSTANDARD1_x_OR_GREATER`, 11 files fail (`using` lines guarded by `NETSTANDARD1_0_OR_GREATER`/`NET45_OR_GREATER`). With the full SDK set, only `Poly1305.cs:3-4` vs `:254,257` fails ✔. The 11-file case was measured on
+| E13 | Any file builds 3a/3b flag | **General rule:** fix every `#if`-guard mismatch that the captured define sets expose, with the smallest guard edit. These fixes stay local. Known cases: with `NETSTANDARD2_1_OR_GREATER` but no `NETSTANDARD1_x_OR_GREATER`, 11 files fail (`using` lines guarded by `NETSTANDARD1_0_OR_GREATER`/`NET45_OR_GREATER`). With the full SDK set, only `Poly1305.cs:3-4` vs `:254,257` fails ✔. The 11-file case was measured on
 `NETSTANDARD;NETSTANDARD2_1;NETSTANDARD2_1_OR_GREATER`; across all of `crypto/src` that set fails in 17 files, 11 of
 them in the closure. Known offenders: `crypto/util/Pack.cs:6-8`, `util/io/Streams.cs`, `Poly1305.cs`,
 `ChaCha7539Engine.cs`, `tls/TlsStream.cs`, `util/io/{Filter,Pushback}Stream.cs`, `util/io/Base{Input,Output}Stream.cs`,
@@ -286,8 +286,10 @@ catch case errors.
   `ROOTS_SHA`.
 - **BC production-ready:** strip done **and** #33, #34, #36 and #142 are closed. #113 (the negative TLS suite)
   validates it. This is not owned by this repo.
-- **Bump cadence:** at every upstream release or BC security advisory, and at least quarterly. Update `BASE`, rebase
-  with rerere, run `strip.sh`, review the shadow diff, hand over.
+- **Bump cadence:** at every upstream release or BC security advisory, and at least quarterly.
+  - **Fetch the new upstream read-only:** `git fetch https://github.com/bcgit/bc-csharp.git master`. Don't add a push
+    remote for bcgit; nothing is ever pushed or posted there.
+  - Then update `BASE`, rebase with rerere, run `strip.sh`, review the shadow diff, and hand over.
 
 ## 7. Alternative in reserve
 
