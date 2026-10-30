@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  # Branch pushes are covered by pull_request (PRs target strip-v2); strip-v2 pushes still run
+  # so a bump (rebase onto new upstream + force-push) gets the build and lint steps. On a push the
+  # format step diffs origin/strip-v2...HEAD, which is empty: formatting is checked on PRs.
+  push:
+    branches: [strip-v2]
+  pull_request:
+    branches: [strip-v2]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # Same as tools/ci/check.sh --full: whitespace format of changed C#, the library/strip build,
+  # actionlint, shellcheck, the Python tool tests and the waves orchestration simulation.
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Nerdbank.GitVersioning needs history; the format step diffs against origin/strip-v2.
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: nuget-${{ hashFiles('crypto/src/BouncyCastle.Crypto.csproj', 'strip/**/*.csproj') }}
+          restore-keys: nuget-
+
+      - name: Install actionlint and ripgrep
+        run: |
+          sudo apt-get install -y --no-install-recommends ripgrep
+          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+
+      - name: Check
+        env:
+          CHECK_BASE: origin/strip-v2
+        run: tools/ci/check.sh --full
+
+  # strip-v2 (the default branch) requires this single check.
+  # It passes only when every job above does.
+  ci:
+    if: always()
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          LINT: ${{ needs.lint.result }}
+        run: '[ "$LINT" = success ]'
