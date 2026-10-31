@@ -9,6 +9,7 @@ validating in Unity.
 | --- | --- | --- |
 | Smoke suite (fast rows) on every define set's DLL | `strip/smoke/`, run by `strip.sh` | **yes** (`check.sh`, CI) |
 | Smoke slow rows (30 s handshake timeout) | `strip.sh --smoke-slow` | before a hand-over or a change to the timeout path |
+| DEBUG build: curve-lookup, KAT and registry rows on `TurboBC.ns21-debug.dll` (Unity Editor and Development builds define `DEBUG`) | `strip.sh` (always) | **yes** |
 | Tool tests | `strip/tool/test_*.py`, `tools/agent-tools/test_*.py`, `waves_sim.mjs` | yes, with `check.sh --full` |
 | Turbo fixtures | `crypto/test/src/turbo/` | scoped runs; required for cuts that have no smoke row |
 | Upstream `crypto/test` diff over the kept surface | `strip/tool/upstream_tests.py` | after every edge cut and every bump; not in CI |
@@ -47,7 +48,11 @@ validating in Unity.
 - **`python3 strip/tool/upstream_tests.py`** runs the kept-surface filter (`strip/upstream-tests.txt`)
   and diffs the result against `strip/upstream-base-results.txt`.
   - Intended breaks are listed with their E-number in `strip/upstream-expected-failures.txt`.
-  - Exit 1 means a regression. After a bump or a filter edit, run `--update-base`.
+  - Test sources a cut stops compiling go in `strip/upstream-tests-exclude.txt`, one path per line with
+    its E-number. They are removed from the test build without editing upstream files, and the excluded
+    tests are reported.
+  - Exit 1 means a regression. After a bump, or after editing the filter or the exclusion list, run
+    `--update-base`. A stale base is refused.
 
 ## Unity validation (2021.3.45f2)
 
