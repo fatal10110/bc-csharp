@@ -39,3 +39,22 @@ on `strip-v2` through their own PR because #33's head is `strip-v2` itself.
 - `python3 -m unittest discover -s strip/tool` on macOS: all pass (was 1 failure).
 - `tools/ci/check.sh --full`: strip.sh enforce (closure, builds incl. DEBUG variant, smoke with the new row),
   turbo NUnit tests, Python tests, waves simulation.
+
+## Take-over and review round 1 (2026-10-31)
+The main session took over #67 and merged origin/strip-v2 into it. The one conflict was in `strip/tool/test_upstream_tests.py`: #72 fixed the same CodeQL import alert, and #67's single `import unittest.mock` was kept.
+
+Both specialist reviews were clean on the E13 revert: preprocessor-neutral under ns21, netfx and ns21-debug, with all 11 files byte-identical to BASE. Fixes from the two reviews:
+- **Turbo NUnit gate (`tools/ci/check.sh`):**
+  - `-- RunConfiguration.TreatNoTestsAsError=true`, so zero matching tests fails instead of passing silently.
+  - The build applies `strip/upstream-tests-exclude.txt` through a new mode, `strip/tool/upstream_tests.py --write-exclusion-targets DIR`, which uses the same Compile Remove file as the upstream-test diff.
+  - The header comment and `tooling.md` now say that `--full` builds the library and the test project at net6.0.
+- **Smoke rows:**
+  - A new `registries/x509-verify-not-supported` row pins decision A on the shipped DLLs and the DEBUG DLL: `Verify`, `IsSignatureValid` and `VerifyAltSignature` throw `NotSupportedException`.
+  - `x509-sig-alg-name` now also checks that `ToString()` prints `<unsupported key>` for a key TurboKeyFactory rejects by wrapping a parse failure (EC point pad bits).
+- **Notices (`strip/tool/package.py`):**
+  - A header block counts as turbo-owned only when it is exactly the one-line MIT header in a `turbo/` file, so third-party text in the same block stays in the review list.
+  - A `turbo/` file without the header fails packaging.
+  - Tests: a mixed block, a missing header, and a turbo file in the determinism test.
+- **Docs and CI:**
+  - `testing.md` notes that the turbo fixtures run at net6.0, so the smoke rows stay the gate for the Unity sets.
+  - The actionlint `curl` is restricted to HTTPS and TLS 1.2+.

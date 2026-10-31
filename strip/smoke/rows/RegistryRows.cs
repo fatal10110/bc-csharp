@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
@@ -56,6 +57,25 @@ namespace TurboSmoke
                 string text = new X509Certificate(SmokeHostileKeys.Secp256k1Certificate()).ToString();
                 SmokeAssert.True(text.Contains("<unsupported key>"), "ToString lacks <unsupported key>: " + text);
                 SmokeAssert.True(text.Contains("SHA-256withRSA"), "ToString lacks SHA-256withRSA: " + text);
+                // A key TurboKeyFactory rejects by wrapping a parse failure (non-zero EC point pad bits) prints the
+                // same placeholder.
+                string padBits = new X509Certificate(SmokeNegotiationServers.PadBitsCertificate(1, false)).ToString();
+                SmokeAssert.True(padBits.Contains("<unsupported key>"), "ToString lacks <unsupported key>: " + padBits);
+            });
+            // Decision A (E8): BC never verifies certificate signatures; chain validation is turboHTTP's (platform
+            // verifiers). Pinned on the shipped DLL so a bump that restores verification fails here.
+            rows.Add("x509-verify-not-supported", () =>
+            {
+                var cert = new X509Certificate(SmokeHostileKeys.P256CertificateSignedWith("1.2.840.10045.4.3.2"));
+                AsymmetricKeyParameter key = cert.GetPublicKey();
+                SmokeAssert.NotNull(key, "GetPublicKey of the P-256 certificate");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.Verify(key), "Verify(key)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.IsSignatureValid(key), "IsSignatureValid(key)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.Verify((IVerifierFactoryProvider)null),
+                    "Verify(provider)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.IsSignatureValid((IVerifierFactoryProvider)null),
+                    "IsSignatureValid(provider)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.VerifyAltSignature(null), "VerifyAltSignature");
             });
             rows.Add("ec-named-curve-table", () =>
             {

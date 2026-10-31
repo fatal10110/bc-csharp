@@ -8,7 +8,9 @@ Load when working on the local gate, CI, prerequisites, agent tools or a bump.
   - `dotnet format whitespace` on changed fork-owned C# (`crypto/src/turbo`, `strip`, `tools`);
   - a trailing-whitespace check on added lines only in changed upstream C# (upstream files are never reformatted);
   - `strip/strip.sh` in enforce mode.
-  - The whole library is not built: code outside the closure may stop compiling after a cut.
+  - The fast gate does not build the whole library: code outside the closure may stop compiling after a
+    cut. `--full` builds it at net6.0 for the turbo NUnit tests, with the test sources listed in
+    `strip/upstream-tests-exclude.txt` removed. Zero matching tests fails the step.
 - **`--full`** (before opening a PR) adds actionlint, shellcheck, the turbo NUnit tests
   (`FullyQualifiedName~Org.BouncyCastle.Turbo`, net6.0 with roll-forward), the Python tool tests and the waves
   simulation (`node .claude/skills/bcstrip-waves/waves_sim.mjs`).

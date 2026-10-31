@@ -40,6 +40,9 @@ LICENCE_RE = re.compile(r"Permission is hereby granted|Licensed under")
 BC_HEADER_RE = re.compile(r"Legion of the Bouncy Castle")
 # The one-line header of turbo-owned files (crypto/src/turbo/); listed under their own MIT section.
 TURBO_HEADER_RE = re.compile(r"Copyright \(c\) 2026 fatal10110 and contributors\. Licensed under the MIT License\.")
+# A header block counts as turbo-owned only when it is exactly the one-line turbo header in a turbo/ file;
+# any other text in the block (e.g. "Portions adapted from X, Licensed under ...") keeps it in the review list.
+TURBO_BLOCK_RE = re.compile(r"//\s*" + TURBO_HEADER_RE.pattern)
 TURBO_MIT = """Copyright (c) 2026 fatal10110 and contributors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
@@ -177,6 +180,19 @@ def scan_licence_headers(lib_src, files):
     return found
 
 
+def is_turbo_header(header):
+    rel, _, _, block = header
+    return rel.startswith("turbo/") and TURBO_BLOCK_RE.fullmatch(block.strip()) is not None
+
+
+def check_turbo_headers(lib_src, files):
+    """Every turbo-owned file carries the MIT header, so none lands in neither notices section."""
+    missing = [rel for rel in files if rel.startswith("turbo/")
+               and not TURBO_HEADER_RE.search((Path(lib_src) / rel).read_bytes().decode("utf-8-sig", errors="replace"))]
+    if missing:
+        raise PackageError("turbo-owned files without the MIT header: " + ", ".join(missing))
+
+
 def notices_text(license_path, headers):
     bc = Path(license_path).read_bytes().decode("utf-8").replace("\r\n", "\n").rstrip("\n")
     out = [
@@ -192,8 +208,8 @@ def notices_text(license_path, headers):
         bc,
         "",
     ]
-    turbo = [h for h in headers if TURBO_HEADER_RE.search(h[3])]
-    headers = [h for h in headers if not TURBO_HEADER_RE.search(h[3])]
+    turbo = [h for h in headers if is_turbo_header(h)]
+    headers = [h for h in headers if not is_turbo_header(h)]
     if turbo:
         out += ["=" * 72, "Turbo-owned files (MIT License)", "=" * 72, ""]
         out += [f"Lib/{rel}" for rel, _, _, _ in turbo]
@@ -317,6 +333,7 @@ def package(lib_src, out, license_path, base, roots_sha, repo, old_base=None, sm
     files = collect_sources(lib_src)
     diff = shadow_diff(repo, old_base, base)
     smoke = Path(smoke_path).read_bytes().decode("utf-8").replace("\r\n", "\n") if smoke_path else None
+    check_turbo_headers(lib_src, files)
     headers = scan_licence_headers(lib_src, files)
     cuts = cut_list(lib_src, files)
 

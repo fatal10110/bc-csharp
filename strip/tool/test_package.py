@@ -41,6 +41,8 @@ namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls
 }
 """
 EMPTY_CS = "namespace TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X509 { }\n"
+TURBO_LINE = "// Copyright (c) 2026 fatal10110 and contributors. Licensed under the MIT License.\n"
+TURBO_CS = TURBO_LINE + "\nnamespace X { class TurboX { } }\n"
 
 
 def git(repo, *args):
@@ -91,6 +93,8 @@ class PackageTest(unittest.TestCase):
         return {p.relative_to(root).as_posix(): p.read_bytes() for p in sorted(root.rglob("*")) if p.is_file()}
 
     def test_two_runs_are_byte_identical(self):
+        (self.lib / "turbo").mkdir()
+        (self.lib / "turbo" / "TurboX.cs").write_text(TURBO_CS, encoding="utf-8")  # the MIT section too
         out1, out2 = self.tmp / "o1", self.tmp / "o2"
         self.assertEqual(self.run_tool(out1).returncode, 0)
         self.assertEqual(self.run_tool(out2).returncode, 0)
@@ -127,6 +131,27 @@ class PackageTest(unittest.TestCase):
             self.assertTrue(meta.endswith("  userData: \n  assetBundleName: \n  assetBundleVariant: \n"), rel)
         self.assertIn("  icon: {instanceID: 0}\n", (lib / "Root.cs.meta").read_text(encoding="utf-8"))
 
+    def test_mixed_turbo_header_block_stays_in_the_review_list(self):
+        (self.lib / "turbo").mkdir()
+        (self.lib / "turbo" / "TurboMixed.cs").write_text(
+            TURBO_LINE + "// Portions adapted from Foo, Licensed under the Apache License 2.0.\n\nnamespace X { }\n",
+            encoding="utf-8")
+        out = self.tmp / "out"
+        r = self.run_tool(out)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        mit, _, review = (out / "THIRD-PARTY-NOTICES.txt").read_text(encoding="utf-8").partition(
+            "Other licence headers in the packaged files (review by hand)")
+        self.assertNotIn("Lib/turbo/TurboMixed.cs", mit, "a block with third-party text is not turbo-only")
+        self.assertIn("--- Lib/turbo/TurboMixed.cs (lines 1-2) ---", review)
+        self.assertIn("Apache License 2.0", review)
+
+    def test_turbo_file_without_the_mit_header_is_refused(self):
+        (self.lib / "turbo").mkdir()
+        (self.lib / "turbo" / "TurboBare.cs").write_text("namespace X { class TurboBare { } }\n", encoding="utf-8")
+        r = self.run_tool(self.tmp / "out")
+        self.assertNotEqual(r.returncode, 0)
+        self.assertIn("turbo-owned files without the MIT header: turbo/TurboBare.cs", r.stderr)
+
     def test_notices_list_non_bc_headers_only(self):
         out = self.tmp / "out"
         self.assertEqual(self.run_tool(out).returncode, 0)
@@ -138,8 +163,7 @@ class PackageTest(unittest.TestCase):
         self.assertNotIn("Turbo-owned files", notices, "no turbo file in the fixture")
         turbo = self.lib / "turbo" / "TurboX.cs"
         turbo.parent.mkdir()
-        turbo.write_text("// Copyright (c) 2026 fatal10110 and contributors. Licensed under the MIT License.\n"
-                         "namespace X { class TurboX { } }\n", encoding="utf-8")
+        turbo.write_text(TURBO_CS, encoding="utf-8")
         self.assertEqual(self.run_tool(out).returncode, 0)
         notices = (out / "THIRD-PARTY-NOTICES.txt").read_text(encoding="utf-8")
         mit, _, review = notices.partition("Other licence headers in the packaged files (review by hand)")
