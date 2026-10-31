@@ -1,0 +1,55 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [strip-v2]
+  pull_request:
+    branches: [strip-v2]
+  schedule:
+    - cron: "17 3 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: analyze (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Paths per language: the Python extractor fails on a listed path that does not exist
+          # (crypto/src/turbo appears with the edge cuts).
+          - language: csharp
+            paths: '["crypto/src/turbo", "strip"]'
+          - language: python
+            paths: '["strip", "tools"]'
+          - language: actions
+            paths: '[".github"]'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # build-mode none: no compile needed. Only code this fork owns is analysed: turbo-owned
+      # sources, the strip tooling and the agent tools. Upstream crypto/src stays out of scope, and
+      # so do the strip/roots consumer copies: mirrored turboHTTP code that must stay byte-identical
+      # (strip/tool/refresh_roots.py), so an alert there could only be dismissed.
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          queries: security-and-quality
+          config: |
+            paths: ${{ matrix.paths }}
+            paths-ignore: ["strip/roots"]
+
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:${{ matrix.language }}

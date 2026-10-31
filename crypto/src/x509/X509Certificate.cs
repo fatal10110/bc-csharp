@@ -9,13 +9,12 @@ using Org.BouncyCastle.Asn1.Misc;
 using Org.BouncyCastle.Asn1.Utilities;
 using Org.BouncyCastle.Asn1.X509;
 using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Operators;
 using Org.BouncyCastle.Math;
-using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Security.Certificates;
 using Org.BouncyCastle.Utilities;
 using Org.BouncyCastle.Utilities.Encoders;
 using Org.BouncyCastle.X509.Extension;
+using Org.BouncyCastle.Turbo; // turbo-strip: E8 (Crypto.Operators and Security usings dropped)
 
 namespace Org.BouncyCastle.X509
 {
@@ -216,7 +215,7 @@ namespace Org.BouncyCastle.X509
         /// </summary>
         /// <returns>A string representing the signature algorithm.</returns>
         public virtual string SigAlgName => Objects.EnsureSingletonInitialized(ref m_sigAlgName, SignatureAlgorithm,
-            X509SignatureUtilities.GetSignatureName);
+            TurboSignatureNames.GetName); // turbo-strip: E8 turbo OID->name map, OID string when unknown
 
         /// <summary>
         /// Get the Signature Algorithms Object ID.
@@ -428,7 +427,7 @@ namespace Org.BouncyCastle.X509
             buf.Append("           Start Date: ").Append(NotBefore).AppendLine();
             buf.Append("           Final Date: ").Append(NotAfter).AppendLine();
             buf.Append("            SubjectDN: ").Append(SubjectDN).AppendLine();
-            buf.Append("           Public Key: ").Append(GetPublicKey()).AppendLine();
+            buf.Append("           Public Key: ").Append(GetPublicKeyForDisplay()).AppendLine(); // turbo-strip: E8
             buf.Append("  Signature Algorithm: ").Append(SigAlgName).AppendLine();
 
             byte[] sig = GetSignature();
@@ -509,40 +508,17 @@ namespace Org.BouncyCastle.X509
         }
 
         // TODO[api] Rename 'key' to 'publicKey'
-        public virtual bool IsSignatureValid(AsymmetricKeyParameter key) =>
-            CheckSignatureValid(new Asn1VerifierFactory(c.SignatureAlgorithm, key));
+        // turbo-strip: E8 no BC certificate-signature verification (decision A): all verify paths throw
+        public virtual bool IsSignatureValid(AsymmetricKeyParameter key) => throw VerificationNotSupported();
 
         public virtual bool IsSignatureValid(IVerifierFactoryProvider verifierProvider) =>
-            CheckSignatureValid(verifierProvider.CreateVerifierFactory(c.SignatureAlgorithm));
+            throw VerificationNotSupported();
 
         public virtual bool IsAlternativeSignatureValid(AsymmetricKeyParameter publicKey) =>
-            IsAlternativeSignatureValid(new Asn1VerifierFactoryProvider(publicKey));
+            throw VerificationNotSupported();
 
-        public virtual bool IsAlternativeSignatureValid(IVerifierFactoryProvider verifierProvider)
-        {
-            var tbsCertificate = c.TbsCertificate;
-            var extensions = tbsCertificate.Extensions;
-
-            AltSignatureAlgorithm altSigAlg = AltSignatureAlgorithm.FromExtensions(extensions);
-            AltSignatureValue altSigValue = AltSignatureValue.FromExtensions(extensions);
-
-            var verifier = verifierProvider.CreateVerifierFactory(altSigAlg.Algorithm);
-
-            Asn1Sequence tbsSeq = Asn1Sequence.GetInstance(tbsCertificate.ToAsn1Object());
-            Asn1EncodableVector v = new Asn1EncodableVector();
-
-            for (int i = 0; i < tbsSeq.Count - 1; i++)
-            {
-                if (i != 2) // signature field - must be ver 3 so version always present
-                {
-                    v.Add(tbsSeq[i]);
-                }
-            }
-
-            v.Add(new DerTaggedObject(true, 3, extensions.ToAsn1ObjectTrimmed()));
-
-            return X509Utilities.VerifySignature(verifier, new DerSequence(v), altSigValue.Signature);
-        }
+        public virtual bool IsAlternativeSignatureValid(IVerifierFactoryProvider verifierProvider) =>
+            throw VerificationNotSupported();
 
         /// <summary>
         /// Verify the certificate's signature using the nominated public key.
@@ -551,10 +527,7 @@ namespace Org.BouncyCastle.X509
         /// <returns>True if the signature is valid.</returns>
         /// <exception cref="Exception">If key submitted is not of the above nominated types.</exception>
         // TODO[api] Rename 'key' to 'publicKey'
-        public virtual void Verify(AsymmetricKeyParameter key)
-        {
-            CheckSignature(new Asn1VerifierFactory(c.SignatureAlgorithm, key));
-        }
+        public virtual void Verify(AsymmetricKeyParameter key) => throw VerificationNotSupported(); // turbo-strip: E8
 
         /// <summary>
         /// Verify the certificate's signature using a verifier created using the passed in verifier provider.
@@ -562,10 +535,8 @@ namespace Org.BouncyCastle.X509
         /// <param name="verifierProvider">An appropriate provider for verifying the certificate's signature.</param>
         /// <exception cref="Exception">If verifier provider is not appropriate or the certificate signature algorithm
         /// is invalid.</exception>
-        public virtual void Verify(IVerifierFactoryProvider verifierProvider)
-        {
-            CheckSignature(verifierProvider.CreateVerifierFactory(c.SignatureAlgorithm));
-        }
+        public virtual void Verify(IVerifierFactoryProvider verifierProvider) =>
+            throw VerificationNotSupported(); // turbo-strip: E8
 
         /// <summary>Verify the certificate's alternative signature using a verifier created using the passed in
         /// verifier provider.</summary>
@@ -573,27 +544,13 @@ namespace Org.BouncyCastle.X509
         /// signature.</param>
         /// <exception cref="Exception">If verifier provider is not appropriate or the certificate alternative signature
         /// algorithm is invalid.</exception>
-        public virtual void VerifyAltSignature(IVerifierFactoryProvider verifierProvider)
-        {
-            if (!IsAlternativeSignatureValid(verifierProvider))
-                throw new InvalidKeyException("Public key presented not for certificate alternative signature");
-        }
+        // turbo-strip: E8 VerifyAltSignature and the protected CheckSignature* throw too (decision A)
+        public virtual void VerifyAltSignature(IVerifierFactoryProvider verifierProvider) =>
+            throw VerificationNotSupported();
 
-        protected virtual void CheckSignature(IVerifierFactory verifier)
-        {
-            if (!CheckSignatureValid(verifier))
-                throw new InvalidKeyException("Public key presented not for certificate signature");
-        }
+        protected virtual void CheckSignature(IVerifierFactory verifier) => throw VerificationNotSupported();
 
-        protected virtual bool CheckSignatureValid(IVerifierFactory verifier)
-        {
-            var tbsCertificate = c.TbsCertificate;
-
-            if (!X509Utilities.AreEquivalentAlgorithms(c.SignatureAlgorithm, tbsCertificate.Signature))
-                throw new CertificateException("signature algorithm in TBS cert not same as outer cert");
-
-            return X509Utilities.VerifySignature(verifier, tbsCertificate, c.Signature);
-        }
+        protected virtual bool CheckSignatureValid(IVerifierFactory verifier) => throw VerificationNotSupported();
 
         internal byte[] GetEncodedInternal() => GetCachedEncoding().GetEncoded();
 
@@ -616,7 +573,25 @@ namespace Org.BouncyCastle.X509
             return new CachedEncoding(encoding, exception);
         }
 
+        // turbo-strip: E8 subject key via TurboKeyFactory; a rejection is its plain ArgumentException, not wrapped
         private static AsymmetricKeyParameter CreatePublicKey(X509CertificateStructure c) =>
-            PublicKeyFactory.CreateKey(c.SubjectPublicKeyInfo);
+            TurboKeyFactory.CreateKey(c.SubjectPublicKeyInfo);
+
+        // turbo-strip: E8 ToString prints a rejected subject key instead of throwing
+        private object GetPublicKeyForDisplay()
+        {
+            try
+            {
+                return GetPublicKey();
+            }
+            catch (ArgumentException)
+            {
+                return "<unsupported key>";
+            }
+        }
+
+        // turbo-strip: E8 decision A: chains are validated outside BouncyCastle
+        private static NotSupportedException VerificationNotSupported() => new NotSupportedException(
+            "Certificate signature verification is not supported; chains are validated by the platform");
     }
 }

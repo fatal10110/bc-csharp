@@ -1,0 +1,49 @@
+# Deny list (STRIP_PLAN_V2.md §3 "deny.txt"; read by strip/tool/deny.py and closure.py).
+#
+# One glob per line, relative to crypto/src, matched case-insensitively against the files the closure
+# adds (never the roots, never the crypto/src/turbo/ seeds). `{a,b}` expands, `**/` is any directory
+# prefix, `**` any path, `*` any run within one path segment. Subsystems, not shared helpers.
+# Keep this list identical to the plan (strip/tool/test_deny.py checks it).
+
+# Registries
+security/{Cipher,Signer,Generator,Agreement,Wrapper,Pbe,Kem}Utilities.cs
+security/PublicKeyFactory.cs
+x509/SubjectPublicKeyInfoFactory.cs
+x509/X509SignatureUtil.cs
+crypto/operators/{Asn1*,Cms*,GenericKey*}.cs
+
+# GOST, SM2 and DSTU
+**/*gost*
+**/*sm2*
+**/*dstu*
+
+# Post-quantum
+**/*mldsa*
+**/mldsa/**
+**/*mlkem*
+**/mlkem/**
+**/*slhdsa*
+**/slhdsa/**
+pqc/**
+tls/crypto/impl/PqcUtilities.cs
+
+# Ed448 and X448
+**/*ed448*
+**/*x448*
+
+# Ed25519 signing (never math/ec/rfc8032/Ed25519.cs: X25519 uses it, rfc7748/X25519.cs:306)
+crypto/signers/Ed25519*
+crypto/parameters/Ed25519*
+crypto/generators/Ed25519*
+tls/crypto/impl/bc/BcTlsEd25519Signer.cs
+
+# Binary-field curves
+math/ec/custom/sec/SecT*
+
+# Unused subsystems
+crypto/fpe/**
+cms/**
+pkcs/**
+openpgp/**
+bcpg/**
+pkix/**

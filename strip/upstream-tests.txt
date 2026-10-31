@@ -1,0 +1,52 @@
+# Kept-surface filter of strip/tool/upstream_tests.py (issue #35): the upstream crypto/test fixtures
+# that exercise code the strip keeps. One FullyQualifiedName substring per line, '.'-terminated so
+# it selects one namespace or one class exactly; the tool joins them into a dotnet test --filter and
+# never runs crypto/test unfiltered. After editing, regenerate strip/upstream-base-results.txt with
+# 'strip/tool/upstream_tests.py --update-base'.
+# Fork-owned tests (Org.BouncyCastle.Turbo.Tests) are not listed: they do not exist at BASE.
+# Once closure.py (#7) produces the closure, narrow this to fixtures whose subject is in it.
+
+# TLS 1.2/1.3 protocol and the TLS crypto provider
+Org.BouncyCastle.Tls.Tests.
+Org.BouncyCastle.Tls.Crypto.Tests.
+
+# AES, GCM, ChaCha20-Poly1305
+Org.BouncyCastle.Crypto.Tests.AesTest.
+Org.BouncyCastle.Crypto.Tests.AesLightTest.
+Org.BouncyCastle.Crypto.Tests.GcmTest.
+Org.BouncyCastle.Crypto.Tests.GcmReorderTest.
+Org.BouncyCastle.Crypto.Tests.ChaChaTest.
+Org.BouncyCastle.Crypto.Tests.Poly1305Test.
+Org.BouncyCastle.Crypto.Tests.ChaCha20Poly1305Test.
+
+# SHA-2, HMAC, HKDF
+Org.BouncyCastle.Crypto.Tests.Sha256DigestTest.
+Org.BouncyCastle.Crypto.Tests.Sha384DigestTest.
+Org.BouncyCastle.Crypto.Tests.Sha512DigestTest.
+Org.BouncyCastle.Crypto.Tests.Sha256HMacTest.
+Org.BouncyCastle.Crypto.Tests.Sha384HMacTest.
+Org.BouncyCastle.Crypto.Tests.Sha512HMacTest.
+Org.BouncyCastle.Crypto.Tests.HkdfGeneratorTest.
+
+# RSA, RSA-PSS
+Org.BouncyCastle.Crypto.Tests.RsaTest.
+Org.BouncyCastle.Crypto.Tests.RsaDigestSignerTest.
+Org.BouncyCastle.Crypto.Tests.RsaKeyParametersTest.
+Org.BouncyCastle.Crypto.Tests.PssTest.
+Org.BouncyCastle.Crypto.Tests.Mgf1GeneratorTest.
+Org.BouncyCastle.Math.Tests.
+
+# ECDSA, X25519, NIST P-256/384/521 arithmetic
+Org.BouncyCastle.Crypto.Tests.ECTest.
+Org.BouncyCastle.Crypto.Tests.NistEccTest.
+Org.BouncyCastle.Crypto.Tests.X25519Test.
+Org.BouncyCastle.Math.EC.Tests.ECAlgorithmsTest.
+Org.BouncyCastle.Math.EC.Tests.ECPointTest.
+Org.BouncyCastle.Math.EC.Tests.FixedPointTest.
+Org.BouncyCastle.Math.EC.Custom.Sec.Tests.SecP256R1FieldTest.
+Org.BouncyCastle.Math.EC.Custom.Sec.Tests.SecP384R1FieldTest.
+Org.BouncyCastle.Math.EC.Rfc7748.Tests.X25519Test.
+
+# ASN.1 and X.509 certificate parsing
+Org.BouncyCastle.Asn1.Tests.
+Org.BouncyCastle.Tests.CertTest.

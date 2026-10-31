@@ -100,12 +100,14 @@ namespace Org.BouncyCastle.Tls
 
         public virtual TlsDHGroupVerifier GetDHGroupVerifier()
         {
-            return new DefaultTlsDHGroupVerifier();
+            // turbo-strip: E4 no finite-field DH (E2 denies DH, DHE and DHE_PSK key exchange)
+            return null;
         }
 
         public virtual TlsSrpConfigVerifier GetSrpConfigVerifier()
         {
-            return new DefaultTlsSrpConfigVerifier();
+            // turbo-strip: E4 no SRP (E2 denies SRP key exchange)
+            return null;
         }
 
         protected virtual IList<X509Name> GetCertificateAuthorities()
@@ -120,7 +122,8 @@ namespace Org.BouncyCastle.Tls
 
         protected virtual CertificateStatusRequest GetCertificateStatusRequest()
         {
-            return new CertificateStatusRequest(CertificateStatusType.ocsp, new OcspStatusRequest(null, null));
+            // turbo-strip: E4 no status_request (decision D: no OCSP request)
+            return null;
         }
 
         /// <returns>an <see cref="IList{T}"/> of <see cref="CertificateStatusRequestItemV2"/> (or null).</returns>
@@ -155,8 +158,9 @@ namespace Org.BouncyCastle.Tls
             if (namedGroupRoles.Contains(NamedGroupRole.ecdh) ||
                 namedGroupRoles.Contains(NamedGroupRole.ecdsa))
             {
+                // turbo-strip: E4 offer secp521r1 (E1 HasNamedGroup allows it)
                 TlsUtilities.AddIfSupported(supportedGroups, crypto,
-                    new int[]{ NamedGroup.secp256r1, NamedGroup.secp384r1 });
+                    new int[]{ NamedGroup.secp256r1, NamedGroup.secp384r1, NamedGroup.secp521r1 });
             }
 
             if (namedGroupRoles.Contains(NamedGroupRole.dh))
