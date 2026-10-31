@@ -1,5 +1,5 @@
 using System;
-using System.Text;
+using System.Linq;
 
 namespace TurboSmoke
 {
@@ -93,15 +93,7 @@ namespace TurboSmoke
         /// <summary>Decodes hex, ignoring whitespace.</summary>
         public static byte[] Decode(string hex)
         {
-            var digits = new StringBuilder(hex.Length);
-            foreach (char c in hex)
-            {
-                if (!char.IsWhiteSpace(c))
-                {
-                    digits.Append(c);
-                }
-            }
-            return Convert.FromHexString(digits.ToString());
+            return Convert.FromHexString(string.Concat(hex.Where(c => !char.IsWhiteSpace(c))));
         }
 
         public static string Encode(byte[] data) => Convert.ToHexString(data).ToLowerInvariant();

@@ -88,7 +88,7 @@ service that E7 closes. OpenSSL applies the same 64-bit bound when `n` is larger
 only through the public constructors, so master's validation runs.** RSA uses `new RsaKeyParameters(false, n, e)`, which checks for an even modulus, small
 factors and the size cap (`RsaKeyParameters.cs:75-99`). EC decodes the point with the named curve's
 `Curve.DecodePoint` and wraps it in `ECPublicKeyParameters`, which runs `ValidatePublicPoint`. Parameters that are
-not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA and PqcUtilities/ML-DSA/SLH-DSA branches. Drop the unused `using …Asn1.Cmp` (`:5`). Rejections become `TlsFatalAlert(unsupported_certificate)` via `GetPublicKey` (`:465-474`). The TLS 1.3 ECDSA scheme↔curve binding (RFC 8446 §4.2.3) is not enforced; this is accepted as low impact, because the signature is still verified with the certificate's own key. |
+not a named-curve `X962Parameters` are rejected. Cut the Ed25519/Ed448/SM2/DSA and PqcUtilities/ML-DSA/SLH-DSA branches. Drop the unused `using …Asn1.Cmp` (`:5`). Rejections become `TlsFatalAlert(unsupported_certificate)` via `GetPublicKey` (`:465-474`). The TLS 1.3 ECDSA scheme↔curve binding (RFC 8446 §4.2.3) is enforced (#65): `CreateVerifier(int)` compares the key's domain parameters with the curve of `SignatureScheme.GetNamedGroup(scheme)` and throws `TlsFatalAlert(illegal_parameter)` on a mismatch. The TLS 1.2 `ecdsa` verifier is unchanged, because TLS 1.2 binds neither curve nor hash. Smoke rows `hostile-scheme-curve/*`. |
 | E6 | `crypto/ec/CustomNamedCurves.cs`, `asn1/x9/ECNamedCurveTable.cs` | Only what deny forces. In CustomNamedCurves, drop the SecT* and SM2 `DefineCurve` lines, their holder classes, **and the B-163…B-571 / K-163…K-571 `DefineCurveAlias` lines (`:842-852`)**. `DefineCurveAlias` throws `InvalidOperationException` when the OID is missing (`:795-801`) ✔, and that exception in the static constructor would break every EC lookup, P-256/384/521 included (`BcTlsECDomain` → `ECDomainParameters.LookupName` → `ECUtilities.FindECCurveOid`). From ECNamedCurveTable, drop the `ECGost3410NamedCurves` lookup. Leave the SEC/NIST/X962 tables alone; TurboKeyFactory already restricts curves. |
 | E7 | `crypto/parameters/RsaKeyParameters.cs` (`:84`, `:92`) | Defaults: `RsaMaxSize` = 8192, `RsaMaxMRTests` = 0. |
 | E8 | `x509/X509Certificate.cs` | Route `CreatePublicKey` (`:619`) to `TurboKeyFactory`. `TurboKeyFactory` turns **every** failure, malformed SPKI included, into `ArgumentException`. Callers get it unwrapped, and #33's validator must catch it. `X509Certificate.ToString()` calls `GetPublicKey()` (`:431`), so it is wrapped in try/catch and prints `<unsupported key>` instead. `IsSignatureValid`/`Verify`/the alternative-signature methods (`:513`, `:519`, `:556`) throw `NotSupportedException` (decision A). `SigAlgName` uses a small turbo OID→name map and returns the OID string for unknown OIDs, because `ToString` depends on it. After this cut, `Asn1Signature.cs` and `X509SignatureUtil.cs` leave the closure. |
@@ -252,6 +252,8 @@ strip/
      - an 8192-bit `n` with a 65-bit or larger `e` is rejected, via TLS and via `X509Certificate.GetPublicKey`;
        keys with `e` = 3 and `e` = 65537 are accepted;
      - explicit EC parameters are rejected via TLS and via `X509Certificate.GetPublicKey`.
+     - a TLS 1.3 CertificateVerify whose `ecdsa_secp*` scheme names another curve than the key's (a P-384 leaf
+       signing as 0x0403) → `illegal_parameter`; matching schemes and TLS 1.2 `ecdsa` with any hash still pass.
    - **Timeout** (only effective after the re-vendor, `ab4eb3d2`):
      - a custom server trickling one record every few seconds → abort at about 30 s;
      - a silent peer → aborted only by the socket `ReceiveTimeout`, which the harness sets (#142 requires it of
@@ -299,7 +301,8 @@ Use the official DLL, renamed and internalised with Cecil. Switch when a bump co
 conflicts, or when a needed upstream fix can't be taken quickly. With the DLL:
 - E1, E3 and E4 become consumer subclasses (`BcTlsCrypto` has about 32 overridable `Has*`/`Create*` methods).
 - E7 becomes property settings (mind the key rewrite).
-- E5's EC check moves to `NotifyServerCertificate`.
+- E5's EC check moves to `NotifyServerCertificate`; the TLS 1.3 scheme↔curve binding moves to a certificate subclass
+  (overridden `CreateVerifier(int)`) returned by a `BcTlsCrypto.CreateCertificate` override.
 - Size control is lost.
 
 ## 8. turboHTTP issues (owned by the turboHTTP agent)

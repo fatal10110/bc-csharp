@@ -103,7 +103,13 @@ namespace TurboSmoke
                 rows.Add("check", () => SmokeAssert.Equal(1, 2, "value"));
                 rows.Add("throw", () => throw new NotSupportedException("thrown"));
                 rows.Add("static-init", () => Exploding.Touch());
-                rows.Add("timeout", () => new ManualResetEventSlim(false).Wait(), 1000);
+                rows.Add("timeout", () =>
+                {
+                    using (var never = new ManualResetEventSlim(false))
+                    {
+                        never.Wait();
+                    }
+                }, 1000);
                 rows.Add("after-timeout", () => { });
                 rows.Add("pass", () => { });
             }

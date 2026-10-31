@@ -151,8 +151,10 @@ class ListFilesTest(unittest.TestCase):
 
     def test_base_results_round_trip(self):
         results = {"T.b": "fail", 'T.a("x y")': "pass", "T.c": "skip"}
-        text = ut.format_base(BASE_SHA, "abc", results)
-        self.assertEqual(ut.parse_base(text), ({"base": BASE_SHA, "filter-sha256": "abc"}, results))
+        text = ut.format_base(BASE_SHA, "abc", "def", results)
+        self.assertEqual(
+            ut.parse_base(text), ({"base": BASE_SHA, "filter-sha256": "abc", "exclude-sha256": "def"}, results)
+        )
         with self.assertRaises(ut.ToolError):
             ut.parse_base("passed\tT.a\n")
 
@@ -165,11 +167,12 @@ class CliTest(unittest.TestCase):
         (self.root / "strip" / "BASE").write_text(BASE_SHA + "\n", encoding="utf-8")
         (self.root / "strip" / "upstream-tests.txt").write_text(FILTER, encoding="utf-8")
         (self.root / "strip" / "upstream-expected-failures.txt").write_text("# none yet\n", encoding="utf-8")
+        (self.root / "strip" / "upstream-tests-exclude.txt").write_text("# none yet\n", encoding="utf-8")
         entries = ut.parse_filter(FILTER)
         base = {"Org.BouncyCastle.Tls.Tests.TlsTestSuite.RunTest(TLS12)": "pass",
                 "Org.BouncyCastle.Crypto.Tests.GcmTest.TestFunction": "pass"}
         (self.root / "strip" / "upstream-base-results.txt").write_text(
-            ut.format_base(BASE_SHA, ut.filter_digest(entries), base), encoding="utf-8"
+            ut.format_base(BASE_SHA, ut.filter_digest(entries), ut.exclude_digest({}), base), encoding="utf-8"
         )
         self.trx = Path(self.tmp.name) / "current.trx"
 
@@ -257,9 +260,10 @@ class ErrorPathTest(unittest.TestCase):
             (root / "strip").mkdir(parents=True)
             (root / "strip" / "BASE").write_text(BASE_SHA + "\n", encoding="utf-8")
             (root / "strip" / "upstream-tests.txt").write_text(FILTER, encoding="utf-8")
+            (root / "strip" / "upstream-tests-exclude.txt").write_text("", encoding="utf-8")
             seen = []
 
-            def fake_update_base(root_arg, entries, results_dir, framework, keep_tree):
+            def fake_update_base(root_arg, entries, exclusions, results_dir, framework, keep_tree):
                 seen.append(results_dir)
                 return 0
 
@@ -277,7 +281,9 @@ class RepoFilesTest(unittest.TestCase):
         self.assertTrue(entries)
         self.assertFalse([e for e in entries if ".Turbo." in e], "fork-owned tests have no BASE result")
         ut.parse_expected((REPO / ut.EXPECTED_FILE).read_text(encoding="utf-8"))
-        base_sha, base = ut.load_base(REPO, entries)
+        exclusions = ut.parse_exclusions((REPO / ut.EXCLUDE_FILE).read_text(encoding="utf-8"))
+        ut.check_exclusions_exist(REPO, exclusions)
+        base_sha, base = ut.load_base(REPO, entries, exclusions)
         self.assertEqual(base_sha, (REPO / "strip" / "BASE").read_text(encoding="utf-8").strip())
         self.assertTrue(base)
 

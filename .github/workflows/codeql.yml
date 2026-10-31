@@ -38,7 +38,9 @@ jobs:
           persist-credentials: false
 
       # build-mode none: no compile needed. Only code this fork owns is analysed: turbo-owned
-      # sources, the strip tooling and the agent tools. Upstream crypto/src stays out of scope.
+      # sources, the strip tooling and the agent tools. Upstream crypto/src stays out of scope, and
+      # so do the strip/roots consumer copies: mirrored turboHTTP code that must stay byte-identical
+      # (strip/tool/refresh_roots.py), so an alert there could only be dismissed.
       - uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
@@ -46,6 +48,7 @@ jobs:
           queries: security-and-quality
           config: |
             paths: ${{ matrix.paths }}
+            paths-ignore: ["strip/roots"]
 
       - uses: github/codeql-action/analyze@v3
         with:

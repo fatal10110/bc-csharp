@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls;
 
@@ -265,15 +266,8 @@ namespace TurboSmoke
             }
         }
 
-        private static Dictionary<string, Lazy<OpenSslCertificate>> NewCertificates()
-        {
-            var certificates = new Dictionary<string, Lazy<OpenSslCertificate>>();
-            foreach (string name in new[] { "rsa2048", "rsapss2048", "p256", "p384", "p521" })
-            {
-                string kind = name;
-                certificates.Add(kind, new Lazy<OpenSslCertificate>(() => OpenSslCertificate.Create(kind)));
-            }
-            return certificates;
-        }
+        private static Dictionary<string, Lazy<OpenSslCertificate>> NewCertificates() =>
+            new[] { "rsa2048", "rsapss2048", "p256", "p384", "p521" }.ToDictionary(
+                kind => kind, kind => new Lazy<OpenSslCertificate>(() => OpenSslCertificate.Create(kind)));
     }
 }

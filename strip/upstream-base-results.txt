@@ -1,8 +1,9 @@
 # BASE results of the kept-surface upstream tests (strip/tool/upstream_tests.py).
 # Generated, do not edit: regenerate with 'strip/tool/upstream_tests.py --update-base' after a bump
-# or an edit of strip/upstream-tests.txt.
+# or an edit of strip/upstream-tests.txt or strip/upstream-tests-exclude.txt.
 # base: 7c9c8d5a12b6342529936f08899cdb752280d538
 # filter-sha256: d89e8bef0d1d807af80ca0970805f8c029b5b6689db284121bd85f5f873f90b7
+# exclude-sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
 pass	Org.BouncyCastle.Asn1.Tests.AdditionalInformationSyntaxUnitTest.TestFunction
 pass	Org.BouncyCastle.Asn1.Tests.AdmissionSyntaxUnitTest.TestFunction
 pass	Org.BouncyCastle.Asn1.Tests.AdmissionsUnitTest.TestFunction
