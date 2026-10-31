@@ -1,9 +1,11 @@
+using System;
 using System.Linq;
 using System.Text;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Asn1.X9;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Crypto;
 using TurboHTTP.SecureProtocol.Org.BouncyCastle.Security;
+using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 
 namespace TurboSmoke
 {
@@ -13,7 +15,8 @@ namespace TurboSmoke
     /// X509ExtensionUtil; E11 edited it) runs map self-checks under #if DEBUG that throw, so a cut that breaks its
     /// maps fails only in Unity Editor and Development builds: strip.sh runs this group against the DEBUG build
     /// (TurboBC.ns21-debug.dll) as well as every release build. ECNamedCurveTable is the other registry the
-    /// client path consults by name.
+    /// client path consults by name. TurboSignatureNames (E8) is the static table behind X509Certificate.SigAlgName
+    /// and ToString().
     /// </summary>
     public sealed class RegistryRows : SmokeRowGroup
     {
@@ -37,6 +40,42 @@ namespace TurboSmoke
                     Encoding.ASCII.GetBytes("abc"));
                 SmokeAssert.Equal(SmokeHex.Decode("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"),
                     digest, "DigestUtilities.CalculateDigest(SHA-256, \"abc\")");
+            });
+            rows.Add("x509-sig-alg-name", () =>
+            {
+                foreach (var (oid, name) in new[]
+                {
+                    ("1.2.840.113549.1.1.11", "SHA-256withRSA"),
+                    ("1.2.840.10045.4.3.2", "SHA-256withECDSA"),
+                    ("1.2.3.4", "1.2.3.4"), // unknown OID: dotted string
+                })
+                {
+                    var cert = new X509Certificate(SmokeHostileKeys.P256CertificateSignedWith(oid));
+                    SmokeAssert.Equal(name, cert.SigAlgName, "SigAlgName for " + oid);
+                }
+                // Rejected subject key: ToString prints a placeholder instead of throwing (E8).
+                string text = new X509Certificate(SmokeHostileKeys.Secp256k1Certificate()).ToString();
+                SmokeAssert.True(text.Contains("<unsupported key>"), "ToString lacks <unsupported key>: " + text);
+                SmokeAssert.True(text.Contains("SHA-256withRSA"), "ToString lacks SHA-256withRSA: " + text);
+                // A key TurboKeyFactory rejects by wrapping a parse failure (non-zero EC point pad bits) prints the
+                // same placeholder.
+                string padBits = new X509Certificate(SmokeNegotiationServers.PadBitsCertificate(1, false)).ToString();
+                SmokeAssert.True(padBits.Contains("<unsupported key>"), "ToString lacks <unsupported key>: " + padBits);
+            });
+            // Decision A (E8): BC never verifies certificate signatures; chain validation is turboHTTP's (platform
+            // verifiers). Pinned on the shipped DLL so a bump that restores verification fails here.
+            rows.Add("x509-verify-not-supported", () =>
+            {
+                var cert = new X509Certificate(SmokeHostileKeys.P256CertificateSignedWith("1.2.840.10045.4.3.2"));
+                AsymmetricKeyParameter key = cert.GetPublicKey();
+                SmokeAssert.NotNull(key, "GetPublicKey of the P-256 certificate");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.Verify(key), "Verify(key)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.IsSignatureValid(key), "IsSignatureValid(key)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.Verify((IVerifierFactoryProvider)null),
+                    "Verify(provider)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.IsSignatureValid((IVerifierFactoryProvider)null),
+                    "IsSignatureValid(provider)");
+                SmokeAssert.Throws<NotSupportedException>(() => cert.VerifyAltSignature(null), "VerifyAltSignature");
             });
             rows.Add("ec-named-curve-table", () =>
             {

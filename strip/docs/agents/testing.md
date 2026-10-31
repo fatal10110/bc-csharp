@@ -11,7 +11,7 @@ validating in Unity.
 | Smoke slow rows (30 s handshake timeout) | `strip.sh --smoke-slow` | before a hand-over or a change to the timeout path |
 | DEBUG build: curve-lookup, KAT and registry rows on `TurboBC.ns21-debug.dll` (Unity Editor and Development builds define `DEBUG`) | `strip.sh` (always) | **yes** |
 | Tool tests | `strip/tool/test_*.py`, `tools/agent-tools/test_*.py`, `waves_sim.mjs` | yes, with `check.sh --full` |
-| Turbo fixtures | `crypto/test/src/turbo/` | scoped runs; required for cuts that have no smoke row |
+| Turbo fixtures | `crypto/test/src/turbo/` | yes, with `check.sh --full`; required for cuts that have no smoke row. They run at net6.0 (Span and intrinsics paths), so the smoke rows stay the gate for the Unity define sets that ship. |
 | Upstream `crypto/test` diff over the kept surface | `strip/tool/upstream_tests.py` | after every edge cut and every bump; not in CI |
 | Unity 2021.3 compile and turboHTTP TLS tests | probe project (below) | after define-set or `#if` changes, and before a hand-over |
 

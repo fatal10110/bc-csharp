@@ -2,13 +2,15 @@
 # Local quality gate for strip-v2. CI runs the same steps (.github/workflows/ci.yml).
 #
 #   tools/ci/check.sh            fast: whitespace format of changed C#, strip.sh enforce run
-#   tools/ci/check.sh --full     also actionlint, shellcheck, Python tool tests, waves simulation
+#   tools/ci/check.sh --full     also actionlint, shellcheck, turbo NUnit tests, Python tool tests,
+#                                waves simulation
 #   tools/ci/check.sh --fix      apply whitespace formatting instead of verifying it
 #
 # Build step: `strip/strip.sh` in enforce mode (#30): deny hits, the budget, unresolved references,
 # compile errors of the stripped builds and a failing smoke suite (fast rows) fail the gate. The
 # strip is the product; upstream code outside the closure may legitimately stop compiling after
-# edge cuts, so the whole library is not built.
+# edge cuts, so the fast gate does not build the whole library. --full does, at net6.0, to run the
+# turbo NUnit tests: crypto/src plus crypto/test minus strip/upstream-tests-exclude.txt.
 #
 # Needs: python3, dotnet 8 SDK, git. Optional (--full): actionlint, shellcheck, node.
 # CHECK_BASE (default origin/strip-v2) is what "changed C#" is diffed against.
@@ -78,6 +80,18 @@ if [ "$full" = 1 ]; then
   if command -v shellcheck >/dev/null; then
     git ls-files -z '*.sh' | xargs -0 shellcheck || fail "shellcheck"
   else echo "skip: shellcheck not installed"; fi
+  step "turbo NUnit tests (Org.BouncyCastle.Turbo.Tests)"
+  # Regression tests for the edge cuts and TurboKeyFactory; strip/upstream-tests.txt leaves them out.
+  # No bc-test-data needed. Roll-forward: net6.0 test host on the dotnet 8 runtime. The test sources a
+  # cut stops compiling (strip/upstream-tests-exclude.txt) are removed as in upstream_tests.py, and zero
+  # matching tests is a failure (a renamed namespace must not pass silently).
+  if targets=$(python3 strip/tool/upstream_tests.py --write-exclusion-targets strip/work/turbo-nunit); then
+    DOTNET_ROLL_FORWARD=Major dotnet test --nologo -v q --framework net6.0 crypto/test/BouncyCastle.Crypto.Tests.csproj \
+      "-p:CustomAfterMicrosoftCommonTargets=$targets" --filter "FullyQualifiedName~Org.BouncyCastle.Turbo" \
+      -- RunConfiguration.TreatNoTestsAsError=true || fail "turbo NUnit tests"
+  else
+    fail "turbo NUnit tests (exclusion list)"
+  fi
   step "python tool tests"
   for d in tools/agent-tools strip/tool; do
     if compgen -G "$d/test_*.py" >/dev/null; then

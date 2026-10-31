@@ -213,7 +213,8 @@ class StripShTest(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stderr)
         first = self.calls()[0].split()
         self.assertEqual(first[0], "refresh_roots.py")
-        self.assertEqual(first[first.index("--turbohttp") + 1], os.path.join(self.tmp.name, "th"))
+        # strip.sh resolves from bash $PWD, the realpath (/private/var/... on macOS, where TMPDIR is /var/...).
+        self.assertEqual(first[first.index("--turbohttp") + 1], os.path.join(os.path.realpath(self.tmp.name), "th"))
         self.assertEqual(first[first.index("--strip-dir") + 1], "strip")
 
     # --- smoke hook ---

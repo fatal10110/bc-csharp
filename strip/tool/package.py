@@ -5,8 +5,8 @@ Writes, under --out:
   Lib/**                   the rewritten .cs files, Lib/LICENSE.md (verbatim copy of --license) and a
                            Unity .meta for every file and folder inside Lib/ (GUID =
                            md5("turbohttp-bc:" + relpath), relpath relative to Lib/, '/' separators)
-  THIRD-PARTY-NOTICES.txt  the BC licence plus every non-BC licence header found in the packaged
-                           files (to review by hand)
+  THIRD-PARTY-NOTICES.txt  the BC licence, the MIT licence of turbo-owned files, and every other
+                           licence header found in the packaged files (to review by hand)
   STRIP_INFO.md            BASE, ROOTS_SHA, cut list, per-directory counts, smoke results, shadow diff
 
 Only Lib/, THIRD-PARTY-NOTICES.txt and STRIP_INFO.md are replaced; nothing else under --out is
@@ -38,6 +38,25 @@ SHADOW_PATHS = (
 )
 LICENCE_RE = re.compile(r"Permission is hereby granted|Licensed under")
 BC_HEADER_RE = re.compile(r"Legion of the Bouncy Castle")
+# The one-line header of turbo-owned files (crypto/src/turbo/); listed under their own MIT section.
+TURBO_HEADER_RE = re.compile(r"Copyright \(c\) 2026 fatal10110 and contributors\. Licensed under the MIT License\.")
+# A header block counts as turbo-owned only when it is exactly the one-line turbo header in a turbo/ file;
+# any other text in the block (e.g. "Portions adapted from X, Licensed under ...") keeps it in the review list.
+TURBO_BLOCK_RE = re.compile(r"//\s*" + TURBO_HEADER_RE.pattern)
+TURBO_MIT = """Copyright (c) 2026 fatal10110 and contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE."""
 CUT_RE = re.compile(r"//\s*turbo-strip:(.*)$")
 SHA_RE = re.compile(r"^[0-9a-f]{7,40}$")
 
@@ -161,6 +180,19 @@ def scan_licence_headers(lib_src, files):
     return found
 
 
+def is_turbo_header(header):
+    rel, _, _, block = header
+    return rel.startswith("turbo/") and TURBO_BLOCK_RE.fullmatch(block.strip()) is not None
+
+
+def check_turbo_headers(lib_src, files):
+    """Every turbo-owned file carries the MIT header, so none lands in neither notices section."""
+    missing = [rel for rel in files if rel.startswith("turbo/")
+               and not TURBO_HEADER_RE.search((Path(lib_src) / rel).read_bytes().decode("utf-8-sig", errors="replace"))]
+    if missing:
+        raise PackageError("turbo-owned files without the MIT header: " + ", ".join(missing))
+
+
 def notices_text(license_path, headers):
     bc = Path(license_path).read_bytes().decode("utf-8").replace("\r\n", "\n").rstrip("\n")
     out = [
@@ -175,6 +207,14 @@ def notices_text(license_path, headers):
         "",
         bc,
         "",
+    ]
+    turbo = [h for h in headers if is_turbo_header(h)]
+    headers = [h for h in headers if not is_turbo_header(h)]
+    if turbo:
+        out += ["=" * 72, "Turbo-owned files (MIT License)", "=" * 72, ""]
+        out += [f"Lib/{rel}" for rel, _, _, _ in turbo]
+        out += ["", TURBO_MIT, ""]
+    out += [
         "=" * 72,
         "Other licence headers in the packaged files (review by hand)",
         "=" * 72,
@@ -293,6 +333,7 @@ def package(lib_src, out, license_path, base, roots_sha, repo, old_base=None, sm
     files = collect_sources(lib_src)
     diff = shadow_diff(repo, old_base, base)
     smoke = Path(smoke_path).read_bytes().decode("utf-8").replace("\r\n", "\n") if smoke_path else None
+    check_turbo_headers(lib_src, files)
     headers = scan_licence_headers(lib_src, files)
     cuts = cut_list(lib_src, files)
 

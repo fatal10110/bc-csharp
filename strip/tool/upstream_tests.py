@@ -516,11 +516,21 @@ def main(argv=None):
     mode.add_argument("--trx", type=Path, help="diff this TRX instead of running dotnet test")
     mode.add_argument("--update-base", action="store_true", help="regenerate the BASE results file")
     mode.add_argument("--print-filter", action="store_true", help="print the --filter expression and exit")
+    mode.add_argument("--write-exclusion-targets", type=Path, metavar="DIR",
+                      help="write DIR/exclude.targets (the Compile Remove file for the exclusion list), print its path"
+                           " and exit; tools/ci/check.sh passes it to the turbo NUnit build")
     parser.add_argument("--keep-base-tree", action="store_true", help="keep the BASE worktree after --update-base")
     args = parser.parse_args(argv)
     root = args.root.resolve()
     results_dir = (args.results_dir or root / RESULTS_DIR).resolve()
     try:
+        if args.write_exclusion_targets:
+            exclusions = parse_exclusions(read_text(root / EXCLUDE_FILE))
+            check_exclusions_exist(root, exclusions)
+            target_dir = args.write_exclusion_targets.resolve()
+            target_dir.mkdir(parents=True, exist_ok=True)
+            print(write_exclusion_targets(target_dir, exclusions))
+            return 0
         if not (args.trx or args.print_filter or args.update_base):
             require_test_data(root)
         entries = parse_filter(read_text(root / FILTER_FILE))

@@ -18,7 +18,8 @@ concurrency:
 
 jobs:
   # Same as tools/ci/check.sh --full: whitespace format of changed C#, the strip.sh enforce run
-  # (closure, builds, fast smoke rows), actionlint, shellcheck, the Python tool tests and the waves orchestration simulation.
+  # (closure, builds, fast smoke rows), actionlint, shellcheck, the turbo NUnit tests, the Python tool tests
+  # and the waves orchestration simulation.
   lint:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -37,13 +38,18 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
-          key: nuget-${{ hashFiles('crypto/src/BouncyCastle.Crypto.csproj', 'strip/**/*.csproj') }}
+          key: nuget-${{ hashFiles('crypto/src/BouncyCastle.Crypto.csproj', 'crypto/test/BouncyCastle.Crypto.Tests.csproj', 'strip/**/*.csproj') }}
           restore-keys: nuget-
 
+      # ripgrep: tools/agent-tools/look.py (rg specs) and its tests. actionlint: release tarball
+      # verified against the sha256 from actionlint_1.7.12_checksums.txt.
       - name: Install actionlint and ripgrep
         run: |
           sudo apt-get install -y --no-install-recommends ripgrep
-          bash <(curl -sSfL https://raw.githubusercontent.com/rhysd/actionlint/v1.7.12/scripts/download-actionlint.bash) 1.7.12 "$RUNNER_TEMP"
+          curl -sSfL --proto '=https' --tlsv1.2 -o "$RUNNER_TEMP/actionlint.tgz" \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $RUNNER_TEMP/actionlint.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/actionlint.tgz" -C "$RUNNER_TEMP" actionlint
           echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
 
       - name: Check

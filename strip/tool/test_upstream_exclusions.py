@@ -240,6 +240,20 @@ class CliTest(unittest.TestCase):
     def write_exclude(self, text):
         (self.root / "strip" / "upstream-tests-exclude.txt").write_text(text, encoding="utf-8")
 
+    def test_write_exclusion_targets_for_the_gate(self):
+        out_dir = Path(self.tmp.name) / "targets"
+        result = self.run_script("--write-exclusion-targets", str(out_dir))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        path = Path(result.stdout.strip())
+        self.assertEqual(path, (out_dir / "exclude.targets").resolve())
+        self.assertNotIn("Compile Remove", path.read_text(encoding="utf-8"))
+        self.write_exclude(f"E9 {PROBE}\n")
+        result = self.run_script("--write-exclusion-targets", str(out_dir))
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertIn("ExclusionProbeTest.cs", path.read_text(encoding="utf-8"))
+        self.write_exclude("E9 crypto/test/src/tls/test/Missing.cs\n")
+        self.assertEqual(self.run_script("--write-exclusion-targets", str(out_dir)).returncode, 2)
+
     def test_changed_list_needs_update_base(self):
         self.assertEqual(self.run_script("--trx", str(self.trx)).returncode, 0)
         self.write_exclude(f"E9 {PROBE}\n")

@@ -75,7 +75,7 @@ Every change answers three questions in the PR body, from evidence:
 
    ```bash
    cd <worktree> && ./tools/ci/check.sh            # format of changed C#, strip/library build
-   cd <worktree> && ./tools/ci/check.sh --full     # before opening the PR: + actionlint, shellcheck, tool tests, waves sim
+   cd <worktree> && ./tools/ci/check.sh --full     # before opening the PR: + actionlint, shellcheck, turbo NUnit, tool tests, waves sim
    cd <worktree> && strip/strip.sh --report        # once the tooling exists; smoke when present
    ```
 
