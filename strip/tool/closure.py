@@ -451,8 +451,9 @@ def run_closure(index, resolver, builder, set_names, seed_files, root_files, stu
     prov = {}
     result = ClosureResult(list(set_names))
 
-    def compile_list(stub_file):
-        return sorted(os.path.join(src, f) for f in files) + sorted(root_files) + [stub_file]
+    def compile_list(stub_file, set_name):
+        roots_in_set = defines_mod.roots_for_set(set_name, root_files)
+        return sorted(os.path.join(src, f) for f in files) + sorted(roots_in_set) + [stub_file]
 
     def kept_infos():
         return [index.files[f] for f in sorted(files) if f in index.files] + roots
@@ -467,7 +468,7 @@ def run_closure(index, resolver, builder, set_names, seed_files, root_files, stu
         stubs = using_namespaces(kept_infos(), index) | extra_ns
         write_stubs(stub_path, stubs)
         known_ns = stubs | declared_namespaces(kept_infos())
-        errors = {s: builder.build(s, compile_list(stub_path), assert_defines=(it == 1)) for s in set_names}
+        errors = {s: builder.build(s, compile_list(stub_path, s), assert_defines=(it == 1)) for s in set_names}
         add, new_ns = set(), set()
         for s in set_names:
             for err in sorted(errors[s]):
@@ -498,7 +499,7 @@ def run_closure(index, resolver, builder, set_names, seed_files, root_files, stu
     result.loop_errors = errors
     result.stubs = prune_stubs(using_namespaces(kept_infos(), index), declared_namespaces(kept_infos()))
     write_stubs(stub_path, result.stubs)
-    result.final_errors = {s: builder.build(s, compile_list(stub_path), assert_defines=True) for s in set_names}
+    result.final_errors = {s: builder.build(s, compile_list(stub_path, s), assert_defines=True) for s in set_names}
     result.files = sorted(files)
     result.prov = {k: sorted(v) for k, v in sorted(prov.items())}
     return result
@@ -530,7 +531,7 @@ def run_sweep(index, resolver, builder, result, rules, seed_files, root_files, s
         return result
     src = resolver.src
     denied_abs = {os.path.join(src, f): f for f in result.denied}
-    kept_abs = {os.path.join(src, f) for f in result.kept()} | set(root_files)
+    kept_lib = {os.path.join(src, f) for f in result.kept()}
     canary = os.path.abspath(os.path.join(os.path.dirname(stub_path), SWEEP_CANARY_FILE))
     with open(canary, "w", encoding="utf-8") as fh:
         fh.write(SWEEP_CANARY)
@@ -561,6 +562,7 @@ def run_sweep(index, resolver, builder, result, rules, seed_files, root_files, s
 
     for s in result.sets:
         t0 = time.time()
+        kept_abs = kept_lib | set(defines_mod.roots_for_set(s, root_files))
         # Remove phase.
         removed, decl_targets, builds, reached = set(), set(), 0, False
         while builds < max_rounds:

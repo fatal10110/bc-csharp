@@ -20,6 +20,28 @@ CSC = (
 )
 
 
+class RootsForSetTest(unittest.TestCase):
+    def test_netframework_drops_the_memory_stream_root_only(self):
+        # #75: BouncyCastleTlsStream.cs needs Memory<byte>/ValueTask Stream members that the net471 reference
+        # assemblies lack (Unity's Mono BCL has them); that set compiles the .net471.cs stand-in instead.
+        provider, stream, stub, stand_in = ("/r/BouncyCastleTlsProvider.cs", "/r/BouncyCastleTlsStream.cs",
+                                            "/r/RootStubs.cs", "/r/BouncyCastleTlsStream.net471.cs")
+        roots = [provider, stream, stub, stand_in]
+        self.assertEqual(d.NET471_EXCLUDED_ROOTS, frozenset({"BouncyCastleTlsStream.cs"}))
+        self.assertEqual(d.NET471_ONLY_ROOTS, frozenset({"BouncyCastleTlsStream.net471.cs"}))
+        self.assertEqual(d.roots_for_set("netframework", roots), [provider, stub, stand_in])
+        for name in ("netstandard21", "netstandard21_debug", "min"):
+            self.assertEqual(d.roots_for_set(name, roots), [provider, stream, stub], name)
+        self.assertEqual(d.roots_for_set("netframework", []), [])
+
+    def test_swapped_roots_exist(self):
+        # A rename on either side fails here instead of in an enforce run.
+        import refresh_roots
+        self.assertTrue(d.NET471_EXCLUDED_ROOTS <= set(refresh_roots.CONSUMER_FILES))
+        for name in d.NET471_ONLY_ROOTS:
+            self.assertTrue(os.path.isfile(os.path.join(STRIP, "roots", name)), name)
+
+
 class UnityDefinesTest(unittest.TestCase):
     def test_file_has_the_captured_unity_sets(self):
         # #29/#30: the Unity 2021.3 Android IL2CPP player sets replace the provisional [min]/[partial]/[sdk].

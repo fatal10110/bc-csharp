@@ -12,8 +12,9 @@ stage  (after closure.py) reads <work>/closure_report.json and writes
 build  (after the rewrite) builds, per define set, in <work>/build/<stage>-<set>/:
        3a  the stripped tree: kept files + stubs                      -> TurboBC.Strip.<x>.dll
        3c  the rewritten tree (<work>/rewritten/lib)                  -> TurboBC.<x>.dll
-           and, as a separate assembly referencing it, the rewritten roots (the unmodified
-           consumer files, RootStubs.cs, roots-extra.cs; <work>/rewritten/roots)
+           and, as a separate assembly referencing it, the set's rewritten roots (the unmodified
+           consumer files, RootStubs.cs, roots-extra.cs; <work>/rewritten/roots; per set via
+           defines.roots_for_set, #75)
                                                                       -> TurboBC.Consumer.<x>.dll
        <x> is ns21 for [netstandard21], netfx for [netframework], else the set name (any
        other set). The consumer build is skipped when its TurboBC.<x>.dll did not build. Built
@@ -190,7 +191,7 @@ def plan_builds(builder, sets, work, src):
         builder.add(k3a, s, defines, f"TurboBC.Strip.{dll_suffix(s)}")
         builder.add(k3c, s, defines, lib)
         builder.add(kcon, s, defines, f"TurboBC.Consumer.{dll_suffix(s)}", [builder.output(k3c)])
-        plan.append((s, k3a, k3c, kcon, files_3a, files_3c, files_consumer))
+        plan.append((s, k3a, k3c, kcon, files_3a, files_3c, defines_mod.roots_for_set(s, files_consumer)))
     return plan
 
 

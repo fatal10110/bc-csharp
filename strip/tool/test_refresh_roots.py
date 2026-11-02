@@ -14,7 +14,7 @@ import refresh_roots  # noqa: E402
 import rewrite  # noqa: E402
 
 CONSUMER_DIR = "Runtime/Transport/BouncyCastle"
-NAMES = ("BouncyCastleTlsProvider.cs", "TurboTlsClient.cs", "TurboTlsAuthentication.cs")
+NAMES = ("BouncyCastleTlsProvider.cs", "BouncyCastleTlsStream.cs", "TurboTlsClient.cs", "TurboTlsAuthentication.cs")
 SHA40 = re.compile(r"^[0-9a-f]{40}\n$")
 
 # Consumer form, as turboHTTP vendors it: every BC token prefixed, TurboHTTP's own namespaces not.
@@ -38,7 +38,11 @@ CLIENT = (b"\xef\xbb\xbf\r\n\r\nusing TurboHTTP.SecureProtocol.Org.BouncyCastle.
 AUTH = b"""using TurboHTTP.SecureProtocol.Org.BouncyCastle.X509;
 namespace TurboHTTP.Transport.BouncyCastle { }
 """
-CONSUMERS = {"BouncyCastleTlsProvider.cs": PROVIDER, "TurboTlsClient.cs": CLIENT,
+# #75: the non-blocking stream (OfferInput/ReadOutput) is the fourth consumer file.
+STREAM = b"""using TurboHTTP.SecureProtocol.Org.BouncyCastle.Tls;
+namespace TurboHTTP.Transport.BouncyCastle { sealed class BouncyCastleTlsStream { TlsClientProtocol p; } }
+"""
+CONSUMERS = {"BouncyCastleTlsProvider.cs": PROVIDER, "BouncyCastleTlsStream.cs": STREAM, "TurboTlsClient.cs": CLIENT,
              "TurboTlsAuthentication.cs": AUTH}
 
 
@@ -215,7 +219,7 @@ class CommittedRootsTest(unittest.TestCase):
     def test_committed_copies_are_reversed(self):
         roots = REPO / "strip" / "roots"
         self.assertEqual(sorted(p.name for p in roots.iterdir()),
-                         sorted([*NAMES, "RootStubs.cs", "roots-extra.cs"]))
+                         sorted([*NAMES, "BouncyCastleTlsStream.net471.cs", "RootStubs.cs", "roots-extra.cs"]))
         for p in roots.iterdir():
             with self.subTest(name=p.name):
                 data = p.read_bytes()

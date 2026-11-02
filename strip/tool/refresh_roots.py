@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Refresh strip/roots from a turboHTTP checkout (STRIP_PLAN_V2.md section 5 step 1, --refresh-roots).
 
-Copies the three consumer files of turboHTTP Runtime/Transport/BouncyCastle/ into strip/roots with
+Copies the four consumer files of turboHTTP Runtime/Transport/BouncyCastle/ into strip/roots with
 the namespace rewrite reversed (``TurboHTTP.SecureProtocol.Org.BouncyCastle`` -> ``Org.BouncyCastle``)
 and writes the turboHTTP commit they came from to strip/ROOTS_SHA. The files are read from the
 commit (``git show <sha>:<path>``), not the working tree, so the copies always match ROOTS_SHA.
@@ -21,11 +21,15 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import defines  # noqa: E402
 import rewrite  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 CONSUMER_DIR = "Runtime/Transport/BouncyCastle"
-CONSUMER_FILES = ("BouncyCastleTlsProvider.cs", "TurboTlsClient.cs", "TurboTlsAuthentication.cs")
+# The glue that references Bouncy Castle: provider, non-blocking stream (#75), client, authentication. The
+# other files of that directory (Android verifier, module registration, AssemblyInfo) reference Unity only.
+CONSUMER_FILES = ("BouncyCastleTlsProvider.cs", "BouncyCastleTlsStream.cs", "TurboTlsClient.cs",
+                  "TurboTlsAuthentication.cs")
 ROOTS_SHA_NAME = "ROOTS_SHA"
 SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 PREFIXED_RE = re.compile(rb"\b" + re.escape(rewrite.PREFIX) + rb"(?=Org\.BouncyCastle\b)")
@@ -123,6 +127,8 @@ def main(argv=None):
         return 1
     for path, changed in results:
         print(f"{'updated' if changed else 'unchanged'}: {path}")
+        if changed and path.name in defines.NET471_EXCLUDED_ROOTS:
+            print(f"  re-check the [netframework] stand-in(s) {sorted(defines.NET471_ONLY_ROOTS)} against it")
     print(f"ROOTS_SHA {sha}")
     return 0
 

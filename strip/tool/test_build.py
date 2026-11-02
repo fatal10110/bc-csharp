@@ -144,6 +144,16 @@ class BuildLoopTest(Fixture):
         self.assertEqual(b.targets[kcon], ("netframework", "TurboBC.Consumer.netfx", [b.output(k3c)]))
         self.assertTrue(b.output(k3c).endswith(os.path.join("net471", "TurboBC.netfx.dll")))
 
+    def test_net471_excluded_root_is_left_out_of_the_netframework_consumer_build(self):
+        # #75: the rewritten BouncyCastleTlsStream.cs compiles against TurboBC.min, not TurboBC.netfx.
+        stream = os.path.join(self.work, build.REWRITTEN_ROOTS, "BouncyCastleTlsStream.cs")
+        write(stream)
+        _, plan, results = self.run_loop({})
+        self.assertIn(stream, plan[0][6])  # min
+        self.assertNotIn(stream, plan[1][6])  # netframework
+        self.assertEqual(len(plan[1][6]), 1)
+        self.assertEqual(build.failure_lines(results), [])
+
     def test_props_carry_assembly_name_and_reference(self):
         b, plan, _ = self.run_loop({})
         os.makedirs(b.set_dir("3c-consumer-min"), exist_ok=True)

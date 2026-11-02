@@ -275,6 +275,20 @@ class FixpointTest(unittest.TestCase):
         result.stalled = True  # the last batch was never built in the loop: no comparison
         self.assertEqual(c.check_pruning(result), [])
 
+    def test_net471_excluded_root_is_not_compiled_for_netframework(self):
+        # #75: BouncyCastleTlsStream.cs is a root for the netstandard2.1 sets only (defines.roots_for_set).
+        stream = os.path.join(os.path.dirname(self.root), "BouncyCastleTlsStream.cs")
+        with open(stream, "w") as f:
+            f.write("namespace App\n{\n    class S { }\n}\n")
+        builder = FakeBuilder(self.src, self.rules)
+        r = c.Resolver(self.index, self.src, repo=self.tmp.name)
+        stub = os.path.join(self.work, c.STUBS_FILE)
+        result = c.run_closure(self.index, r, builder, ["netstandard21", "netframework"], [], [self.root, stream],
+                               stub, 20, log=lambda *_: None)
+        self.assertFalse(result.stalled)
+        last = {name: n for name, n, _ in builder.calls}  # the final build of each set
+        self.assertEqual(last["netstandard21"] - last["netframework"], 1)
+
     def test_main_refuses_a_work_dir_inside_src(self):
         before = self.snapshot()
         rc = c.main(["--src", self.src, "--work", os.path.join(self.src, "w"), "--roots", self.root])

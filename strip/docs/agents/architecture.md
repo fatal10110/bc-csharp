@@ -28,7 +28,7 @@ map of it, not a replacement.
 | Path | Role |
 | --- | --- |
 | `BASE`, `ROOTS_SHA` | pinned upstream commit; turboHTTP commit the roots were copied from |
-| `roots/` | consumer copies (`BouncyCastleTlsProvider`, `TurboTlsClient`, `TurboTlsAuthentication`), `RootStubs.cs`, `roots-extra.cs` (BC API contract) |
+| `roots/` | consumer copies (`BouncyCastleTlsProvider`, `BouncyCastleTlsStream`, `TurboTlsClient`, `TurboTlsAuthentication`), `RootStubs.cs` (turboHTTP/Unity stand-ins), `roots-extra.cs` (BC API contract). `BouncyCastleTlsStream.cs` is compiled for the netstandard2.1 sets only (`defines.roots_for_set`, #75): it needs `Memory<byte>` Stream members the net471 reference assemblies lack and Unity's Mono BCL has; the net471 set compiles the throwing stand-in `BouncyCastleTlsStream.net471.cs` instead. |
 | `unity-defines.txt` | define sets the closure builds with: `[netstandard21]`, `[netframework]`, captured from Unity 2021.3.45f2 |
 | `deny.txt` | denied subsystems (globs relative to `crypto/src`) |
 | `budget.txt` | total cap on kept files |

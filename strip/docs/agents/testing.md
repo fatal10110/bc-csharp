@@ -25,6 +25,7 @@ validating in Unity.
   - KATs (AES-GCM light/basic, ChaCha20-Poly1305, X25519, ECDSA, RSA PKCS#1/PSS, SHA-2, HMAC, TLS 1.3 HKDF);
   - OpenSSL 3 interop matrix;
   - exact ClientHello;
+  - the non-blocking engine API turboHTTP's `BouncyCastleTlsStream` drives (`OfferInput`/`ReadOutput`, #75);
   - hostile inputs (ASN.1 depth, RSA bounds, explicit EC, rejected key types);
   - timeouts.
 - **Results** go into `STRIP_INFO.md`.

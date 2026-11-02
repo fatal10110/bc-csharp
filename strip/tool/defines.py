@@ -10,8 +10,11 @@
   ignoring empty entries.
 - ``debug_variants``: the DEBUG build of #58 (Unity Editor and Development builds), derived from a
   captured set; build.py builds it, the closure does not see it.
+- ``roots_for_set``: the roots a set compiles; the net471 set swaps ``NET471_EXCLUDED_ROOTS`` for
+  ``NET471_ONLY_ROOTS`` (#75).
 """
 
+import os
 import re
 from xml.sax.saxutils import escape
 
@@ -87,6 +90,24 @@ def load_unity_defines(path):
 
 def tfm_for_set(name):
     return NETFRAMEWORK_TFM if name == NETFRAMEWORK_SET else NETSTANDARD_TFM
+
+
+# #75: turboHTTP's BouncyCastleTlsStream.cs overrides Stream.ReadAsync(Memory<byte>, ..) and
+# WriteAsync(ReadOnlyMemory<byte>, ..) and uses ValueTask. Unity's Mono BCL has them at the .NET Framework
+# API level (NET_Unity_4_8), the net471 reference assemblies the [netframework] set builds against do not
+# (CS0246 Memory<>/ValueTask), so that set compiles BouncyCastleTlsStream.net471.cs instead: a stand-in with
+# the members BouncyCastleTlsProvider.cs uses, so the other consumer files still compile there. The real
+# stream's Bouncy Castle surface is TlsClientProtocol's non-blocking members, which have no #if, so the
+# netstandard2.1 sets check it.
+NET471_EXCLUDED_ROOTS = frozenset({"BouncyCastleTlsStream.cs"})
+NET471_ONLY_ROOTS = frozenset({"BouncyCastleTlsStream.net471.cs"})
+
+
+def roots_for_set(name, root_files):
+    """The root files set `name` compiles: the net471 set drops NET471_EXCLUDED_ROOTS, every other set
+    drops NET471_ONLY_ROOTS."""
+    drop = NET471_EXCLUDED_ROOTS if tfm_for_set(name) == NETFRAMEWORK_TFM else NET471_ONLY_ROOTS
+    return [f for f in root_files if os.path.basename(f) not in drop]
 
 
 def debug_variants(sets):
