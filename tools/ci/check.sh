@@ -39,9 +39,15 @@ fi
 # Fork-owned C# is formatted whole; upstream C# is never reformatted (370+ upstream files carry
 # tab/whitespace drift, and reformatting them would enlarge the rebase surface). For upstream files
 # only the added lines are checked, for trailing whitespace.
+# turboHTTP's consumer copies in strip/roots (written by strip/tool/refresh_roots.py) must stay byte-identical
+# to turboHTTP, so they are never formatted or checked; the hand-maintained roots files are.
+copies=" $(python3 -c 'import sys; sys.path.insert(0, "strip/tool"); import refresh_roots as r
+print(" ".join("strip/roots/" + n for n in r.CONSUMER_FILES))') "
+case "$copies" in *strip/roots/*) ;; *) echo "FAIL: cannot list the turboHTTP copies (strip/tool/refresh_roots.py)"; exit 2 ;; esac
 owned=(); upstream=()  # bash 3.2 (macOS) has no mapfile
 while IFS= read -r f; do
   [ -f "$f" ] || continue
+  case "$copies" in *" $f "*) continue ;; esac
   case "$f" in crypto/src/turbo/*|strip/*|tools/*) owned+=("$f") ;; *) upstream+=("$f") ;; esac
 done < <(
   { git diff --name-only --diff-filter=ACMR "$base"...HEAD -- '*.cs'

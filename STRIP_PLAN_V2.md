@@ -151,8 +151,10 @@ separate-assembly DLL (3c), with the namespace rewritten.
 ```
 strip/
   BASE, ROOTS_SHA       # committed here; ROOTS_SHA = turboHTTP commit the roots came from
-  roots/                # COMMITTED: 3 consumer files (rewrite reversed), RootStubs.cs (ITlsProvider, TlsResult 5-arg
-                        #   ctor, UnityEngine.Scripting.PreserveAttribute), roots-extra.cs
+  roots/                # COMMITTED: 4 consumer files (rewrite reversed; BouncyCastleTlsStream.cs compiles for the
+                        #   netstandard2.1 sets only: it needs Memory<byte> Stream members the net471 reference
+                        #   assemblies lack; [netframework] gets BouncyCastleTlsStream.net471.cs, #75),
+                        #   RootStubs.cs (turboHTTP/Unity stand-ins), roots-extra.cs
   deny.txt  budget.txt
   unity-defines.txt     # [netstandard21] / [netframework] sections, one DefineConstants line each, captured
                         #   from Unity 2021.3 (#29). Before the capture, --report ran three provisional sets:
@@ -211,7 +213,8 @@ strip/
 3. **Builds.**
    - (a) [netstandard21] and (b) [netframework], on the stripped tree.
    - (c) the rewritten tree (step 4) for **each** define set, giving `TurboBC.ns21.dll` and `TurboBC.netfx.dll`.
-     Against each, compile the unmodified consumer files, `RootStubs.cs` and the rewritten `roots-extra.cs` as a
+     Against each, compile the set's roots (`defines.roots_for_set`: the unmodified consumer files, `RootStubs.cs`
+     and the rewritten `roots-extra.cs`; `[netframework]` takes `BouncyCastleTlsStream.net471.cs`, #75) as a
      separate assembly.
    - Suppress CS3021.
    - The Unity compile in #141 is the real check.

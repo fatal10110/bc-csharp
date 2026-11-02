@@ -7,7 +7,8 @@ namespace TurboSmoke
 {
     /// <summary>
     /// Mirror of turboHTTP's TurboTlsClient (strip/roots/TurboTlsClient.cs at ROOTS_SHA, internal sealed there):
-    /// the same ALPN and SNI extensions, TLS 1.3 + 1.2, default cipher suites, and the same negotiated-result
+    /// the same ALPN extension and GetSniServerNames SNI, TLS 1.3 + 1.2, the same explicit cipher-suite list through
+    /// TlsUtilities.GetSupportedCipherSuites, and the same negotiated-result
     /// capture. Differences: the authentication is injected (decision A: chain validation lives outside BC, so the
     /// harness pins its test certificate, <see cref="SmokeTlsAuthentication"/>), and the handshake timeout is
     /// 30000 ms (plan section 5 step 5; turboHTTP#142), adjustable for the timeout rows. Client-side files use the
@@ -16,6 +17,20 @@ namespace TurboSmoke
     public sealed class SmokeTlsClient : DefaultTlsClient
     {
         public const int DefaultHandshakeTimeoutMillis = 30000;
+
+        /// <summary>TurboTlsClient.OfferedCipherSuites at ROOTS_SHA, in order.</summary>
+        public static readonly int[] OfferedCipherSuites =
+        {
+            CipherSuite.TLS_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_AES_128_GCM_SHA256,
+            CipherSuite.TLS_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+            CipherSuite.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+            CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+        };
 
         private readonly string _targetHost;
         private readonly string[] _alpnProtocols;
@@ -67,14 +82,24 @@ namespace TurboSmoke
                 TlsExtensionsUtilities.AddAlpnExtensionClient(extensions, protocols);
             }
 
-            var hostBytes = System.Text.Encoding.UTF8.GetBytes(_targetHost);
-            var serverNames = new List<ServerName>
-            {
-                new ServerName(NameType.host_name, hostBytes)
-            };
-            TlsExtensionsUtilities.AddServerNameExtensionClient(extensions, serverNames);
-
+            // SNI: added by the base implementation from GetSniServerNames(), as in the consumer.
             return extensions;
+        }
+
+        /// <summary>
+        /// RFC 6066 section 3, the consumer's GetSniServerNames: the ASCII host name, and no server_name for an IP
+        /// literal (the consumer also converts to the A-label; the harness only uses ASCII host names).
+        /// </summary>
+        protected override IList<ServerName> GetSniServerNames()
+        {
+            if (System.Net.IPAddress.TryParse(_targetHost, out _))
+            {
+                return null;
+            }
+            return new List<ServerName>
+            {
+                new ServerName(NameType.host_name, System.Text.Encoding.ASCII.GetBytes(_targetHost))
+            };
         }
 
         public override void NotifyHandshakeComplete()
@@ -126,9 +151,11 @@ namespace TurboSmoke
             };
         }
 
+        /// <summary>The consumer's explicit list (TurboTlsClient.OfferedCipherSuites: TLS 1.3 AEAD suites, then TLS 1.2
+        /// ECDHE with AEAD only), filtered by what the crypto provider implements.</summary>
         protected override int[] GetSupportedCipherSuites()
         {
-            return base.GetSupportedCipherSuites();
+            return TlsUtilities.GetSupportedCipherSuites(Crypto, OfferedCipherSuites);
         }
     }
 }

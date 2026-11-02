@@ -218,6 +218,26 @@ class SweepTest(unittest.TestCase):
         c.run_sweep(self.index, r, builder, result, d.parse_deny(deny), seeds, [self.root], stub, log=quiet)
         return result, builder.calls[n:]
 
+    def test_sweep_compiles_the_set_s_roots(self):
+        # #75: the net471 set sweeps without BouncyCastleTlsStream.cs (defines.roots_for_set), the ns2.1 set with it.
+        stream = os.path.join(os.path.dirname(self.root), "BouncyCastleTlsStream.cs")
+        with open(stream, "w") as f:
+            f.write("namespace App\n{\n    class S { }\n}\n")
+        roots = [self.root, stream]
+        builder = SweepBuilder(self.src, self.rules)
+        r = c.Resolver(self.index, self.src, repo=self.tmp.name)
+        seeds = ["turbo/TurboGostFree.cs"]
+        quiet = lambda *_: None  # noqa: E731
+        sets = ["netstandard21", "netframework"]
+        result = c.run_closure(self.index, r, builder, sets, seeds, roots, os.path.join(self.work, c.STUBS_FILE), log=quiet)
+        n = len(builder.calls)
+        c.run_sweep(self.index, r, builder, result, d.parse_deny(DENY), seeds, roots, os.path.join(self.work, c.SWEEP_STUBS_FILE), log=quiet)
+        first = {s: files for s, files, _ in reversed(builder.calls[n:])}  # the first sweep build of each set
+        self.assertEqual(set(first), set(sets))
+        self.assertIn(stream, first["netstandard21"])
+        self.assertNotIn(stream, first["netframework"])
+        self.assertEqual(set(first["netstandard21"]) - set(first["netframework"]), {stream})
+
     def test_sweep_lists_every_kept_referrer_per_denied_file(self):
         result, sweep_calls = self.run_all()
         self.assertEqual(result.final_errors, {"min": set(), "sdk": set()})

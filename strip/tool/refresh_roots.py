@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Refresh strip/roots from a turboHTTP checkout (STRIP_PLAN_V2.md section 5 step 1, --refresh-roots).
 
-Copies the three consumer files of turboHTTP Runtime/Transport/BouncyCastle/ into strip/roots with
+Copies the four consumer files of turboHTTP Runtime/Transport/BouncyCastle/ into strip/roots with
 the namespace rewrite reversed (``TurboHTTP.SecureProtocol.Org.BouncyCastle`` -> ``Org.BouncyCastle``)
-and writes the turboHTTP commit they came from to strip/ROOTS_SHA. The files are read from the
-commit (``git show <sha>:<path>``), not the working tree, so the copies always match ROOTS_SHA.
+and writes the turboHTTP commit they came from to strip/ROOTS_SHA, plus a sha256 per copy to
+strip/roots.sha256 (``shasum -a 256 -c roots.sha256`` from strip/), which the tool tests check against
+the committed copies: a hand edit of a copy fails a unit test instead of validating code turboHTTP
+does not ship. The files are read from the commit (``git show <sha>:<path>``), not the working tree,
+so the copies always match ROOTS_SHA.
 Only the token prefix changes; a BOM, line endings and every other byte are kept, and the forward
 rewrite of strip/tool/rewrite.py turns each copy back into the exact consumer file (checked).
 
@@ -14,6 +17,7 @@ written into the turboHTTP checkout. strip.sh (#10) wires this as ``--refresh-ro
 """
 
 import argparse
+import hashlib
 import re
 import subprocess
 import sys
@@ -21,12 +25,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import defines  # noqa: E402
 import rewrite  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[2]
 CONSUMER_DIR = "Runtime/Transport/BouncyCastle"
-CONSUMER_FILES = ("BouncyCastleTlsProvider.cs", "TurboTlsClient.cs", "TurboTlsAuthentication.cs")
+# The glue that references Bouncy Castle: provider, non-blocking stream (#75), client, authentication. The
+# other files of that directory (Android verifier, module registration, AssemblyInfo) reference Unity only.
+CONSUMER_FILES = ("BouncyCastleTlsProvider.cs", "BouncyCastleTlsStream.cs", "TurboTlsClient.cs",
+                  "TurboTlsAuthentication.cs")
 ROOTS_SHA_NAME = "ROOTS_SHA"
+DIGESTS_NAME = "roots.sha256"
 SHA40_RE = re.compile(r"^[0-9a-f]{40}$")
 PREFIXED_RE = re.compile(rb"\b" + re.escape(rewrite.PREFIX) + rb"(?=Org\.BouncyCastle\b)")
 
@@ -87,6 +96,31 @@ def read_consumers(turbohttp, sha):
     return files
 
 
+def digest_lines(files):
+    """shasum-compatible lines for the copies: '<sha256>  roots/<name>', sorted by name."""
+    return "".join(f"{hashlib.sha256(data).hexdigest()}  roots/{name}\n" for name, data in sorted(files.items()))
+
+
+def check_digests(strip_dir):
+    """Mismatches between strip_dir/roots.sha256 and the committed copies: ['<name>: <why>', ...]."""
+    strip_dir = Path(strip_dir)
+    problems = []
+    seen = set()
+    for line in (strip_dir / DIGESTS_NAME).read_text(encoding="ascii").splitlines():
+        digest, _, rel = line.partition("  ")
+        name = rel[len("roots/"):]
+        seen.add(name)
+        path = strip_dir / "roots" / name
+        if not path.is_file():
+            problems.append(f"{name}: listed in {DIGESTS_NAME} but missing")
+        elif hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+            problems.append(f"{name}: does not match {DIGESTS_NAME} (hand-edited? run --refresh-roots)")
+    for name in CONSUMER_FILES:
+        if name not in seen:
+            problems.append(f"{name}: not listed in {DIGESTS_NAME}")
+    return problems
+
+
 def write_if_changed(path, data):
     if path.exists() and path.read_bytes() == data:
         return False
@@ -106,6 +140,8 @@ def refresh(turbohttp, strip_dir, rev="HEAD"):
         results.append((path, write_if_changed(path, data)))
     path = strip_dir / ROOTS_SHA_NAME
     results.append((path, write_if_changed(path, (sha + "\n").encode("ascii"))))
+    path = strip_dir / DIGESTS_NAME
+    results.append((path, write_if_changed(path, digest_lines(files).encode("ascii"))))
     return sha, results
 
 
@@ -123,6 +159,8 @@ def main(argv=None):
         return 1
     for path, changed in results:
         print(f"{'updated' if changed else 'unchanged'}: {path}")
+        if changed and path.name in defines.NET471_EXCLUDED_ROOTS:
+            print(f"  re-check the [netframework] stand-in(s) {sorted(defines.NET471_ONLY_ROOTS)} against it")
     print(f"ROOTS_SHA {sha}")
     return 0
 
