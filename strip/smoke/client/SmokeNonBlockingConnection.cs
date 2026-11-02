@@ -92,9 +92,13 @@ namespace TurboSmoke
                 {
                     FlushOutput();
                 }
-                catch (Exception)
+                catch (IOException)
                 {
                     // Best effort: the peer may already be gone; the engine's failure is what the caller needs.
+                }
+                catch (ObjectDisposedException)
+                {
+                    // Same: the socket was closed under us.
                 }
             }
         }

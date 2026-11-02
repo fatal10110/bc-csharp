@@ -64,8 +64,7 @@ the non-blocking `TlsClientProtocol` API the stream relies on.
   the reason is a compiler fact about the reference assemblies, not a policy.
 - **Stubs throw.** `ServerCertificateVerifier.Verify`, `TlsCertificateNameMatcher.Matches` and
   `TlsHostName` are decision-A code that lives in turboHTTP; a permissive stub could one day stand in for
-  the real check, a throwing one cannot. `AndroidTrustManagerVerifier.EnsureRegistered` is empty (it
-  only registers a verifier).
+  the real check, a throwing one cannot.
 - **Only the four BC-referencing glue files are roots.** `AndroidTrustManagerVerifier.cs`,
   `BouncyCastleModuleRegistration.cs` and `AssemblyInfo.cs` reference UnityEngine only.
 - **The format gate never touches the copies.** The first `check.sh --full` failed with 56 WHITESPACE
@@ -85,6 +84,22 @@ the non-blocking `TlsClientProtocol` API the stream relies on.
   consumer does; the handshake-EOF divergence (`TlsFatalAlert(handshake_failure)` here, `IOException` in the
   consumer) is documented; `AndroidTrustManagerVerifier.EnsureRegistered` throws like the other stubs.
 
+- **Review round 2 (PR 76 threads):**
+  - `nonblocking/pinned-mismatch-alert-reaches-server` raced the server's flight and failed CI on Linux
+    (`Broken pipe`: BC's TLS 1.3 server writes its flight as separate records and signs CertificateVerify
+    between them; the client rejects at Certificate, sends the alert and closes; the server's next write
+    hits the closed socket). Replaced by `pinned-mismatch-alert-via-readoutput`: TLS 1.2 (plaintext alert),
+    the engine driven by hand, and the output queue after the failing `OfferInput` asserted byte for byte
+    (`15 03 03 00 02 02 2A`); the server's outcome is accepted either way, as long as it never completed.
+  - `nonblocking/truncation-mid-record`: a `TruncatingStream` drops the last 5 bytes of the echo record
+    before the socket closes, so `CloseInput` takes its `EndOfStreamException` path (input buffered); the
+    row asserts the exact type on two consecutive reads, never 0.
+  - `strip/roots.sha256`, written by `refresh_roots.py`, pins the copies the format step and CodeQL skip;
+    `test_refresh_roots.CommittedRootsTest` checks the committed copies against it, so a hand edit fails a
+    unit test. `check.sh` exits 2 if the copies list cannot be derived (never formats the copies by accident).
+  - CodeQL: `assertLessEqual`, and specific `IOException`/`ObjectDisposedException` catches in the smoke
+    connection's post-failure flush.
+
 ## Deferred
 
 - None. The hand-over comment on turboHTTP (acceptance item 3) is posted by the owner once the PR is
@@ -92,15 +107,17 @@ the non-blocking `TlsClientProtocol` API the stream relies on.
 
 ## How verified
 
-- `python3 -m unittest discover -s strip/tool -p 'test_*.py'`: 199 tests (the new ones failed before
+- `python3 -m unittest discover -s strip/tool -p 'test_*.py'`: 201 tests (the new ones failed before
   the change, pass after).
+- After review round 2: `./tools/ci/check.sh --full` OK again; smoke 277/277 fast rows on both DLLs (the five
+  `nonblocking/*` rows included), 27/27 DEBUG, 126 NUnit, 41 + 201 tool tests.
 - `strip/strip.sh --smoke-slow` (enforce, 133 s): fixpoint 680 files, 1 namespace stub, 0 ties; 0 deny hits,
   budget 748; 0 unresolved names in both sets (the first run, without the net471 stand-in, failed on
   `BouncyCastleTlsProvider.cs: CS0246 BouncyCastleTlsStream` in `[netframework]`); builds 3a/3c/consumer
   clean for `netstandard21`, `netframework` and `netstandard21_debug`; smoke 277/277 on `TurboBC.ns21` and
   `TurboBC.netfx` (273 before, plus the four `nonblocking/*` rows), 27/27 on `TurboBC.ns21-debug`.
 - `./tools/ci/check.sh --full`: OK (format of the hand-maintained files, enforce strip, smoke, actionlint,
-  shellcheck, 126/126 turbo NUnit tests, 41 + 197 Python tool tests, waves simulation). The first run
+  shellcheck, 126/126 turbo NUnit tests, 41 + 199 Python tool tests, waves simulation). The first run
   failed only on the format step over the turboHTTP copies (see Decisions).
 - `Lib/` unchanged: `strip/out/Lib` is byte-identical to turboHTTP `main` 5b92ce86's
   `Runtime/Transport/BouncyCastle/Lib` (synced from hand-over commit `4df803aa`), `.meta` files included;

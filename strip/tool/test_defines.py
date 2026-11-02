@@ -37,7 +37,7 @@ class RootsForSetTest(unittest.TestCase):
     def test_swapped_roots_exist(self):
         # A rename on either side fails here instead of in an enforce run.
         import refresh_roots
-        self.assertTrue(d.NET471_EXCLUDED_ROOTS <= set(refresh_roots.CONSUMER_FILES))
+        self.assertLessEqual(d.NET471_EXCLUDED_ROOTS, set(refresh_roots.CONSUMER_FILES))
         for name in d.NET471_ONLY_ROOTS:
             self.assertTrue(os.path.isfile(os.path.join(STRIP, "roots", name)), name)
 

@@ -43,6 +43,7 @@ fi
 # to turboHTTP, so they are never formatted or checked; the hand-maintained roots files are.
 copies=" $(python3 -c 'import sys; sys.path.insert(0, "strip/tool"); import refresh_roots as r
 print(" ".join("strip/roots/" + n for n in r.CONSUMER_FILES))') "
+case "$copies" in *strip/roots/*) ;; *) echo "FAIL: cannot list the turboHTTP copies (strip/tool/refresh_roots.py)"; exit 2 ;; esac
 owned=(); upstream=()  # bash 3.2 (macOS) has no mapfile
 while IFS= read -r f; do
   [ -f "$f" ] || continue

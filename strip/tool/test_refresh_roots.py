@@ -1,3 +1,4 @@
+import hashlib
 import re
 import shutil
 import subprocess
@@ -130,6 +131,22 @@ class RefreshTest(unittest.TestCase):
         sha = (self.strip / "ROOTS_SHA").read_text()
         self.assertRegex(sha, SHA40)
         self.assertEqual(sha.strip(), self.head)
+        digests = (self.strip / "roots.sha256").read_text()
+        self.assertEqual(len(digests.splitlines()), len(NAMES))
+        for name, data in CONSUMERS.items():
+            expected = hashlib.sha256(refresh_roots.reverse_bytes(data)).hexdigest()
+            self.assertIn(f"{expected}  roots/{name}\n", digests)
+        self.assertEqual(refresh_roots.check_digests(self.strip), [])
+
+    def test_hand_edited_copy_fails_the_digest_check(self):
+        self.assertEqual(self.refresh().returncode, 0)
+        stream = self.roots / "BouncyCastleTlsStream.cs"
+        stream.write_bytes(stream.read_bytes() + b"// hand edit\n")
+        problems = refresh_roots.check_digests(self.strip)
+        self.assertEqual(len(problems), 1)
+        self.assertIn("BouncyCastleTlsStream.cs: does not match", problems[0])
+        (self.roots / "TurboTlsClient.cs").unlink()
+        self.assertEqual(len(refresh_roots.check_digests(self.strip)), 2)
 
     def test_only_consumer_files_copied_and_hand_files_kept(self):
         self.assertEqual(self.refresh().returncode, 0)
@@ -199,6 +216,7 @@ class RefreshTest(unittest.TestCase):
         self.assertIn("TurboTlsClient.cs", r.stderr)
         self.assertEqual(sorted(p.name for p in self.roots.iterdir()), ["RootStubs.cs", "roots-extra.cs"])
         self.assertFalse((self.strip / "ROOTS_SHA").exists())
+        self.assertFalse((self.strip / "roots.sha256").exists())
 
     def test_unprefixed_bc_token_in_source_is_an_error(self):
         client = self.turbo / CONSUMER_DIR / "TurboTlsClient.cs"
@@ -215,6 +233,10 @@ class CommittedRootsTest(unittest.TestCase):
 
     def test_roots_sha_format(self):
         self.assertRegex((REPO / "strip" / "ROOTS_SHA").read_text(), SHA40)
+
+    def test_committed_copies_match_their_digests(self):
+        # The copies get no format or CodeQL check (they must stay byte-identical to turboHTTP); this pins them.
+        self.assertEqual(refresh_roots.check_digests(REPO / "strip"), [])
 
     def test_committed_copies_are_reversed(self):
         roots = REPO / "strip" / "roots"
