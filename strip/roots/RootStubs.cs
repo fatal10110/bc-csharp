@@ -50,15 +50,16 @@ namespace TurboHTTP.Transport.Tls
         }
     }
 
-    // Runtime/Transport/Tls/ServerCertificateVerifier.cs: the outcome types and the two members
-    // TurboTlsAuthentication uses (#75).
+    // Runtime/Transport/Tls/ServerCertificateVerifier.cs: the outcome types and the members
+    // TurboTlsAuthentication uses (#75; NotVerified and IsTrusted since turboHTTP#287, #77).
     internal enum CertificateVerificationStatus
     {
-        Trusted,
-        UntrustedRoot,
-        NotTimeValid,
-        Invalid,
-        NoVerifier,
+        NotVerified = 0,
+        Trusted = 1,
+        UntrustedRoot = 2,
+        NotTimeValid = 3,
+        Invalid = 4,
+        NoVerifier = 5,
     }
 
     internal readonly struct CertificateVerificationResult
@@ -75,6 +76,9 @@ namespace TurboHTTP.Transport.Tls
         internal string Detail { get; }
 
         internal byte[][] Path { get; }
+
+        internal bool IsTrusted
+            => Status == CertificateVerificationStatus.Trusted && Path != null && Path.Length > 0;
     }
 
     internal static class ServerCertificateVerifier
