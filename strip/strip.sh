@@ -7,6 +7,8 @@
 #     stage     kept file list and the kept tree's namespace stubs (build.py stage)
 #   4 rewrite   Org.BouncyCastle -> TurboHTTP.SecureProtocol.Org.BouncyCastle (rewrite.py: kept tree,
 #               stubs, roots); runs before step 3 because build 3c compiles its output
+#     4b reflection: no reflection symbol in the rewritten Lib (reflection.py, #77: turboHTTP's
+#               narrowed link.xml and IL2CPP High stripping rely on it)
 #   3 builds    per define set: 3a the stripped tree, 3c the rewritten tree -> TurboBC.<x>.dll and
 #               the consumer files + RootStubs + roots-extra against it (build.py build); with
 #               [netstandard21] also its DEBUG variant (#58: + DEBUG TRACE, Unity Editor and
@@ -17,7 +19,8 @@
 #   7 hand over strip/out/ to turboHTTP#141; this script never writes into turboHTTP.
 #
 # Enforce mode (default) stops with exit 1 at the first failing step: a closure fail check (deny hit,
-# budget overrun, unresolved errors, ...), a compile error in a build, a failing smoke hook.
+# budget overrun, unresolved errors, ...), a reflection symbol in the Lib, a compile error in a build,
+# a failing smoke hook.
 # --report logs those (REPORT lines) and goes on to package. Usage errors exit 2; a missing
 # prerequisite, a tool error or a restore/build failure without compile errors exits 3 in both modes.
 #
@@ -36,8 +39,8 @@ usage() {
 usage: strip/strip.sh [--report] [--refresh-roots --turbohttp <path>] [--set <name>]...
                       [--work <dir>] [--out <dir>] [--old-base <sha>] [--smoke-slow]
 
-  --report            log fail checks (deny hits, budget, unresolved and compile errors) instead of
-                      failing; still packages
+  --report            log fail checks (deny hits, budget, unresolved names, reflection symbols and
+                      compile errors) instead of failing; still packages
   --refresh-roots     re-copy strip/roots from a turboHTTP checkout and update strip/ROOTS_SHA
   --turbohttp <path>  top level of the turboHTTP git checkout (read only; needs --refresh-roots)
   --set <name>        only this define set of strip/unity-defines.txt (repeatable; default all)
@@ -165,6 +168,15 @@ python3 "$tool/rewrite.py" --src "$work/stage" --files "$work/stage/stubs.txt" -
 cp "$work/rewritten/stubs/_TurboNamespaceStubs.cs" "$work/rewritten/lib/" || fatal "staging the stubs"
 python3 "$tool/rewrite.py" --src strip/roots --files "$work/roots.txt" --out "$work/rewritten/roots" \
   || fatal "rewrite.py (roots)"
+
+step "4b reflection scan of the Lib"
+python3 "$tool/reflection.py" --lib "$work/rewritten/lib"
+rc=$?
+case $rc in
+  0) ;;
+  1) check_failed "reflection symbols in the Lib (FAIL lines above)" ;;
+  *) fatal "reflection.py: usage or read error (exit $rc)" ;;
+esac
 
 step "3 builds (3a stripped tree, 3c rewritten tree + consumer)"
 build_args=(build --work "$work" ${sets[@]+"${sets[@]}"})

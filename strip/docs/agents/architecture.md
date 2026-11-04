@@ -33,7 +33,7 @@ map of it, not a replacement.
 | `deny.txt` | denied subsystems (globs relative to `crypto/src`) |
 | `budget.txt` | total cap on kept files |
 | `Closure.csproj` | single-TFM build template; defines come from a generated `.props` |
-| `tool/` | `index.py`, `closure.py`, `defines.py`, `deny.py`, `build.py`, `rewrite.py`, `package.py`, `refresh_roots.py`, `upstream_tests.py` (+ `test_*.py`) |
+| `tool/` | `index.py`, `closure.py`, `defines.py`, `deny.py`, `build.py`, `rewrite.py`, `reflection.py`, `package.py`, `refresh_roots.py`, `upstream_tests.py` (+ `test_*.py`) |
 | `smoke/` | net8 smoke harness (`run.sh`, `client/`, `server/`, `harness/`, `rows/`) |
 | `strip.sh` | the pipeline |
 | `upstream-*.txt` | upstream-test diff: filter, BASE results, expected failures |
@@ -53,6 +53,10 @@ map of it, not a replacement.
      denied one) and the budget check.
 3. **Rewrite.** Replaces the whole token `Org.BouncyCastle` with
    `TurboHTTP.SecureProtocol.Org.BouncyCastle`. It covers usings, aliases, crefs and string keys.
+   Then `reflection.py` scans the rewritten Lib (#77): any reflection symbol (`System.Reflection`,
+   `Type.GetType`, `Activator`, `Assembly.Load*`, `MakeGenericType`/`MakeGenericMethod`, member lookups such
+   as `.GetMethod(`, ...) in code is a fail check. turboHTTP's narrowed `link.xml` (turboHTTP#196) and IL2CPP
+   High stripping rely on it; `obj.GetType()` and `Properties.GetProperty` are not reflection.
 4. **Builds,** per define set:
    - 3a: the stripped tree;
    - 3c: the rewritten tree → `TurboBC.ns21.dll` / `TurboBC.netfx.dll`, then the consumer files +

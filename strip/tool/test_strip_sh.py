@@ -48,6 +48,9 @@ case $tool in
     mkdir -p "$work/dll"; touch "$work/dll/TurboBC.min.dll"
     exit "${FAKE_RC_build:-0}" ;;
   package.py) exit "${FAKE_RC_package:-0}" ;;
+  reflection.py)
+    if [ -n "${FAKE_REFLECTION_HITS:-}" ]; then echo "FAIL reflection: tls/X.cs:3: Type lookup by name"; exit 1; fi
+    exit "${FAKE_RC_reflection:-0}" ;;
 esac
 exit 0
 """
@@ -149,15 +152,16 @@ class StripShTest(unittest.TestCase):
         r = self.run_sh("--report", "--set", "min")
         self.assertEqual(r.returncode, 0, r.stderr)
         self.assertEqual(self.tools(), ["closure.py", "build.py stage", "rewrite.py", "rewrite.py", "rewrite.py",
-                                        "build.py build", "package.py"])
+                                        "reflection.py", "build.py build", "package.py"])
         calls = self.calls()
         self.assertNotIn("--report", calls[0].split())
         self.assertIn("--set min", calls[0])
-        self.assertIn("--set min", calls[5])
-        self.assertIn("--report", calls[5].split())
-        self.assertIn("--base 7c9c8d5a12b6342529936f08899cdb752280d538", calls[6])
-        self.assertIn("--roots-sha 3856398f548d1c41158567148647df1317e12740", calls[6])
-        self.assertNotIn("--smoke", calls[6])
+        self.assertEqual(calls[5], f"reflection.py --lib {self.work}/rewritten/lib")
+        self.assertIn("--set min", calls[6])
+        self.assertIn("--report", calls[6].split())
+        self.assertIn("--base 7c9c8d5a12b6342529936f08899cdb752280d538", calls[7])
+        self.assertIn("--roots-sha 3856398f548d1c41158567148647df1317e12740", calls[7])
+        self.assertNotIn("--smoke", calls[7])
         self.assertTrue((self.work / "rewritten" / "lib" / "_TurboNamespaceStubs.cs").is_file())
         self.assertIn("no strip/smoke/run.sh yet", r.stdout)
 
@@ -194,6 +198,21 @@ class StripShTest(unittest.TestCase):
         self.assertIn("report: 1 failing step(s)", r.stdout)
         self.assertTrue((self.work / "report-note.md").read_text().startswith("Not for handover"))
 
+    def test_enforce_stops_on_reflection_in_the_lib(self):
+        # #77: turboHTTP's narrowed link.xml relies on a Lib without reflection.
+        r = self.run_sh(FAKE_REFLECTION_HITS="1")
+        self.assertEqual(r.returncode, 1)
+        self.assertIn("FAIL reflection: tls/X.cs:3", r.stdout)
+        self.assertIn("FAIL strip.sh: reflection symbols in the Lib", r.stderr)
+        self.assertEqual(self.tools()[-1], "reflection.py")
+
+    def test_report_logs_reflection_and_marks_package(self):
+        r = self.run_sh("--report", FAKE_REFLECTION_HITS="1")
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertIn("REPORT strip.sh: reflection symbols in the Lib", r.stdout)
+        self.assertEqual(self.tools()[-1], "package.py")
+        self.assertIn("- reflection symbols in the Lib", (self.work / "report-note.md").read_text())
+
     def test_enforce_stops_on_compile_errors(self):
         r = self.run_sh(FAKE_RC_build="1")
         self.assertEqual(r.returncode, 1)
@@ -201,7 +220,8 @@ class StripShTest(unittest.TestCase):
 
     def test_tool_errors_are_fatal_in_report(self):
         for env, tools in (({"FAKE_RC_closure": "3"}, 1), ({"FAKE_RC_closure": "2"}, 1),
-                           ({"FAKE_RC_build": "3"}, 6), ({"FAKE_RC_stage": "2"}, 2), ({"FAKE_RC_package": "1"}, 7)):
+                           ({"FAKE_RC_reflection": "2"}, 6), ({"FAKE_RC_reflection": "3"}, 6),
+                           ({"FAKE_RC_build": "3"}, 7), ({"FAKE_RC_stage": "2"}, 2), ({"FAKE_RC_package": "1"}, 8)):
             with self.subTest(env=env):
                 self.log.unlink(missing_ok=True)
                 r = self.run_sh("--report", **env)
