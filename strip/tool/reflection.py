@@ -28,6 +28,10 @@ PATTERNS = [
     ("Type lookup by name",
      r"(?<![\w.])(?:(?:global::)?System\s*\.\s*)?Type\s*\.\s*"
      r"(?:GetType|ReflectionOnlyGetType|GetTypeFromProgID|GetTypeFromCLSID)\s*\("),
+    # asm.GetType("X"), module.GetType("X"): GetType with an argument (a blanked literal keeps its quotes).
+    ("type lookup by name on a receiver", r"(?<!\bType)\.\s*GetType\s*\(\s*[^\s)]"),
+    ("Assembly or Module object", r"\.\s*(?:Assembly|Module)\b"),
+    ("instance creation", r"(?<!\bActivator\.)\bCreateInstance\s*\(|\bGetUninitializedObject\b"),
     ("Activator", r"\bActivator\b"),
     ("Assembly load or lookup",
      r"\bAssembly\s*\.\s*(?:Load\w*|ReflectionOnlyLoad\w*|UnsafeLoadFrom|Get(?:Executing|Calling|Entry)Assembly)\b"),

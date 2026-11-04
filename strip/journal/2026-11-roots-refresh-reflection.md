@@ -23,7 +23,10 @@
 - `strip/tool/reflection.py` (new): blanks comments and the text of string and char literals,
   keeping interpolation holes as code, then matches the following:
   - `System.Reflection` and `System.Linq.Expressions`;
-  - `Type.GetType(` and the other by-name `Type` lookups;
+  - `Type.GetType(` and the other by-name `Type` lookups, and `GetType` with an argument on any
+    receiver (`asm.GetType("X")`, `module.GetType("X")`);
+  - `.Assembly` / `.Module` (the reflection objects behind by-name lookups), `CreateInstance(` on any
+    receiver and `GetUninitializedObject` (review on PR #78);
   - `Activator`, `Assembly.Load*` and `Assembly.Get*Assembly`, and assembly enumeration;
   - `Make{GenericType,GenericMethod,ArrayType,...}`;
   - member lookups with a receiver (`.GetMethod(`, `.GetProperty(`, `.GetFields(`, `.GetTypeInfo(`,
@@ -68,6 +71,8 @@
   both outside the closure. A raw-text pass of the same regexes adds 11 `dynamic` hits, all in comments.
   So blanking removes no code, and there is no false positive across upstream.
   `reflection.py --lib <turboHTTP>/Runtime/Transport/BouncyCastle/Lib`: 681 files, 0 hits.
+  The PR #78 review patterns (`GetType` with an argument, `.Assembly`/`.Module`, `CreateInstance`,
+  `GetUninitializedObject`) leave both calibrations unchanged: the same 2 upstream hits, 0 in turboHTTP's Lib.
 - `python3 -m unittest discover -s strip/tool -p 'test_*.py'`: 214 OK. `tools/agent-tools`: 41 OK.
   The new tests fail on the old tree (no `reflection.py`, no step 4b).
 - `./tools/ci/check.sh --full` exits 0 (`check.sh: OK`). Its `strip.sh` enforce run reported:

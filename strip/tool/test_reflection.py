@@ -43,7 +43,14 @@ class ScanTextTest(unittest.TestCase):
                     "MethodInfo m = null;",
                     "dynamic d = o;",
                     "using System.Linq.Expressions;",
-                    'var s = $"{typeof(X).GetMethod("M")}";'):
+                    'var s = $"{typeof(X).GetMethod("M")}";',
+                    'var t = typeof(X).Assembly.GetType("Foo.Bar");',
+                    'var t = asm.GetType("Foo.Bar");',
+                    'var o = typeof(X).Assembly.CreateInstance("Foo.Bar");',
+                    'var o = GetType().Module.GetType("Foo");',
+                    "var a = Array.CreateInstance(t, 3);",
+                    "var o = RuntimeHelpers.GetUninitializedObject(t);",
+                    "var o = FormatterServices.GetUninitializedObject(t);"):
             with self.subTest(src=src):
                 self.assertTrue(reflection.scan_text(src), src)
 
