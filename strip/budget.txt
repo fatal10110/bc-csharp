@@ -1,0 +1,8 @@
+# Total cap on kept crypto/src files (STRIP_PLAN_V2.md §3 "Budget"; read by strip/tool/deny.py).
+# closure.py fails (enforce mode) when the kept count exceeds this number.
+#
+# Set by #30: the first enforced run with the captured Unity sets [netstandard21] and [netframework]
+# (strip-v2 4f5c5913 + strip/unity-defines.txt from #29) kept N = 680 files.
+# Cap = N + 10% = 680 * 1.1 = 748 (exact; a fractional result would be rounded up).
+# Raise it only with a reason in the PR and the journal (a new root or an E-cut being undone).
+748

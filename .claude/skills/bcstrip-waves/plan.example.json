@@ -1,0 +1,34 @@
+{
+  "tracks": ["A", "B"],
+  "exclusions": "epic #3 and parent trackers #4, #12, #22, #28 (never close or edit them); #29 (waits for unity-defines.txt from fatal10110/turboHTTP#141); #32 (owner decision: nothing is ever posted to bcgit/bc-csharp); CLAUDE.md and AGENTS.md (no lane edits them)",
+  "waves": [
+    {
+      "name": "1",
+      "lanes": [
+        {"slug": "e1-bctlscrypto", "track": "A", "issues": [13], "milestone": "Strip v2 — M2: Bootstrap & edge cuts",
+         "note": "E1 (STRIP_PLAN_V2.md §3): BcTlsCrypto algorithm, group and signature_algorithms support in crypto/src/tls/crypto/impl/bc/BcTlsCrypto.cs; signature_algorithms is exactly the ordered list of plan §5 step 5.",
+         "hot": ["bctlscrypto"]},
+        {"slug": "e5-turbo-key-factory", "track": "A", "issues": [15], "milestone": "Strip v2 — M2: Bootstrap & edge cuts",
+         "note": "E5: new crypto/src/turbo/TurboKeyFactory.cs (RSA 2048–8192 bits with exponent <= 64 bits, named P-256/384/521 only, everything else ArgumentException), routed from BcTlsRawKeyCertificate.",
+         "hot": ["turbo"]},
+        {"slug": "e2-e4-tls-client", "track": "B", "issues": [14], "milestone": "Strip v2 — M2: Bootstrap & edge cuts",
+         "note": "E2–E4: key-exchange factory throws for DH/DHE/anon/PSK/SRP/RSA/static-ECDH, default suites in DefaultTlsClient, AbstractTlsClient defaults (no status_request, secp521r1 added).",
+         "hot": ["tls-client"]},
+        {"slug": "closure-lookup", "track": "B", "issues": [7], "milestone": "Strip v2 — M1: Tooling",
+         "note": "strip/tool/closure.py per plan §5 step 2: C# lookup-order resolution, extension-method index, stubs outside crypto/src, fixpoint over the union of define sets.",
+         "hot": ["strip-tool"]}
+      ]
+    },
+    {
+      "name": "2",
+      "lanes": [
+        {"slug": "e8-x509-certificate", "track": "A", "issues": [18], "milestone": "Strip v2 — M2: Bootstrap & edge cuts",
+         "note": "E8: X509Certificate key via TurboKeyFactory, Verify/IsSignatureValid throw NotSupportedException (decision A), small SigAlgName map, ToString survives a rejected key.",
+         "hot": ["x509"], "deps": ["e5-turbo-key-factory"]},
+        {"slug": "strip-sh", "track": "B", "issues": [10], "milestone": "Strip v2 — M1: Tooling",
+         "note": "strip/strip.sh orchestration of plan §5 steps 1–7 (--report, --refresh-roots, builds 3a/3b/3c); enforce mode fails on a deny hit, budget overrun or unresolved errors.",
+         "hot": ["strip-tool"], "deps": ["closure-lookup"]}
+      ]
+    }
+  ]
+}

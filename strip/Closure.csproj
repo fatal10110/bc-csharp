@@ -1,0 +1,51 @@
+<!--
+  Closure build template (STRIP_PLAN_V2.md §4, issue #6). strip/tool/closure.py copies this file into
+  <work>/sets/<set>/ and writes Closure.props next to it: TargetFramework, DefineConstants (exactly the
+  captured define set) and the Compile items of the current closure. Never built in place.
+
+  - Explicit SDK imports so ImportDirectoryBuild* can be switched off before Sdk.props: the repository's
+    Directory.Build.props/targets must not leak into the closure build.
+  - Closure.props is imported after Sdk.props, so its <DefineConstants> replaces the SDK's TRACE;
+    DisableImplicitFrameworkDefines / DisableImplicitConfigurationDefines stop the SDK adding
+    NETSTANDARD*/NET4*/DEBUG/RELEASE. closure.py asserts set(csc /define:) == captured set from a binlog.
+  - One TargetFramework per run: netstandard2.1 for [netstandard21] (and any other set),
+    net471 reference assemblies for [netframework] (Unity's 4.7.x surface).
+-->
+<Project>
+  <PropertyGroup>
+    <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+    <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+    <ImportDirectoryPackagesProps>false</ImportDirectoryPackagesProps>
+  </PropertyGroup>
+
+  <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <AssemblyName>TurboBC.Closure</AssemblyName>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <LangVersion>9</LangVersion>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <DisableImplicitFrameworkDefines>true</DisableImplicitFrameworkDefines>
+    <DisableImplicitConfigurationDefines>true</DisableImplicitConfigurationDefines>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <DebugType>none</DebugType>
+    <Deterministic>true</Deterministic>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS1591;CS3021</NoWarn>
+  </PropertyGroup>
+
+  <!-- Generated per define set: TargetFramework, DefineConstants, Compile items. -->
+  <Import Project="$(MSBuildThisFileDirectory)Closure.props" />
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net471'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

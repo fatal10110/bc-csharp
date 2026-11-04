@@ -1,0 +1,15 @@
+# Upstream crypto/test sources that no longer compile after an edge cut (issue #42).
+#
+# strip/tool/upstream_tests.py drops each listed file from the test build, in this tree and in the
+# BASE run, through a generated MSBuild file of Compile Remove items (CustomAfterMicrosoftCommonTargets);
+# no upstream test file or project is edited. The tests these files declare inside the kept-surface
+# filter (strip/upstream-tests.txt) run neither here nor at BASE and are listed in the report.
+#
+# Line format: '<tag> <path>'. The tag names the E-number of the cut that breaks the file, optionally
+# with the plan decision (E9, E1/B); an untagged line is refused. The path is a .cs file under
+# crypto/test/src/, relative to the repository root. Changing the list needs
+# 'strip/tool/upstream_tests.py --update-base' (the BASE results header carries its digest).
+#
+# Empty for now: no cut removes API that crypto/test compiles against (E9 throws instead of
+# removing CalculateKeyIdentifier, and its only test user, pkcs/examples/PKCS12Example.cs, is never
+# compiled).
