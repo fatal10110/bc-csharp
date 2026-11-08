@@ -1,10 +1,11 @@
 // Stand-ins for the turboHTTP and Unity types the consumer files in strip/roots use outside Bouncy
-// Castle (STRIP_PLAN_V2.md section 4). They mirror turboHTTP Runtime/Transport/Tls/*.cs and
+// Castle (STRIP_PLAN_V2.md section 4). They mirror turboHTTP Runtime/Transport/Tls/*.cs,
+// Runtime/Transport/Internal/AbandonableTask.cs and
 // Runtime/Transport/BouncyCastle/AndroidTrustManagerVerifier.cs at strip/ROOTS_SHA, signatures only,
 // and compile both in the closure and as a separate assembly against each rewritten DLL (section 5
-// step 3c). Nothing here runs: the certificate verifier, the name matcher, the host-name helpers and
-// the Android bridge throw if called, so a stub can never stand in for the real check (decision A,
-// chain validation outside BC).
+// step 3c). Nothing here runs: the certificate verifier, the name matcher, the host-name helpers, the
+// abandonable wait and the Android bridge throw if called, so a stub can never stand in for the real
+// check (decision A, chain validation outside BC).
 
 using System;
 using System.Collections.Generic;
@@ -117,6 +118,23 @@ namespace TurboHTTP.Transport.Tls
             IReadOnlyList<string> commonNames)
         {
             throw new NotSupportedException("RootStubs: TlsCertificateNameMatcher is a compile-time stand-in");
+        }
+    }
+}
+
+namespace TurboHTTP.Transport.Internal
+{
+    // Runtime/Transport/Internal/AbandonableTask.cs: the members BouncyCastleTlsProvider uses (#79, turboHTTP#344).
+    internal static class AbandonableTask
+    {
+        internal static Task WaitAsync(Task task, CancellationToken ct, IDisposable abandonedResource = null)
+        {
+            throw new NotSupportedException("RootStubs: AbandonableTask is a compile-time stand-in");
+        }
+
+        internal static Task<T> WaitAsync<T>(Task<T> task, CancellationToken ct, IDisposable abandonedResource = null)
+        {
+            throw new NotSupportedException("RootStubs: AbandonableTask is a compile-time stand-in");
         }
     }
 }

@@ -263,6 +263,24 @@ class FixpointTest(unittest.TestCase):
         self.assertEqual(len(failures), 2)  # once per define set
         self.assertTrue(all("ValueTask" in line and "unresolved" in line for line in failures))
 
+    def test_unresolved_name_in_a_root_points_at_root_stubs(self):
+        # #79: a turboHTTP helper the glue started using had no stand-in in RootStubs.cs.
+        msg = "The type or namespace name 'Internal' does not exist in the namespace 'TurboHTTP.Transport'"
+        root = c.BuildError("/r/strip/roots/BouncyCastleTlsProvider.cs", 11, 27, "CS0234", msg)
+        bc = c.BuildError("/r/strip/roots/TurboTlsClient.cs", 3, 7, "CS0234",
+                          "The type or namespace name 'Gone' does not exist in the namespace 'Org.BouncyCastle.Tls'")
+        lib = c.BuildError("/r/crypto/src/a.cs", 1, 1, "CS0234", msg)
+        # Unqualified: could be a removed Bouncy Castle type as well, so the hint stays conditional.
+        short = c.BuildError("C:\\r\\strip\\roots\\TurboTlsClient.cs", 9, 5, "CS0246", cs0246("TlsPsk"))
+        result = c.ClosureResult(["min"], final_errors={"min": {root, bc, lib, short}})
+        failures = c.check_unresolved(result)
+        self.assertEqual(len(failures), 4)
+        hinted = [line for line in failures if "RootStubs.cs" in line]
+        self.assertEqual(len(hinted), 2)
+        self.assertTrue(all("if this is a turboHTTP or Unity type" in line for line in hinted))
+        self.assertTrue(any("'TurboHTTP.Transport'" in line and "BouncyCastleTlsProvider.cs" in line for line in hinted))
+        self.assertTrue(any("TlsPsk" in line for line in hinted))
+
     def test_stall_is_reported(self):
         result, _, _ = self.run_closure(max_iter=1)
         self.assertTrue(result.stalled)
