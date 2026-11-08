@@ -635,10 +635,19 @@ def check_stalled(result):
     return ["closure did not reach a fixpoint"] if result.stalled else []
 
 
+def unresolved_hint(e):
+    """A name a consumer root (strip/roots) misses outside Bouncy Castle is a turboHTTP or Unity type
+    without a stand-in (#79): point at RootStubs.cs instead of leaving a bare CSxxxx in the log. An
+    unqualified CS0246 can also be a removed or denied Bouncy Castle type, so the hint is conditional."""
+    if "/strip/roots/" not in "/" + e.path.replace("\\", "/") or "Org.BouncyCastle" in e.msg:
+        return ""
+    return " (if this is a turboHTTP or Unity type, mirror it in strip/roots/RootStubs.cs)"
+
+
 def check_unresolved(result):
     out = []
     for s in result.sets:
-        out += [f"[{s}] unresolved: {e}" for e in sorted(result.final_errors.get(s, ()))]
+        out += [f"[{s}] unresolved: {e}{unresolved_hint(e)}" for e in sorted(result.final_errors.get(s, ()))]
     return out
 
 
